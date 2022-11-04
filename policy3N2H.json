@@ -1,0 +1,207 @@
+{
+"nodes": [
+{
+"name": "department",
+ "type": "PC",
+"properties": {}
+},
+{
+"name": "U1",
+ "type": "U",
+"properties": {}
+},
+{
+"name": "O1",
+ "type": "O",
+"properties": {}
+},
+{
+"name": "OA1",
+ "type": "OA",
+"properties": {}
+},
+{
+"name": "OA2",
+ "type": "OA",
+"properties": {}
+},
+{
+"name": "OA3",
+ "type": "OA",
+"properties": {}
+},
+{
+"name": "OA4",
+ "type": "OA",
+"properties": {}
+},
+{
+"name": "OA5",
+ "type": "OA",
+"properties": {}
+},
+{
+"name": "OA6",
+ "type": "OA",
+"properties": {}
+},
+{
+"name": "OA7",
+ "type": "OA",
+"properties": {}
+},
+{
+"name": "UA1",
+ "type": "UA",
+"properties": {}
+},
+{
+"name": "UA2",
+ "type": "UA",
+"properties": {}
+},
+{
+"name": "UA3",
+ "type": "UA",
+"properties": {}
+},
+{
+"name": "UA4",
+ "type": "UA",
+"properties": {}
+},
+{
+"name": "UA5",
+ "type": "UA",
+"properties": {}
+},
+{
+"name": "UA6",
+ "type": "UA",
+"properties": {}
+},
+{
+"name": "UA7",
+ "type": "UA",
+"properties": {}
+}
+],
+"assignments": [
+{
+"source": "U1",
+ "target": "UA7" 
+},
+{
+"source": "UA7",
+ "target": "UA6" 
+},
+{
+"source": "UA6",
+ "target": "UA5" 
+},
+{
+"source": "UA5",
+ "target": "department" 
+},
+{
+"source": "UA6",
+ "target": "UA4" 
+},
+{
+"source": "UA4",
+ "target": "department" 
+},
+{
+"source": "UA7",
+ "target": "UA3" 
+},
+{
+"source": "UA3",
+ "target": "UA2" 
+},
+{
+"source": "UA2",
+ "target": "department" 
+},
+{
+"source": "UA3",
+ "target": "UA1" 
+},
+{
+"source": "UA1",
+ "target": "department" 
+},
+{
+"source": "O1",
+ "target": "OA7" 
+},
+{
+"source": "OA7",
+ "target": "OA6" 
+},
+{
+"source": "OA6",
+ "target": "OA5" 
+},
+{
+"source": "OA5",
+ "target": "department" 
+},
+{
+"source": "OA6",
+ "target": "OA4" 
+},
+{
+"source": "OA4",
+ "target": "department" 
+},
+{
+"source": "OA7",
+ "target": "OA3" 
+},
+{
+"source": "OA3",
+ "target": "OA2" 
+},
+{
+"source": "OA2",
+ "target": "department" 
+},
+{
+"source": "OA3",
+ "target": "OA1" 
+},
+{
+"source": "OA1",
+ "target": "department" 
+}
+],
+"associations": [
+{
+"source": "UA5",
+ "target": "OA5" ,
+ "operations": ["permission0"] 
+},
+{
+"source": "UA4",
+ "target": "OA5" ,
+ "operations": ["permission0"] 
+},
+{
+"source": "UA4",
+ "target": "OA4" ,
+ "operations": ["permission4"] 
+},
+{
+"source": "UA4",
+ "target": "OA2" ,
+ "operations": ["permission4"] 
+},
+{
+"source": "UA2",
+ "target": "OA2" ,
+ "operations": ["permission0"] 
+}
+]
+
+}
