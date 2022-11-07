@@ -1,12 +1,10 @@
 package com.northeastern.khoury;
 
-import gov.nist.csd.pm.pap.PAP;
+import gov.nist.csd.pm.pdp.memory.MemoryPDP;
 import gov.nist.csd.pm.pdp.PDP;
-import gov.nist.csd.pm.exceptions.PMException;
-import gov.nist.csd.pm.pdp.decider.Decider;
-// import gov.nist.csd.pm.pip.graph.Graph;
-// import gov.nist.csd.pm.pip.graph.GraphSerializer;
-// import gov.nist.csd.pm.pip.graph.MemGraph;
+import gov.nist.csd.pm.pap.memory.MemoryPAP;
+import gov.nist.csd.pm.policy.exceptions.PMException;
+// import gov.nist.csd.pm.pdp.decider.Decider;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -21,7 +19,6 @@ public class PolicyEngine {
   // Graph graph = new MemGraph();
   // private final Logger log = getLogger(getClass());
   // Decider decider;
-  // PDP pdp;
 
   public static void main(String[] args) {
     if (args.length != 1) {
@@ -43,7 +40,12 @@ public class PolicyEngine {
       return;
     }
 
-    // pdp = new PDP(new PAP(graph, prohibitions, obligations), new EPPOptions());
+    try {
+      PDP pdp = new MemoryPDP(new MemoryPAP());
+    } catch (PMException pm) {
+      logger.info("Problem initializing PAP or PDP: " + pm.getMessage());
+      return;
+    }
     // List<PALStatement> pals = pdp.compilePAL(input);
 
 
