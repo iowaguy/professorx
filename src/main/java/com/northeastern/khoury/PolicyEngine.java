@@ -1,11 +1,13 @@
 package com.northeastern.khoury;
 
+import gov.nist.csd.pm.exceptions.PMException;
 import gov.nist.csd.pm.pap.PAP;
-import gov.nist.csd.pm.pap.memory.MemoryPAP;
 import gov.nist.csd.pm.pdp.PDP;
-import gov.nist.csd.pm.pdp.memory.MemoryPDP;
-import gov.nist.csd.pm.policy.author.pal.statement.PALStatement;
-import gov.nist.csd.pm.policy.exceptions.PMException;
+import gov.nist.csd.pm.pdp.decider.Decider;
+import gov.nist.csd.pm.pdp.decider.PReviewDecider;
+import gov.nist.csd.pm.pip.graph.Graph;
+import gov.nist.csd.pm.pip.graph.GraphSerializer;
+import gov.nist.csd.pm.pip.graph.MemGraph;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -35,15 +37,29 @@ public class PolicyEngine {
       return;
     }
 
-    PDP pdp;
+    Graph graph = new MemGraph();
+
     try {
-      PAP pap = new MemoryPAP();
-      List<PALStatement> pals = pap.compilePAL(policyString);
-      pdp = new MemoryPDP(pap);
+      GraphSerializer.fromJson(graph, policyString);
     } catch (PMException pm) {
-      logger.fatal("Problem initializing PAP or PDP: {}", pm.getMessage());
+      logger.fatal("Problem parsing policy string: {}", pm.getMessage());
       return;
     }
+
+    // decider = new PReviewDecider(graph, prohibitions);
+    // PDP pdp;
+    // Decider decider;
+    // try {
+    //   PAP pap = new MemoryPAP();
+    //   // List<PALStatement> pals = pap.compilePAL(policyString);
+    //   // for (PALStatement p : pals) {
+    //   //   System.out.println(p);
+    //   // }
+    //   pdp = new MemoryPDP(pap);
+    // } catch (PMException pm) {
+    //   logger.fatal("Problem initializing PAP or PDP: {}", pm.getMessage());
+    //   return;
+    // }
 
     return;
   }
