@@ -6,6 +6,11 @@
       "properties": {}
     },
     {
+      "name": "NO",
+      "type": "U",
+      "properties": {}
+    },
+    {
       "name": "U1",
       "type": "U",
       "properties": {}
