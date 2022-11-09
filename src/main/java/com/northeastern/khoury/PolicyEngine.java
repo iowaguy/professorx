@@ -13,12 +13,15 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 public class PolicyEngine {
   static Logger logger = LogManager.getLogger(PolicyEngine.class);
+  private Decider decider;
+  private Graph graph = new MemGraph();
 
   public static void main(String[] args) {
     if (args.length != 1) {
@@ -26,9 +29,17 @@ public class PolicyEngine {
       System.exit(1);
     }
 
+    new PolicyEngine(args[0]);
+
+    return;
+  }
+
+
+  public PolicyEngine(String policyPath) {
     // Read the policy from disk
-    Path fileName = Path.of(args[0]);
+    Path fileName = Path.of(policyPath);
     String policyString;
+
     try {
       policyString = Files.readString(fileName);
       logger.info("Full policy:\n {}", policyString);
@@ -37,8 +48,6 @@ public class PolicyEngine {
       return;
     }
 
-    Graph graph = new MemGraph();
-
     try {
       GraphSerializer.fromJson(graph, policyString);
     } catch (PMException pm) {
@@ -46,22 +55,15 @@ public class PolicyEngine {
       return;
     }
 
-    // decider = new PReviewDecider(graph, prohibitions);
-    // PDP pdp;
-    // Decider decider;
-    // try {
-    //   PAP pap = new MemoryPAP();
-    //   // List<PALStatement> pals = pap.compilePAL(policyString);
-    //   // for (PALStatement p : pals) {
-    //   //   System.out.println(p);
-    //   // }
-    //   pdp = new MemoryPDP(pap);
-    // } catch (PMException pm) {
-    //   logger.fatal("Problem initializing PAP or PDP: {}", pm.getMessage());
-    //   return;
-    // }
-
-    return;
+    decider = new PReviewDecider(graph, null /* prohibitions */);
   }
 
+  public boolean getPermission(String subject, String object, String action) {
+    try {
+      Set<String> permissions = decider.list(subject, "0" , object);
+      return permissions.contains(action);
+    } catch (PMException p) {
+      return false;
+    }
+  }
 }
