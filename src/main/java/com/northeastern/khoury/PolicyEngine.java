@@ -11,32 +11,27 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
-import java.util.logging.Logger;
-import java.util.logging.Level;
-import java.util.function.Supplier;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class PolicyEngine {
-
-  static Logger logger = Logger.getLogger(PolicyEngine.class.getName());
+  static Logger logger = LogManager.getLogger(PolicyEngine.class);
 
   public static void main(String[] args) {
-    // TODO make this a CLI param with a default of SEVERE
-    logger.setLevel(Level.FINE);
-
     if (args.length != 1) {
       System.err.printf("%d arguments provided. Need 1.", args.length);
       System.exit(1);
     }
-
 
     // Read the policy from disk
     Path fileName = Path.of(args[0]);
     String policyString;
     try {
       policyString = Files.readString(fileName);
-      logger.fine(() -> "Full policy:\n" + policyString);
+      logger.info("Full policy:\n {}", policyString);
     } catch (IOException io) {
-      logger.severe(() -> "Problem reading file: " + io.getMessage());
+      logger.fatal("Problem reading file: {}", io.getMessage());
       return;
     }
 
@@ -46,10 +41,9 @@ public class PolicyEngine {
       List<PALStatement> pals = pap.compilePAL(policyString);
       pdp = new MemoryPDP(pap);
     } catch (PMException pm) {
-      logger.severe(() -> "Problem initializing PAP or PDP: " + pm.getMessage());
+      logger.fatal("Problem initializing PAP or PDP: {}", pm.getMessage());
       return;
     }
-
 
     return;
   }
