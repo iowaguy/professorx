@@ -28,6 +28,8 @@ public class ResourceAccess {
   }
 
   public int hashCode() {
-    return this.toString().hashCode();
+    return this.subject.hashCode() +
+      this.object.hashCode() +
+      this.permissions.hashCode();
   }
 }

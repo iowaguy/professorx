@@ -19,7 +19,6 @@ public class Runner {
     Policy policy = new Policy(args[0]);
     PolicyEngine pe = new PolicyEngine(policy);
 
-
     Accessor accessor = new ExhaustiveAccessor(policy);
 
     Set<ResourceAccess> accesses = null;
