@@ -26,7 +26,7 @@
                     </descriptorRefs>
                     <archive>
                         <manifest>
-                            <mainClass>com.northeastern.khoury.PolicyEngine</mainClass>
+                            <mainClass>com.northeastern.khoury.Runner</mainClass>
                         </manifest>
                     </archive>
                 </configuration>
