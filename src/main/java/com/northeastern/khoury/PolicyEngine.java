@@ -16,6 +16,10 @@ public class PolicyEngine {
     this.decider = new PReviewDecider(policy, null /* prohibitions */);
   }
 
+  public boolean getDecision(ResourceAccess access) {
+    return getDecision(access.getSubject(), access.getObject(), access.getPermissions());
+  }
+
   public boolean getDecision(String subject, String object, String action) {
     try {
       Set<String> permissions = decider.list(subject, "0" , object);
