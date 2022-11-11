@@ -12,7 +12,9 @@ public class Runner {
       System.exit(1);
     }
 
-    PolicyEngine pe = new PolicyEngine(args[0]);
+    Policy policy = new Policy(args[0]);
+    PolicyEngine pe = new PolicyEngine(policy);
+
     boolean b = pe.getPermission("U1", "O1", "permission0");
     System.out.println("Can U1 do permission0 on O1? " + b);
 
