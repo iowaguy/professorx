@@ -22,4 +22,12 @@ public class ResourceAccess {
   public String getPermissions() {
     return this.permissions;
   }
+
+  public String toString() {
+    return subject + " trying to do " + permissions + " on " + object;
+  }
+
+  public int hashCode() {
+    return this.toString().hashCode();
+  }
 }

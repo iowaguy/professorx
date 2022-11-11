@@ -1,7 +1,11 @@
 package com.northeastern.khoury;
 
+import java.util.Set;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
+import gov.nist.csd.pm.exceptions.PMException;
 
 public class Runner {
   static Logger logger = LogManager.getLogger(Runner.class);
@@ -15,11 +19,20 @@ public class Runner {
     Policy policy = new Policy(args[0]);
     PolicyEngine pe = new PolicyEngine(policy);
 
-    ResourceAccess access = new ResourceAccess("U1", "O1", "permission0");
-    boolean b = pe.getDecision(access);
-    System.out.println("Can U1 do permission0 on O1? " + b);
 
-    b = pe.getDecision(new ResourceAccess("NO", "O1", "permission0"));
-    System.out.println("Can NO do permission0 on O1? " + b);
+    Accessor accessor = new ExhaustiveAccessor(policy);
+
+    Set<ResourceAccess> accesses = null;
+    try {
+      accesses = accessor.generateAccesses();
+    } catch (PMException e) {
+      logger.fatal(() -> "Issue encountered generating accesses: " + e.getMessage());
+      System.exit(1);
+    }
+
+    for (ResourceAccess a : accesses) {
+      boolean b = pe.getDecision(a);
+      System.out.println(a.toString() + ". Allowed? " + b);
+    }
   }
 }
