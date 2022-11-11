@@ -13,10 +13,10 @@ public class PolicyEngine {
   private Decider decider;
 
   public PolicyEngine(Policy policy) {
-    decider = new PReviewDecider(policy, null /* prohibitions */);
+    this.decider = new PReviewDecider(policy, null /* prohibitions */);
   }
 
-  public boolean getPermission(String subject, String object, String action) {
+  public boolean getDecision(String subject, String object, String action) {
     try {
       Set<String> permissions = decider.list(subject, "0" , object);
       return permissions.contains(action);
