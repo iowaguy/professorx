@@ -1,5 +1,7 @@
 package com.northeastern.khoury;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.lang3.NotImplementedException;
@@ -7,10 +9,13 @@ import org.apache.commons.lang3.NotImplementedException;
 import gov.nist.csd.pm.exceptions.PMException;
 
 public abstract class Accessor {
-  protected Policy policy;
+  protected List<Policy> policies;
 
-  public Accessor(Policy policy) {
-    this.policy = policy;
+  public Accessor(Policy... policies) {
+    this.policies = new ArrayList<>();
+    for (Policy p : policies) {
+      this.policies.add(p);
+    }
   }
 
   public Set<ResourceAccess> generateAccesses() throws PMException {
