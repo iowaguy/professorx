@@ -12,7 +12,7 @@ public class PolicyEngine {
   static Logger logger = LogManager.getLogger(PolicyEngine.class);
   private Decider decider;
 
-  public PolicyEngine(Policy policy) {
+  public PolicyEngine(PolicyImpl policy) {
     this.decider = new PReviewDecider(policy, null /* prohibitions */);
   }
 

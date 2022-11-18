@@ -9,11 +9,11 @@ import org.apache.commons.lang3.NotImplementedException;
 import gov.nist.csd.pm.exceptions.PMException;
 
 public abstract class Accessor {
-  protected List<Policy> policies;
+  protected List<PolicyImpl> policies;
 
-  public Accessor(Policy... policies) {
+  public Accessor(PolicyImpl... policies) {
     this.policies = new ArrayList<>();
-    for (Policy p : policies) {
+    for (PolicyImpl p : policies) {
       this.policies.add(p);
     }
   }

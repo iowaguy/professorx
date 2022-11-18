@@ -10,14 +10,14 @@ import gov.nist.csd.pm.pip.graph.model.nodes.Node;
 import gov.nist.csd.pm.pip.graph.model.nodes.NodeType;
 
 public class ExhaustiveAccessor extends Accessor {
-  public ExhaustiveAccessor(Policy... policies) {
+  public ExhaustiveAccessor(PolicyImpl... policies) {
     super(policies);
   }
 
   public Set<ResourceAccess> generateAccesses() throws PMException {
     // get all users and user attributes, U
     Set<Node> allU = new HashSet<>();
-    for (Policy p : this.policies) {
+    for (PolicyImpl p : this.policies) {
       Set<Node> u = p.search(NodeType.U, null);
       allU.addAll(u);
 
@@ -27,7 +27,7 @@ public class ExhaustiveAccessor extends Accessor {
 
     // get all objects and object attributes, O
     Set<Node> allOA = new HashSet<>();
-    for (Policy p : this.policies) {
+    for (PolicyImpl p : this.policies) {
       Set<Node> o = p.search(NodeType.O, null);
       allOA.addAll(o);
 
@@ -38,7 +38,7 @@ public class ExhaustiveAccessor extends Accessor {
     // get all possible permissions, P
     OperationSet possiblePermissions = new OperationSet();
     for (Node u : allU) {
-      for (Policy p : this.policies) {
+      for (PolicyImpl p : this.policies) {
         Map<String, OperationSet> targetOps = p.getSourceAssociations(u.getName());
 
         for (OperationSet opSet : targetOps.values()) {
