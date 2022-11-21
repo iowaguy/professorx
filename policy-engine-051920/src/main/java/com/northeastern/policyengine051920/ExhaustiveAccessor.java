@@ -1,37 +1,44 @@
-package com.northeastern.khoury;
+package com.northeastern.policyengine051920;
 
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
+import com.northeastern.policy.Accessor;
 import gov.nist.csd.pm.exceptions.PMException;
 import gov.nist.csd.pm.operations.OperationSet;
 import gov.nist.csd.pm.pip.graph.model.nodes.Node;
 import gov.nist.csd.pm.pip.graph.model.nodes.NodeType;
 
-public class ExhaustiveAccessor extends Accessor {
+import com.northeastern.policy.Policy;
+import com.northeastern.policy.ResourceAccess;
+import com.northeastern.policy.MyPMException;
+
+
+public class ExhaustiveAccessor implements Accessor {
+ private List<PolicyImpl> policies;
+
   public ExhaustiveAccessor(PolicyImpl... policies) {
-    super(policies);
+    this.policies = new ArrayList<>();
+    Collections.addAll(this.policies, policies);
   }
 
-  public Set<ResourceAccess> generateAccesses() throws PMException {
+  public Set<ResourceAccess> generateAccesses() throws MyPMException {
     // get all users and user attributes, U
     Set<Node> allU = new HashSet<>();
     for (PolicyImpl p : this.policies) {
-      Set<Node> u = p.search(NodeType.U, null);
+      Set<Node> u = p.getGraph().search(NodeType.U, null);
       allU.addAll(u);
 
-      Set<Node> ua = p.search(NodeType.UA, null);
+      Set<Node> ua = p.getGraph().search(NodeType.UA, null);
       allU.addAll(ua);
     }
 
     // get all objects and object attributes, O
     Set<Node> allOA = new HashSet<>();
     for (PolicyImpl p : this.policies) {
-      Set<Node> o = p.search(NodeType.O, null);
+      Set<Node> o = p.getGraph().search(NodeType.O, null);
       allOA.addAll(o);
 
-      Set<Node> oa = p.search(NodeType.OA, null);
+      Set<Node> oa = p.getGraph().search(NodeType.OA, null);
       allOA.addAll(oa);
     }
 
@@ -39,8 +46,12 @@ public class ExhaustiveAccessor extends Accessor {
     OperationSet possiblePermissions = new OperationSet();
     for (Node u : allU) {
       for (PolicyImpl p : this.policies) {
-        Map<String, OperationSet> targetOps = p.getSourceAssociations(u.getName());
-
+        Map<String, OperationSet> targetOps = null;
+        try {
+          targetOps = p.getGraph().getSourceAssociations(u.getName());
+        } catch (PMException e) {
+          throw new MyPMException(e);
+        }
         for (OperationSet opSet : targetOps.values()) {
           possiblePermissions.addAll(opSet);
         }

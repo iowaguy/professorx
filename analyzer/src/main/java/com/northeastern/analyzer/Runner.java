@@ -1,11 +1,19 @@
-package com.northeastern.khoury;
+package com.northeastern.analyzer;
 
 import java.util.Set;
 
+import com.northeastern.policy.Accessor;
+import com.northeastern.policy.MyPMException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import gov.nist.csd.pm.exceptions.PMException;
+import com.northeastern.policy.Policy;
+import com.northeastern.policy.ResourceAccess;
+
+import com.northeastern.policyengine051920.PolicyImpl;
+
+import com.northeastern.policyengine051920.PolicyEngine;
+import com.northeastern.policyengine051920.ExhaustiveAccessor;
 
 public class Runner {
   static Logger logger = LogManager.getLogger(Runner.class);
@@ -16,15 +24,15 @@ public class Runner {
       System.exit(1);
     }
 
-    PolicyImpl policy = new PolicyImpl(args[0]);
-    PolicyEngine policyEngine = new PolicyEngine(policy);
+    Policy policy = new PolicyImpl(args[0]);
+    PolicyEngine policyEngine = new PolicyEngine((PolicyImpl) policy);
 
-    Accessor accessor = new ExhaustiveAccessor(policy);
+    Accessor accessor = new ExhaustiveAccessor((PolicyImpl) policy);
 
     Set<ResourceAccess> accesses = null;
     try {
       accesses = accessor.generateAccesses();
-    } catch (PMException e) {
+    } catch (MyPMException e) {
       logger.fatal(() -> "Issue encountered generating accesses: " + e.getMessage());
       System.exit(1);
     }
@@ -34,21 +42,21 @@ public class Runner {
       System.out.println(a.toString() + ". Allowed? " + b);
     }
 
-    PolicyImpl newPolicy = null;
+    Policy newPolicy = null;
     try {
       newPolicy = Mutations.ATTRIBUTE_EXCHANGE_SOURCE_EXPLICIT.applyExplicit(policy, "UA4", "OA2", "UA1", "OA2", null);
-    } catch(PMException pm) {
+    } catch(MyPMException pm) {
       logger.fatal(() -> "Issue encountered mutating policy: " + pm.getMessage());
       System.exit(1);
     }
 
-    PolicyEngine newPolicyEngine = new PolicyEngine(newPolicy);
-    Accessor accessorAfterMutation = new ExhaustiveAccessor(policy, newPolicy);
+    PolicyEngine newPolicyEngine = new PolicyEngine((PolicyImpl) newPolicy);
+    Accessor accessorAfterMutation = new ExhaustiveAccessor((PolicyImpl) policy, (PolicyImpl) newPolicy);
 
     Set<ResourceAccess> accessesAfterMutation = null;
     try {
       accessesAfterMutation = accessorAfterMutation.generateAccesses();
-    } catch (PMException e) {
+    } catch (MyPMException e) {
       logger.fatal(() -> "Issue encountered generating accesses: " + e.getMessage());
       System.exit(1);
     }

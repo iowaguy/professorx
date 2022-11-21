@@ -1,7 +1,10 @@
-package com.northeastern.khoury;
+package com.northeastern.analyzer;
 
-import gov.nist.csd.pm.exceptions.PMException;
-import gov.nist.csd.pm.operations.OperationSet;
+import java.util.Set;
+
+import com.northeastern.policy.MyPMException;
+
+import com.northeastern.policy.Policy;
 
 public enum Mutations {
     // ATTRIBUTE_EXCHANGE_SOURCE,
@@ -16,8 +19,8 @@ public enum Mutations {
     //     }
     // }
 
-    public PolicyImpl applyExplicit(PolicyImpl policy, String source, String dest, String newSource,
-                                    String newDest, OperationSet newOps) throws PMException {
+    public Policy applyExplicit(Policy policy, String source, String dest, String newSource,
+                                    String newDest, Set<String> newOps) throws MyPMException {
         switch (this) {
             case ATTRIBUTE_EXCHANGE_SOURCE_EXPLICIT:
                 return attributeExchangeSourceExplicit(policy, source, dest, newSource);
@@ -26,8 +29,8 @@ public enum Mutations {
         }
     }
 
-    private PolicyImpl attributeExchangeSourceExplicit(PolicyImpl policy, String source, String dest,
-                                                       String newSource) throws PMException {
+    private Policy attributeExchangeSourceExplicit(Policy policy, String source, String dest,
+                                                       String newSource) throws MyPMException {
         return policy.attributeExchangeSource(source, dest, newSource);
     }
 

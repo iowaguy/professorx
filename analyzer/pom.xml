@@ -7,18 +7,17 @@
     <version>0.1</version>
   </parent>
 
-  <groupId>com.northeastern.policyengine051920</groupId>
-  <artifactId>051920</artifactId>
+  <groupId>com.northeastern.analyzer</groupId>
+  <artifactId>analyzer</artifactId>
   <version>0.1</version>
 
-  <name>policy-engine-051920</name>
+  <name>analyzer</name>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <maven.compiler.source>17</maven.compiler.source>
     <maven.compiler.target>17</maven.compiler.target>
   </properties>
-
 
   <repositories>
     <repository>
@@ -29,9 +28,10 @@
 
   <dependencies>
     <dependency>
-      <groupId>com.github.PM-Master</groupId>
-      <artifactId>policy-machine-core</artifactId>
-      <version>2844c3c</version>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>4.13.2</version>
+      <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.apache.logging.log4j</groupId>
@@ -53,5 +53,23 @@
       <artifactId>policy</artifactId>
       <version>0.1</version>
     </dependency>
+    <dependency>
+      <groupId>com.northeastern.policyengine051920</groupId>
+      <artifactId>051920</artifactId>
+      <version>0.1</version>
+      <scope>compile</scope>
+    </dependency>
+<!--    <dependency>-->
+<!--      <groupId>com.github.PM-Master</groupId>-->
+<!--      <artifactId>policy-machine-core</artifactId>-->
+<!--      <version>2844c3c</version>-->
+<!--      <scope>compile</scope>-->
+<!--    </dependency>-->
+<!--    <dependency>-->
+<!--      <groupId>com.github.PM-Master</groupId>-->
+<!--      <artifactId>policy-machine-core</artifactId>-->
+<!--      <version>35872a1</version>-->
+<!--      <scope>compile</scope>-->
+<!--    </dependency>-->
   </dependencies>
 </project>

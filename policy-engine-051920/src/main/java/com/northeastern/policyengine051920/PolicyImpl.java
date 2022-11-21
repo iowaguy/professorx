@@ -16,7 +16,9 @@ import gov.nist.csd.pm.pip.graph.MemGraph;
 
 import com.northeastern.policy.Policy;
 
-public class PolicyImpl extends MemGraph implements Policy {
+public class PolicyImpl implements Policy {
+  private MemGraph graph;
+
   static Logger logger = LogManager.getLogger(PolicyImpl.class);
 
   public PolicyImpl(String policyPath) {
@@ -33,7 +35,7 @@ public class PolicyImpl extends MemGraph implements Policy {
     }
 
     try {
-      GraphSerializer.fromJson(this, policyString);
+      GraphSerializer.fromJson(this.graph, policyString);
     } catch (PMException pm) {
       logger.fatal("Problem parsing policy string: {}", pm.getMessage());
       return;
@@ -44,17 +46,17 @@ public class PolicyImpl extends MemGraph implements Policy {
                                                String newDest) throws MyPMException {
     Map<String, OperationSet> associations = null;
     try {
-      associations = this.getSourceAssociations(source);
+      associations = this.graph.getSourceAssociations(source);
     } catch (PMException e) {
       throw new MyPMException(e);
     }
 
     OperationSet ops = associations.get(dest);
-    this.dissociate(source, dest);
+    this.graph.dissociate(source, dest);
 
     if (ops != null) {
       try {
-        this.associate(newSource, newDest, ops);
+        this.graph.associate(newSource, newDest, ops);
       } catch (PMException e) {
         throw new MyPMException(e);
       }
@@ -68,9 +70,12 @@ public class PolicyImpl extends MemGraph implements Policy {
     return this;
   }
 
-
   public PolicyImpl attributeExchangeDest(String source, String dest, String newDest) throws MyPMException {
     attributeExchangeExplicit(source, dest, source, newDest);
     return this;
+  }
+
+  public MemGraph getGraph() {
+    return this.graph;
   }
 }

@@ -16,7 +16,7 @@ public class PolicyEngine {
   private Decider decider;
 
   public PolicyEngine(PolicyImpl policy) {
-    this.decider = new PReviewDecider(policy, null /* prohibitions */);
+    this.decider = new PReviewDecider(policy.getGraph(), null /* prohibitions */);
   }
 
   public boolean getDecision(ResourceAccess access) {
