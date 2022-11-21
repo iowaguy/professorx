@@ -2,12 +2,12 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <parent>
-    <artifactId>mutation-analysis</artifactId>
-    <groupId>com.northeastern</groupId>
+    <artifactId>mutationanalysis</artifactId>
+    <groupId>com.northeastern.mutationanalysis</groupId>
     <version>0.1</version>
   </parent>
 
-  <groupId>com.northeastern.policy-engine</groupId>
+  <groupId>com.northeastern.policyengine11182</groupId>
   <artifactId>111822</artifactId>
   <version>0.1</version>
 
@@ -15,8 +15,8 @@
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <maven.compiler.source>1.7</maven.compiler.source>
-    <maven.compiler.target>1.7</maven.compiler.target>
+    <maven.compiler.source>17</maven.compiler.source>
+    <maven.compiler.target>17</maven.compiler.target>
   </properties>
 
 
@@ -47,6 +47,11 @@
       <groupId>org.apache.commons</groupId>
       <artifactId>commons-lang3</artifactId>
       <version>3.12.0</version>
+    </dependency>
+    <dependency>
+      <groupId>com.northeastern.policy</groupId>
+      <artifactId>policy</artifactId>
+      <version>0.1</version>
     </dependency>
   </dependencies>
 </project>
