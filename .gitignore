@@ -5,3 +5,4 @@
 /.settings/
 /scratch.txt
 /shell.nix
+**/target/

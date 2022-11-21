@@ -1,4 +1,4 @@
-package com.northeastern.khoury;
+package com.northeastern.policy;
 
 public class ResourceAccess {
   private String subject;

@@ -1,0 +1,15 @@
+set resource access rights ['read', 'write'];
+create policy class 'SIMPLE';
+
+
+const reader = ['read'];
+
+create user attribute 'hr' in 'SIMPLE';
+
+create user 'alice' in 'hr';
+create user 'bob' in 'hr';
+
+create object attribute 'homes' in 'SIMPLE';
+create object 'whitehouse' in 'homes';
+
+associate 'hr' and 'homes' with reader;

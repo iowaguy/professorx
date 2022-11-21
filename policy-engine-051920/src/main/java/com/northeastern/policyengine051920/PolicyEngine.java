@@ -1,4 +1,4 @@
-package com.northeastern.khoury;
+package com.northeastern.policyengine051920;
 
 import gov.nist.csd.pm.exceptions.PMException;
 import gov.nist.csd.pm.pdp.decider.Decider;
@@ -7,6 +7,9 @@ import java.util.Set;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
+import com.northeastern.policy.Policy;
+import com.northeastern.policy.ResourceAccess;
 
 public class PolicyEngine {
   static Logger logger = LogManager.getLogger(PolicyEngine.class);
