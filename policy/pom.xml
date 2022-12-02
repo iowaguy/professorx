@@ -9,6 +9,7 @@
 
   <groupId>com.northeastern.policy</groupId>
   <artifactId>policy</artifactId>
+  <packaging>jar</packaging>
   <version>0.1</version>
 
   <name>policy</name>

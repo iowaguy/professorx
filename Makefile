@@ -1,5 +1,5 @@
 
-resources := src/main/resources
+resources := analyzer/src/main/resources
 .PHONY: clean
 
 all: build json
