@@ -25,6 +25,7 @@ public class PolicyImpl implements Policy {
     // Read the policy from disk
     Path fileName = Path.of(policyPath);
     String policyString;
+    this.graph = new MemGraph();
 
     try {
       policyString = Files.readString(fileName);
