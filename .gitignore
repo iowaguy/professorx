@@ -7,3 +7,4 @@
 /shell.nix
 **/target/
 /analyzer/dependency-reduced-pom.xml
+/.factorypath
