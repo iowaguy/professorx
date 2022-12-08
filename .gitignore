@@ -1,12 +1,7 @@
-/target/
-/.classpath
-/.idea/
-/.project
-/.settings/
-/scratch.txt
+**/.idea/
+**/.project
 /shell.nix
 **/target/
-/analyzer/dependency-reduced-pom.xml
 /.factorypath
 **/.classpath
 **/.factorypath

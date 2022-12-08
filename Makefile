@@ -1,17 +1,33 @@
 
-.PHONY: clean
+newversion := 111822
+oldversion := 051920
 
-clean:
-	mvn clean
+.PHONY: clean cleanold cleannew buildold buildnew old new
+
+clean: cleanold cleannewminuspolicy
+
+cleannewminuspolicy:
+	pushd policy-engine-111822/ && mvn clean && popd
+	pushd analyzer-111822/ && mvn clean && popd
+
+cleanold:
+	mvn -f pom-$(oldversion).xml clean
+	rm -f policy/pom.xml
+
+cleannew:
+	mvn -f pom-$(newversion).xml clean
+	rm -f policy/pom.xml
 
 buildold:
-	mvn -f pom-051920.xml clean package
+	sed -e "s/VERSION/$(oldversion)/g" policy/pom.xml.template > policy/pom.xml
+	mvn -f pom-$(oldversion).xml clean install
 
 buildnew:
-	mvn -f pom-111822.xml clean package
+	sed -e "s/VERSION/$(newversion)/g" policy/pom.xml.template > policy/pom.xml
+	mvn -f pom-$(newversion).xml clean install
 
 old: buildold
-	java -jar analyzer-051920/target/analyzer-051920-0.1.jar analyzer-051920/src/main/resources/policy3N2H.json
+	java -jar analyzer-$(oldversion)/target/analyzer-$(oldversion)-0.1.jar analyzer-$(oldversion)/src/main/resources/policy3N2H.json
 
 new: buildnew
-	java -jar analyzer-111822/target/analyzer-111822-0.1.jar analyzer-111822/src/main/resources/simple.pal
+	java -jar analyzer-$(newversion)/target/analyzer-$(newversion)-0.1.jar analyzer-$(newversion)/src/main/resources/simple.pal

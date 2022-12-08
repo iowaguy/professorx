@@ -5,6 +5,7 @@
     <artifactId>mutationanalysis</artifactId>
     <groupId>com.northeastern.mutationanalysis</groupId>
     <version>0.1</version>
+    <relativePath>../pom-VERSION.xml</relativePath>
   </parent>
 
   <groupId>com.northeastern.policy</groupId>

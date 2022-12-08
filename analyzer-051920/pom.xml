@@ -6,6 +6,7 @@
         <artifactId>mutationanalysis</artifactId>
         <groupId>com.northeastern.mutationanalysis</groupId>
         <version>0.1</version>
+        <relativePath>../pom-051920.xml</relativePath>
     </parent>
 
     <groupId>com.northeastern.analyzer</groupId>
@@ -27,7 +28,7 @@
             <version>0.1</version>
         </dependency>
         <dependency>
-            <groupId>com.northeastern.policyengine051920</groupId>
+            <groupId>com.northeastern.policyengine</groupId>
             <artifactId>policy-engine-051920</artifactId>
             <version>0.1</version>
         </dependency>

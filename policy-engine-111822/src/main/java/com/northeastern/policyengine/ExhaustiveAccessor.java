@@ -27,12 +27,15 @@ public class ExhaustiveAccessor implements Accessor {
 
   public Set<ResourceAccess> generateAccesses() throws MyPMException {
     // get all users and user attributes, U
+    System.out.println("BENW TEST----------------------------");
     Set<String> allU = new HashSet<>();
     for (int i = 0; i < this.policies.size(); i++) {
       try {
-        List<String> u = this.paps.get(i).graph().search(NodeType.U, null);
+        Map<String, String> m = new HashMap<>();
+        m.put("testkey", "testvalue");
+        List<String> u = this.paps.get(i).graph().search(NodeType.U, m);
         allU.addAll(u);
-        List<String> ua = this.paps.get(i).graph().search(NodeType.UA, null);
+        List<String> ua = this.paps.get(i).graph().search(NodeType.UA, new HashMap<>());
         allU.addAll(ua);
       } catch (PMException e) {
         throw new MyPMException(e);
