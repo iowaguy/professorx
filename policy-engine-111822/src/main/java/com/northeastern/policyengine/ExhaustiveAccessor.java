@@ -1,29 +1,27 @@
-package com.northeastern.policyengine111822;
+package com.northeastern.policyengine;
 
 import com.northeastern.policy.Accessor;
 import com.northeastern.policy.MyPMException;
 import com.northeastern.policy.ResourceAccess;
 import gov.nist.csd.pm.pap.PAP;
-import gov.nist.csd.pm.policy.author.pal.PALBuiltinFunctions;
 import gov.nist.csd.pm.policy.exceptions.PMException;
 import gov.nist.csd.pm.policy.model.access.AccessRightSet;
-import gov.nist.csd.pm.policy.model.graph.nodes.Node;
 import gov.nist.csd.pm.policy.model.graph.nodes.NodeType;
 
 import java.util.*;
 
 
-public class ExhaustiveAccessor111822 implements Accessor {
- private final List<PolicyImpl111822> policies;
+public class ExhaustiveAccessor implements Accessor {
+ private final List<PolicyImpl> policies;
  private final List<PAP> paps;
 
-  public ExhaustiveAccessor111822(PolicyImpl111822... policies) throws MyPMException {
+  public ExhaustiveAccessor(PolicyImpl... policies) throws MyPMException {
     this.policies = new ArrayList<>();
     Collections.addAll(this.policies, policies);
 
     this.paps = new ArrayList<>();
-    for (PolicyImpl111822 p : policies) {
-      this.paps.add(new PolicyEngine111822(p).getPap());
+    for (PolicyImpl p : policies) {
+      this.paps.add(new PolicyEngine(p).getPap());
     }
   }
 

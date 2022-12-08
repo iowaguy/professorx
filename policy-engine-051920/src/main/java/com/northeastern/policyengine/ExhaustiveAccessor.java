@@ -1,4 +1,4 @@
-package com.northeastern.policyengine051920;
+package com.northeastern.policyengine;
 
 import java.util.*;
 
@@ -12,10 +12,10 @@ import com.northeastern.policy.ResourceAccess;
 import com.northeastern.policy.MyPMException;
 
 
-public class ExhaustiveAccessor051920 implements Accessor {
-  private List<PolicyImpl051920> policies;
+public class ExhaustiveAccessor implements Accessor {
+  private List<PolicyImpl> policies;
 
-  public ExhaustiveAccessor051920(PolicyImpl051920... policies) {
+  public ExhaustiveAccessor(PolicyImpl... policies) {
     this.policies = new ArrayList<>();
     Collections.addAll(this.policies, policies);
   }
@@ -23,7 +23,7 @@ public class ExhaustiveAccessor051920 implements Accessor {
   public Set<ResourceAccess> generateAccesses() throws MyPMException {
     // get all users and user attributes, U
     Set<Node> allU = new HashSet<>();
-    for (PolicyImpl051920 p : this.policies) {
+    for (PolicyImpl p : this.policies) {
       Set<Node> u = p.getGraph().search(NodeType.U, null);
       allU.addAll(u);
 
@@ -33,7 +33,7 @@ public class ExhaustiveAccessor051920 implements Accessor {
 
     // get all objects and object attributes, O
     Set<Node> allOA = new HashSet<>();
-    for (PolicyImpl051920 p : this.policies) {
+    for (PolicyImpl p : this.policies) {
       Set<Node> o = p.getGraph().search(NodeType.O, null);
       allOA.addAll(o);
 
@@ -44,7 +44,7 @@ public class ExhaustiveAccessor051920 implements Accessor {
     // get all possible permissions, P
     OperationSet possiblePermissions = new OperationSet();
     for (Node u : allU) {
-      for (PolicyImpl051920 p : this.policies) {
+      for (PolicyImpl p : this.policies) {
         Map<String, OperationSet> targetOps = null;
         try {
           targetOps = p.getGraph().getSourceAssociations(u.getName());

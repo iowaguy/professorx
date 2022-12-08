@@ -1,27 +1,19 @@
-package com.northeastern.policyengine111822;
+package com.northeastern.policyengine;
 
 import com.northeastern.policy.MyPMException;
 import com.northeastern.policy.Policy;
-import gov.nist.csd.pm.policy.author.PolicyAuthor;
-import gov.nist.csd.pm.policy.author.pal.PALCompiler;
-import gov.nist.csd.pm.policy.author.pal.statement.PALStatement;
-import gov.nist.csd.pm.policy.exceptions.PMException;
-import gov.nist.csd.pm.policy.model.access.UserContext;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.List;
 
-import static gov.nist.csd.pm.pap.SuperPolicy.SUPER_USER;
-
-public class PolicyImpl111822 implements Policy {
+public class PolicyImpl implements Policy {
   private String policyString;
-  static Logger logger = LogManager.getLogger(PolicyImpl111822.class);
+  static Logger logger = LogManager.getLogger(PolicyImpl.class);
 
-  public PolicyImpl111822(String policyPath) {
+  public PolicyImpl(String policyPath) {
     // Read the policy from disk
     Path fileName = Path.of(policyPath);
     String policyString;
@@ -63,13 +55,13 @@ public class PolicyImpl111822 implements Policy {
     return this;
   }
 
-  public PolicyImpl111822 attributeExchangeSource(String source, String dest, String newSource)
+  public PolicyImpl attributeExchangeSource(String source, String dest, String newSource)
     throws MyPMException {
     attributeExchangeExplicit(source, dest, newSource, dest);
     return this;
   }
 
-  public PolicyImpl111822 attributeExchangeDest(String source, String dest, String newDest) throws MyPMException {
+  public PolicyImpl attributeExchangeDest(String source, String dest, String newDest) throws MyPMException {
     attributeExchangeExplicit(source, dest, source, newDest);
     return this;
   }

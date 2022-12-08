@@ -90,13 +90,13 @@
           <version>3.0.0</version>
         </plugin>
 
-<!--        <plugin>-->
-<!--          <artifactId>maven-shade-plugin</artifactId>-->
-<!--        </plugin>-->
+       <plugin>
+         <artifactId>maven-shade-plugin</artifactId>
+         <version>3.4.1</version>
+       </plugin>
 
         <plugin>
           <artifactId>maven-shade-plugin</artifactId>
-          <version>3.4.1</version>
           <executions>
             <execution>
               <id>create-fat-jar</id>
@@ -121,9 +121,8 @@
   </build>
 
   <modules>
-    <module>policy-engine-051920</module>
-    <!--    <module>policy-engine-111822</module>-->
-    <module>analyzer</module>
+    <module>policy-engine-111822</module>
+    <module>analyzer-111822</module>
     <module>policy</module>
   </modules>
 </project>

@@ -1,17 +1,17 @@
 
-resources := analyzer/src/main/resources
 .PHONY: clean
-
-all: build json
 
 clean:
 	mvn clean
 
-build:
-	mvn clean package
+buildold:
+	mvn -f pom-051920.xml clean package
 
-json:
-	java -jar analyzer/target/analyzer-0.1.jar $(resources)/policy3N2H.json
+buildnew:
+	mvn -f pom-111822.xml clean package
 
-pal:
-	java -jar target/policy-machine-0.1-jar-with-dependencies.jar $(resources)/simple.pal
+old: buildold
+	java -jar analyzer-051920/target/analyzer-051920-0.1.jar analyzer-051920/src/main/resources/policy3N2H.json
+
+new: buildnew
+	java -jar analyzer-111822/target/analyzer-111822-0.1.jar analyzer-111822/src/main/resources/simple.pal

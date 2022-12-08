@@ -9,10 +9,10 @@
     </parent>
 
     <groupId>com.northeastern.analyzer</groupId>
-    <artifactId>analyzer</artifactId>
+    <artifactId>analyzer-051920</artifactId>
     <version>0.1</version>
     <packaging>jar</packaging>
-    <name>analyzer</name>
+    <name>analyzer-051920</name>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -28,12 +28,7 @@
         </dependency>
         <dependency>
             <groupId>com.northeastern.policyengine051920</groupId>
-            <artifactId>051920</artifactId>
-            <version>0.1</version>
-        </dependency>
-        <dependency>
-            <groupId>com.northeastern.policyengine11182</groupId>
-            <artifactId>111822</artifactId>
+            <artifactId>policy-engine-051920</artifactId>
             <version>0.1</version>
         </dependency>
     </dependencies>

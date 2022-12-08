@@ -1,4 +1,4 @@
-package com.northeastern.policyengine051920;
+package com.northeastern.policyengine;
 
 import com.northeastern.policy.MyPMException;
 import com.northeastern.policy.Policy;
@@ -14,12 +14,12 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Map;
 
-public class PolicyImpl051920 implements Policy {
+public class PolicyImpl implements Policy {
   private final MemGraph graph;
 
-  static Logger logger = LogManager.getLogger(PolicyImpl051920.class);
+  static Logger logger = LogManager.getLogger(PolicyImpl.class);
 
-  public PolicyImpl051920(String policyPath) {
+  public PolicyImpl(String policyPath) {
     // Read the policy from disk
     Path fileName = Path.of(policyPath);
     String policyString;
@@ -61,13 +61,13 @@ public class PolicyImpl051920 implements Policy {
     return this;
   }
 
-  public PolicyImpl051920 attributeExchangeSource(String source, String dest, String newSource)
+  public PolicyImpl attributeExchangeSource(String source, String dest, String newSource)
     throws MyPMException {
     attributeExchangeExplicit(source, dest, newSource, dest);
     return this;
   }
 
-  public PolicyImpl051920 attributeExchangeDest(String source, String dest, String newDest) throws MyPMException {
+  public PolicyImpl attributeExchangeDest(String source, String dest, String newDest) throws MyPMException {
     attributeExchangeExplicit(source, dest, source, newDest);
     return this;
   }

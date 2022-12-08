@@ -1,4 +1,4 @@
-package com.northeastern.policyengine051920;
+package com.northeastern.policyengine;
 
 import gov.nist.csd.pm.exceptions.PMException;
 import gov.nist.csd.pm.pdp.decider.Decider;
@@ -10,11 +10,11 @@ import org.apache.logging.log4j.Logger;
 
 import com.northeastern.policy.ResourceAccess;
 
-public class PolicyEngine051920 {
-  static Logger logger = LogManager.getLogger(PolicyEngine051920.class);
+public class PolicyEngine {
+  static Logger logger = LogManager.getLogger(PolicyEngine.class);
   private Decider decider;
 
-  public PolicyEngine051920(PolicyImpl051920 policy) {
+  public PolicyEngine(PolicyImpl policy) {
     this.decider = new PReviewDecider(policy.getGraph(), null /* prohibitions */);
   }
 

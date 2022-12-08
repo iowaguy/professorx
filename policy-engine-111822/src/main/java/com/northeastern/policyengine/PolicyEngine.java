@@ -1,4 +1,4 @@
-package com.northeastern.policyengine111822;
+package com.northeastern.policyengine;
 
 import com.northeastern.policy.ResourceAccess;
 import com.northeastern.policy.MyPMException;
@@ -17,14 +17,14 @@ import gov.nist.csd.pm.policy.model.access.UserContext;
 
 import static gov.nist.csd.pm.pap.SuperPolicy.SUPER_USER;
 
-public class PolicyEngine111822 {
-  static Logger logger = LogManager.getLogger(PolicyEngine111822.class);
+public class PolicyEngine {
+  static Logger logger = LogManager.getLogger(PolicyEngine.class);
   private final PDP pdp;
   private final PAP pap;
-  private final PolicyImpl111822 policy;
+  private final PolicyImpl policy;
 
 
-  public PolicyEngine111822(PolicyImpl111822 policy) throws MyPMException {
+  public PolicyEngine(PolicyImpl policy) throws MyPMException {
     this.policy = policy;
     try {
       this.pap = new MemoryPAP();

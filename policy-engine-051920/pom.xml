@@ -8,7 +8,7 @@
   </parent>
 
   <groupId>com.northeastern.policyengine051920</groupId>
-  <artifactId>051920</artifactId>
+  <artifactId>policy-engine-051920</artifactId>
   <version>0.1</version>
 
   <name>policy-engine-051920</name>

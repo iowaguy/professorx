@@ -8,3 +8,8 @@
 **/target/
 /analyzer/dependency-reduced-pom.xml
 /.factorypath
+**/.classpath
+**/.factorypath
+**/.settings/
+**/dependency-reduced-pom.xml
+**/*.iml
