@@ -8,3 +8,4 @@
 **/.settings/
 **/dependency-reduced-pom.xml
 **/*.iml
+/policy/pom.xml
