@@ -8,14 +8,13 @@ import java.util.Set;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import com.northeastern.policy.Policy;
 import com.northeastern.policy.ResourceAccess;
 
-public class PolicyEngine {
-  static Logger logger = LogManager.getLogger(PolicyEngine.class);
+public class PolicyEngine051920 {
+  static Logger logger = LogManager.getLogger(PolicyEngine051920.class);
   private Decider decider;
 
-  public PolicyEngine(PolicyImpl policy) {
+  public PolicyEngine051920(PolicyImpl051920 policy) {
     this.decider = new PReviewDecider(policy.getGraph(), null /* prohibitions */);
   }
 

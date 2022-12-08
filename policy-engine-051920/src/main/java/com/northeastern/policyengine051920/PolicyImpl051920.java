@@ -1,4 +1,4 @@
-package com.northeastern.policyengine111822;
+package com.northeastern.policyengine051920;
 
 import com.northeastern.policy.MyPMException;
 import com.northeastern.policy.Policy;
@@ -14,14 +14,16 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Map;
 
-public class PolicyImpl extends MemGraph implements Policy {
-  static Logger logger = LogManager.getLogger(PolicyImpl.class);
+public class PolicyImpl051920 implements Policy {
+  private final MemGraph graph;
 
-  public PolicyImpl(String policyPath) {
+  static Logger logger = LogManager.getLogger(PolicyImpl051920.class);
+
+  public PolicyImpl051920(String policyPath) {
     // Read the policy from disk
     Path fileName = Path.of(policyPath);
     String policyString;
-
+    this.graph = new MemGraph();
     try {
       policyString = Files.readString(fileName);
       logger.info("Full policy:\n {}", policyString);
@@ -31,10 +33,9 @@ public class PolicyImpl extends MemGraph implements Policy {
     }
 
     try {
-      GraphSerializer.fromJson(this, policyString);
+      GraphSerializer.fromJson(this.graph, policyString);
     } catch (PMException pm) {
       logger.fatal("Problem parsing policy string: {}", pm.getMessage());
-      return;
     }
   }
 
@@ -42,17 +43,17 @@ public class PolicyImpl extends MemGraph implements Policy {
                                                String newDest) throws MyPMException {
     Map<String, OperationSet> associations = null;
     try {
-      associations = this.getSourceAssociations(source);
+      associations = this.graph.getSourceAssociations(source);
     } catch (PMException e) {
       throw new MyPMException(e);
     }
 
     OperationSet ops = associations.get(dest);
-    this.dissociate(source, dest);
+    this.graph.dissociate(source, dest);
 
     if (ops != null) {
       try {
-        this.associate(newSource, newDest, ops);
+        this.graph.associate(newSource, newDest, ops);
       } catch (PMException e) {
         throw new MyPMException(e);
       }
@@ -60,15 +61,18 @@ public class PolicyImpl extends MemGraph implements Policy {
     return this;
   }
 
-  public PolicyImpl attributeExchangeSource(String source, String dest, String newSource)
+  public PolicyImpl051920 attributeExchangeSource(String source, String dest, String newSource)
     throws MyPMException {
     attributeExchangeExplicit(source, dest, newSource, dest);
     return this;
   }
 
-
-  public PolicyImpl attributeExchangeDest(String source, String dest, String newDest) throws MyPMException {
+  public PolicyImpl051920 attributeExchangeDest(String source, String dest, String newDest) throws MyPMException {
     attributeExchangeExplicit(source, dest, source, newDest);
     return this;
+  }
+
+  public MemGraph getGraph() {
+    return this.graph;
   }
 }

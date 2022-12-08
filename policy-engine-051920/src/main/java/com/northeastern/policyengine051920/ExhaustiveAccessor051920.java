@@ -8,15 +8,14 @@ import gov.nist.csd.pm.operations.OperationSet;
 import gov.nist.csd.pm.pip.graph.model.nodes.Node;
 import gov.nist.csd.pm.pip.graph.model.nodes.NodeType;
 
-import com.northeastern.policy.Policy;
 import com.northeastern.policy.ResourceAccess;
 import com.northeastern.policy.MyPMException;
 
 
-public class ExhaustiveAccessor implements Accessor {
- private List<PolicyImpl> policies;
+public class ExhaustiveAccessor051920 implements Accessor {
+  private List<PolicyImpl051920> policies;
 
-  public ExhaustiveAccessor(PolicyImpl... policies) {
+  public ExhaustiveAccessor051920(PolicyImpl051920... policies) {
     this.policies = new ArrayList<>();
     Collections.addAll(this.policies, policies);
   }
@@ -24,7 +23,7 @@ public class ExhaustiveAccessor implements Accessor {
   public Set<ResourceAccess> generateAccesses() throws MyPMException {
     // get all users and user attributes, U
     Set<Node> allU = new HashSet<>();
-    for (PolicyImpl p : this.policies) {
+    for (PolicyImpl051920 p : this.policies) {
       Set<Node> u = p.getGraph().search(NodeType.U, null);
       allU.addAll(u);
 
@@ -34,7 +33,7 @@ public class ExhaustiveAccessor implements Accessor {
 
     // get all objects and object attributes, O
     Set<Node> allOA = new HashSet<>();
-    for (PolicyImpl p : this.policies) {
+    for (PolicyImpl051920 p : this.policies) {
       Set<Node> o = p.getGraph().search(NodeType.O, null);
       allOA.addAll(o);
 
@@ -45,7 +44,7 @@ public class ExhaustiveAccessor implements Accessor {
     // get all possible permissions, P
     OperationSet possiblePermissions = new OperationSet();
     for (Node u : allU) {
-      for (PolicyImpl p : this.policies) {
+      for (PolicyImpl051920 p : this.policies) {
         Map<String, OperationSet> targetOps = null;
         try {
           targetOps = p.getGraph().getSourceAssociations(u.getName());
