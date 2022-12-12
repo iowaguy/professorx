@@ -1,6 +1,8 @@
 package com.northeastern.analyzer;
 
+import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import com.northeastern.policy.Accessor;
 import com.northeastern.policy.MyPMException;
@@ -26,6 +28,11 @@ public class Runner {
     testOldPolicyEngine(args);
   }
 
+  private static Map<String, Boolean> getDecisionMap(PolicyEngine policyEngine, Set<ResourceAccess> accesses) {
+    return accesses.stream().collect(Collectors.toMap(ResourceAccess::toString,
+                                                      (x) -> policyEngine.getDecision(x)));
+  }
+
   private static void testOldPolicyEngine(String[] args) {
 
     Policy policy = new PolicyImpl(args[0]);
@@ -41,10 +48,10 @@ public class Runner {
       System.exit(1);
     }
 
-    for (ResourceAccess a : accesses) {
-      boolean b = policyEngine.getDecision(a);
-      System.out.println(a.toString() + ". Allowed? " + b);
-    }
+    ResourceAccess testAccess1 = new ResourceAccess("U2", "OA2", "permission4");
+    ResourceAccess testAccess2 = new ResourceAccess("UA4", "OA2", "permission4");
+
+    Map<String, Boolean> decisionsBeforeMutation = getDecisionMap(policyEngine, accesses);
 
     Policy newPolicy = null;
     try {
@@ -65,26 +72,18 @@ public class Runner {
       System.exit(1);
     }
 
-    for (ResourceAccess a : accessesAfterMutation) {
-      boolean b = newPolicyEngine.getDecision(a);
-      System.out.println(a.toString() + ". Allowed after mutation? " + b);
+
+    Map<String, Boolean> decisionsAfterMutation = getDecisionMap(newPolicyEngine, accessesAfterMutation);
+
+    for (ResourceAccess ra : accessesAfterMutation) {
+      String raString = ra.toString();
+      boolean beforeDecision = decisionsBeforeMutation.get(raString);
+      boolean afterDecision = decisionsAfterMutation.get(raString);
+      if (beforeDecision != afterDecision) {
+        System.out.println("Before mutation " + raString + " was allowed: " + beforeDecision);
+        System.out.println("After mutation " + raString + " was allowed: " + afterDecision);
+        System.out.println("----------------------------------------------------------------");
+      }
     }
-
-
-    System.out.println("-----------Explicit access test------------");
-    ResourceAccess testAccess1 = new ResourceAccess("UA4", "OA2", "permission4");
-    boolean b = policyEngine.getDecision(testAccess1);
-    System.out.println("Explicit access: " + testAccess1.toString() + ". Allowed before mutation? " + b);
-
-    b = newPolicyEngine.getDecision(testAccess1);
-    System.out.println("Explicit access: " + testAccess1.toString() + ". Allowed after mutation? " + b);
-
-
-    ResourceAccess testAccess2 = new ResourceAccess("UA1", "OA2", "permission4");
-    b = policyEngine.getDecision(testAccess2);
-    System.out.println("New explicit access: " + testAccess2.toString() + ". Allowed before mutation? " + b);
-
-    b = newPolicyEngine.getDecision(testAccess2);
-    System.out.println("New explicit access: " + testAccess2.toString() + ". Allowed after mutation? " + b);
   }
 }

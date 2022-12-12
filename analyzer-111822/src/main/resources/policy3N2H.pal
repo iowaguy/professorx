@@ -10,6 +10,7 @@ create user attribute 'UA6' in 'UA5';
 create user attribute 'UA7' in 'UA6';
 
 create user 'U1' in 'UA7';
+create user 'U2' in 'UA1';
 
 create object attribute 'OA1' in 'department';
 create object attribute 'OA2' in 'department';

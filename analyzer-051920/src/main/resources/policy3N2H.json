@@ -16,6 +16,11 @@
       "properties": {}
     },
     {
+      "name": "U2",
+      "type": "U",
+      "properties": {}
+    },
+    {
       "name": "O1",
       "type": "O",
       "properties": {}
@@ -95,6 +100,10 @@
     {
       "source": "U1",
       "target": "UA7"
+    },
+    {
+      "source": "U2",
+      "target": "UA1"
     },
     {
       "source": "UA7",
