@@ -1,0 +1,36 @@
+set resource access rights 'permission0', 'permission4';
+create policy class 'department';
+
+create user attribute 'UA1' in 'department';
+create user attribute 'UA2' in 'department';
+create user attribute 'UA3' in 'UA2';
+create user attribute 'UA4' in 'department';
+create user attribute 'UA5' in 'department';
+create user attribute 'UA6' in 'UA5';
+create user attribute 'UA7' in 'UA6';
+
+create user 'U1' in 'UA7';
+
+create object attribute 'OA1' in 'department';
+create object attribute 'OA2' in 'department';
+create object attribute 'OA3' in 'OA2';
+create object attribute 'OA4' in 'department';
+create object attribute 'OA5' in 'department';
+create object attribute 'OA6' in 'OA5';
+create object attribute 'OA7' in 'OA6';
+
+create object 'O1' in 'OA7';
+
+assign 'OA6' to 'OA4';
+assign 'OA7' to 'OA3';
+assign 'OA3' to 'OA1';
+
+assign 'UA6' to 'UA4';
+assign 'UA7' to 'UA3';
+assign 'UA3' to 'UA1';
+
+associate 'UA5' and 'OA5' with ['permission0'];
+associate 'UA4' and 'OA5' with ['permission0'];
+associate 'UA4' and 'OA4' with ['permission4'];
+associate 'UA4' and 'OA2' with ['permission4'];
+associate 'UA2' and 'OA2' with ['permission0'];

@@ -30,4 +30,4 @@ old: buildold
 	java -jar analyzer-$(oldversion)/target/analyzer-$(oldversion)-0.1.jar analyzer-$(oldversion)/src/main/resources/policy3N2H.json
 
 new: buildnew
-	java -jar analyzer-$(newversion)/target/analyzer-$(newversion)-0.1.jar analyzer-$(newversion)/src/main/resources/simple.pal
+	java -jar analyzer-$(newversion)/target/analyzer-$(newversion)-0.1.jar analyzer-$(newversion)/src/main/resources/policy3N2H.pal

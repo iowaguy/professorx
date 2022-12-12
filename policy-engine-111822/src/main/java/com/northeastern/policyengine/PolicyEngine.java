@@ -28,6 +28,7 @@ public class PolicyEngine {
     this.policy = policy;
     try {
       this.pap = new MemoryPAP();
+      this.pap.fromPAL(new UserContext(SUPER_USER), policy.getPolicyString());
       this.pdp = new MemoryPDP(this.pap);
     } catch (PMException e) {
       throw new MyPMException(e);
@@ -40,14 +41,6 @@ public class PolicyEngine {
 
   public boolean getDecision(String subject, String object, String action) throws MyPMException {
     UserContext superUser = new UserContext(SUPER_USER);
-    try {
-      this.pdp.runTx(superUser, (p) -> {
-        PALExecutor.compileAndExecutePAL(this.pap, superUser, this.policy.getPolicyString());
-      });
-    } catch (PMException e) {
-      throw new MyPMException(e);
-    }
-
     AccessRightSet permissions = null;
     try {
       permissions = this.pdp.policyReviewer().getAccessRights(new UserContext(subject), object);
