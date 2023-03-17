@@ -32,5 +32,5 @@ inference1(U, O, AR, NewAssoc, PreviousDecision) :-
 
         % The permission being used is relevant to the new
         % association.
-        member(AR,ARS),
+        member(AR,ARS)
     ).
