@@ -67,9 +67,13 @@ inInclusionSet(AT, [Head|Tail]) :-
     inInclusionSet(AT, Tail).
 
 % High-level policy engine decision function.
+decideAll(U, O, AR) :-
+    legalAssociation(UA, OA, ARS),
+    member(AR, ARS),
+    isContained(U, UA),
+    isContained(O, OA),
+    \+ disjProhibited(U, O, AR).
+
+% Convenience function that only prints the final decision.
 decide(U, O, AR) :-
-    once((legalAssociation(UA, OA, ARS),
-          member(AR, ARS),
-          isContained(U, UA),
-          isContained(O, OA),
-          \+ disjProhibited(U, O, AR))).
+    once(decideAll(U, O, AR)).

@@ -21,6 +21,7 @@ pc(pc1).
 
 ar(p0).
 ar(p1).
+ar(p2).
 ar(p4).
 
 % User and user attribute assignments.
@@ -47,6 +48,9 @@ assign(oa3,oa2).
 assign(oa6,oa4).
 assign(oa6,oa5).
 
+% illegal assignment, should be ignored
+assign(oa3,o1).
+
 % Associations
 association(ua5,oa5,[p0]).
 association(ua4,oa5,[p0]).
@@ -54,6 +58,10 @@ association(ua4,oa4,[p4]).
 association(ua4,oa2,[p4]).
 association(ua2,oa2,[p0]).
 association(ua1,oa7,[p1]).
+
+% an association that only applies to the illegal assignment
+% above.
+association(ua7,o1,[p2]).
 
 % Decisions, pre-mutation
 decision(u2, o1, p0, deny).
