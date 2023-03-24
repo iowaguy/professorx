@@ -19,6 +19,10 @@ oa(oa6).
 oa(oa7).
 pc(pc1).
 
+ar(p0).
+ar(p1).
+ar(p4).
+
 % User and user attribute assignments.
 assign(u1,ua7).
 assign(u2,ua1).

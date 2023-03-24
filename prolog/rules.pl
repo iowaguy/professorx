@@ -15,16 +15,22 @@ isContained(X, Y) :-
     legalAssignment(X, Y);
     legalAssignment(X, Z),
     isContained(Z, Y).
-% constraints to add:
-% - only user attributes can contain users
-% - only object attributes can contain objects
 
-decide(U, O, AR) :-
-    once((association(UA, OA, ARS),
-          member(AR, ARS),
-          isContained(U, UA),
-          isContained(O, OA),
-          \+ disjProhibited(U, O, AR))).
+% Associations must be defined in the knowledge base and
+% be between a UA and an OA, or between a UA and an O. In
+% either case, they must have legal access rights.
+legalAssociation(UA, OA, ARS) :-
+    association(UA, OA, ARS),
+    (
+        (ua(UA), oa(OA), legalAccessRights(ARS));
+        (ua(UA), o(OA), legalAccessRights(ARS))
+    ).
+
+% The list of access rights must have at least one element
+% and the elements in the list must each be access rights ar.
+legalAccessRights([H|T]) :-
+    (ar(H), T = []);
+    (ar(H), legalAccessRights(T)).
 
 % Our prohibition model right now simulates a default
 % exclusion set which includes all policy classes.
@@ -38,6 +44,8 @@ disjProhibited(U, AT, AR) :-
     % is in the subtree of an element in the inclusion
     % set.
     disjunctiveProhibition(U_or_UA, ATI, ARS),
+    legalAccessRights(ARS),
+    (o(AT); oa(AT)),
 
     % The access right AR must be in the set of access
     % rights ARS in the defined prohibition.
@@ -54,3 +62,10 @@ disjProhibited(U, AT, AR) :-
 inInclusionSet(AT, [Head|Tail]) :-
     isContained(AT, Head);
     inInclusionSet(AT, Tail).
+
+decide(U, O, AR) :-
+    once((legalAssociation(UA, OA, ARS),
+          member(AR, ARS),
+          isContained(U, UA),
+          isContained(O, OA),
+          \+ disjProhibited(U, O, AR))).
