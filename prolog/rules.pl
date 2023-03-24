@@ -1,7 +1,19 @@
+% The assignment is legal if it is explicitly defined
+% in the knowledge base, and the assignment is between
+% elements that allowed to be assigned to each other.
+legalAssignment(X, Y) :-
+    assign(X, Y),
+    (
+        (u(X), ua(Y));
+        (ua(X), ua(Y));
+        (o(X), oa(Y));
+        (oa(X), oa(Y))
+    ).
+
 isContained(X, Y) :-
     X = Y;
-    assign(X, Y);
-    assign(X, Z),
+    legalAssignment(X, Y);
+    legalAssignment(X, Z),
     isContained(Z, Y).
 % constraints to add:
 % - only user attributes can contain users
