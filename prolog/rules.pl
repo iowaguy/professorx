@@ -59,10 +59,14 @@ disjProhibited(U, AT, AR) :-
     % inclusion set of the disjunctive range of ATI
     inInclusionSet(AT, ATI).
 
+% Check for membership in inclusion set as defined by NGAC.
+% An element is in the set if it is contained by a node in
+% the inclusion set.
 inInclusionSet(AT, [Head|Tail]) :-
     isContained(AT, Head);
     inInclusionSet(AT, Tail).
 
+% High-level policy engine decision function.
 decide(U, O, AR) :-
     once((legalAssociation(UA, OA, ARS),
           member(AR, ARS),
