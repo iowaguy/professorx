@@ -16,6 +16,11 @@
 
   <dependencies>
     <dependency>
+      <groupId>com.northeastern</groupId>
+      <artifactId>jpl</artifactId>
+      <version>8.3.29</version>
+    </dependency>
+    <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
       <version>4.13.2</version>
@@ -121,8 +126,9 @@
   </build>
 
   <modules>
-    <module>policy-engine-111822</module>
-    <module>analyzer-111822</module>
     <module>policy</module>
+    <module>policy-engine-111822</module>
+    <module>prolog-policy-engine</module>
+    <module>analyzer-111822</module>
   </modules>
 </project>

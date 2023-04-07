@@ -20,14 +20,22 @@ cleannew:
 
 buildold:
 	sed -e "s/VERSION/$(oldversion)/g" policy/pom.xml.template > policy/pom.xml
+	sed -e "s/VERSION/$(oldversion)/g" prolog-policy-engine/pom.xml.template > prolog-policy-engine/pom.xml
 	mvn -f pom-$(oldversion).xml clean install
 
 buildnew:
 	sed -e "s/VERSION/$(newversion)/g" policy/pom.xml.template > policy/pom.xml
+	sed -e "s/VERSION/$(newversion)/g" prolog-policy-engine/pom.xml.template > prolog-policy-engine/pom.xml
+	mvn install:install-file -Dfile=lib/jpl.jar \
+		-DgroupId=com.northeastern \
+   		-DartifactId=jpl \
+   		-Dversion=8.3.29 \
+   		-Dpackaging=jar \
+   		-DgeneratePom=true
 	mvn -f pom-$(newversion).xml clean install
 
 old: buildold
 	java -jar analyzer-$(oldversion)/target/analyzer-$(oldversion)-0.1.jar analyzer-$(oldversion)/src/main/resources/policy3N2H.json
 
 new: buildnew
-	java -jar analyzer-$(newversion)/target/analyzer-$(newversion)-0.1.jar analyzer-$(newversion)/src/main/resources/policy3N2H.pal
+	java -jar -Djava.library.path=lib analyzer-$(newversion)/target/analyzer-$(newversion)-0.1.jar analyzer-$(newversion)/src/main/resources/policy3N2H.pal prolog-policy-engine/src/main/resources/rules.pl analyzer-$(newversion)/src/main/resources/policy1.pl

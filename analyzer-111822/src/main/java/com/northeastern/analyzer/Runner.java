@@ -2,6 +2,7 @@ package com.northeastern.analyzer;
 
 import java.util.Set;
 
+import com.northeastern.prologpolicyengine.PrologPolicyEngine;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -18,8 +19,8 @@ public class Runner {
   static Logger logger = LogManager.getLogger(Runner.class);
 
   public static void main(String[] args) {
-    if (args.length != 1) {
-      System.err.printf("%d arguments provided. Need 1.", args.length);
+    if (args.length != 3) {
+      System.err.printf("%d arguments provided. Need 3.", args.length);
       System.exit(1);
     }
 
@@ -53,15 +54,30 @@ public class Runner {
       System.exit(1);
     }
 
+    // TODO do prolog stuff here
+    // convert policy into prolog facts
+    // load prolog rules
+    PrologPolicyEngine prologPolicyEngine = null;
+    try {
+      prologPolicyEngine = new PrologPolicyEngine(args[1]);
+      prologPolicyEngine.loadPolicy(args[2]);
+    } catch (MyPMException e) {
+      logger.fatal(() -> "Issue encountered loading prolog rules: " + e.getMessage());
+      System.exit(1);
+    }
+
     for (ResourceAccess a : accesses) {
-      boolean b = false;
+      boolean nistDecision = false;
+      boolean prologDecision = false;
       try {
-        b = policyEngine.getDecision(a);
+        nistDecision = policyEngine.getDecision(a);
+        prologDecision = prologPolicyEngine.getDecision(a);
       } catch (MyPMException e) {
         logger.fatal(() -> "Issue encountered making policy decision: " + e.getMessage());
         System.exit(1);
       }
-      System.out.println(a.toString() + ". Allowed? " + b);
+      System.out.println("NIST decision for " + a.toString() + ". Allowed? " + nistDecision);
+      System.out.println("Prolog decision for " + a.toString() + ". Allowed? " + prologDecision);
     }
 
 //    Policy newPolicy = null;
