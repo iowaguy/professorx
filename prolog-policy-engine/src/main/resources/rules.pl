@@ -22,6 +22,7 @@ isContained(X, Y) :-
 legalAssociation(UA, OA, ARS) :-
     association(UA, OA, ARS),
     (
+        (ua(UA), ua(OA), legalAccessRights(ARS));
         (ua(UA), oa(OA), legalAccessRights(ARS));
         (ua(UA), o(OA), legalAccessRights(ARS))
     ).
@@ -67,13 +68,21 @@ inInclusionSet(AT, [Head|Tail]) :-
     inInclusionSet(AT, Tail).
 
 % High-level policy engine decision function.
-decideAll(U, O, AR) :-
-    legalAssociation(UA, OA, ARS),
+decideAll(U, PE, AR) :-
+    legalAssociation(UA, PE_Parent, ARS),
     member(AR, ARS),
     isContained(U, UA),
-    isContained(O, OA),
-    \+ disjProhibited(U, O, AR).
+    isContained(PE, PE_Parent),
+    \+ (
+        isContained(PE, PE_Prohib),
+        disjProhibited(U, PE_Prohib, AR)
+    ).
 
 % Convenience function that only prints the final decision.
 decide(U, O, AR) :-
     once(decideAll(U, O, AR)).
+
+
+%% This line is need to prevent an existence error if
+%% there are no disjunctive prohibitions in the policy.
+disjunctiveProhibition(testXXXXXX, testYYYYYY, testZZZZZZ).

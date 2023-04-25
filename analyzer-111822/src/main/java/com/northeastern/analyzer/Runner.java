@@ -1,6 +1,13 @@
 package com.northeastern.analyzer;
 
+import java.io.IOException;
+import java.io.Writer;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Set;
+
+import org.apache.commons.csv.CSVPrinter;
+import org.apache.commons.csv.CSVFormat;
 
 import com.northeastern.prologpolicyengine.PrologPolicyEngine;
 import org.apache.logging.log4j.LogManager;
@@ -66,6 +73,28 @@ public class Runner {
       System.exit(1);
     }
 
+    // create a writer
+    Writer writer = null;
+    try {
+      writer = Files.newBufferedWriter(Paths.get("decisions.csv"));
+    } catch (IOException e) {
+      logger.fatal(() -> "Issue encountered loading opening csv for writing: " + e.getMessage());
+      System.exit(1);
+    }
+
+    String[] HEADERS = { "subject", "object", "permission", "prolog_decision", "nist_decision"};
+    // write CSV file
+    CSVFormat printer = CSVFormat.DEFAULT.builder()
+            .setHeader(HEADERS)
+            .setAutoFlush(true)
+            .build();
+
+    try {
+      printer.printRecord(writer, HEADERS);
+    } catch (IOException e) {
+      logger.fatal(() -> "Issue encountered printing CSV header: " + e.getMessage());
+      System.exit(1);
+    }
     for (ResourceAccess a : accesses) {
       boolean nistDecision = false;
       boolean prologDecision = false;
@@ -76,10 +105,29 @@ public class Runner {
         logger.fatal(() -> "Issue encountered making policy decision: " + e.getMessage());
         System.exit(1);
       }
-      System.out.println("NIST decision for " + a.toString() + ". Allowed? " + nistDecision);
-      System.out.println("Prolog decision for " + a.toString() + ". Allowed? " + prologDecision);
+
+      try {
+        printer.printRecord(writer, a.getSubject(), a.getObject(), a.getPermissions(), prologDecision, nistDecision);
+      } catch (IOException e) {
+        logger.fatal(() -> "Issue encountered printing CSV record: " + e.getMessage());
+        System.exit(1);
+      }
+
+      if (nistDecision != prologDecision) {
+        System.out.println("NIST decision for " + a.toString() + ". Allowed? " + nistDecision);
+        System.out.println("Prolog decision for " + a.toString() + ". Allowed? " + prologDecision);
+        System.out.println("------------------");
+      }
     }
 
+    try {
+      // close the writer
+      writer.close();
+
+    } catch (IOException e) {
+      logger.fatal(() -> "Issue encountered closing CSV file: " + e.getMessage());
+      System.exit(1);
+    }
 //    Policy newPolicy = null;
 //    try {
 //      newPolicy = Mutations.ATTRIBUTE_EXCHANGE_SOURCE_EXPLICIT.applyExplicit(policy, "UA4", "OA2", "UA1", "OA2", null);

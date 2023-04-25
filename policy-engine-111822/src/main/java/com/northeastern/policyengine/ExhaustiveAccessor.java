@@ -26,6 +26,13 @@ public class ExhaustiveAccessor implements Accessor {
   }
 
   public Set<ResourceAccess> generateAccesses() throws MyPMException {
+    Set<String> removeMe = new HashSet<>();
+    removeMe.add("super");
+    removeMe.add("super_ua");
+    removeMe.add("super_oa");
+    removeMe.add("super_ua1");
+    removeMe.add("super_policy_pc_rep");
+
     // get all users and user attributes, U
     Set<String> allU = new HashSet<>();
     for (int i = 0; i < this.policies.size(); i++) {
@@ -34,6 +41,7 @@ public class ExhaustiveAccessor implements Accessor {
         allU.addAll(u);
         List<String> ua = this.paps.get(i).graph().search(NodeType.UA, new HashMap<>());
         allU.addAll(ua);
+        allU.removeAll(removeMe);
       } catch (PMException e) {
         throw new MyPMException(e);
       }
@@ -47,7 +55,8 @@ public class ExhaustiveAccessor implements Accessor {
         allOA.addAll(o);
 
         List<String> oa = this.paps.get(i).graph().search(NodeType.OA, new HashMap<>());
-        allU.addAll(oa);
+        allOA.addAll(oa);
+        allOA.removeAll(removeMe);
       } catch (PMException e) {
         throw new MyPMException(e);
       }
