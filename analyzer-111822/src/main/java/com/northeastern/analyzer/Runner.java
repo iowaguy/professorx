@@ -74,9 +74,11 @@ public class Runner {
     }
 
     // create a writer
-    Writer writer = null;
+    Writer writerDecisions = null;
+    Writer writerDiscrepencies = null;
     try {
-      writer = Files.newBufferedWriter(Paths.get("decisions.csv"));
+      writerDecisions = Files.newBufferedWriter(Paths.get("decisions.csv"));
+      writerDiscrepencies = Files.newBufferedWriter(Paths.get("discrepencies.csv"));
     } catch (IOException e) {
       logger.fatal(() -> "Issue encountered loading opening csv for writing: " + e.getMessage());
       System.exit(1);
@@ -90,7 +92,8 @@ public class Runner {
             .build();
 
     try {
-      printer.printRecord(writer, HEADERS);
+      printer.printRecord(writerDecisions, HEADERS);
+      printer.printRecord(writerDiscrepencies, HEADERS);
     } catch (IOException e) {
       logger.fatal(() -> "Issue encountered printing CSV header: " + e.getMessage());
       System.exit(1);
@@ -107,22 +110,24 @@ public class Runner {
       }
 
       try {
-        printer.printRecord(writer, a.getSubject(), a.getObject(), a.getPermissions(), prologDecision, nistDecision);
+        printer.printRecord(writerDecisions, a.getSubject(), a.getObject(), a.getPermissions(), prologDecision, nistDecision);
+
+        if (prologDecision != nistDecision) {
+          System.out.println("NIST decision for " + a.toString() + ". Allowed? " + nistDecision);
+          System.out.println("Prolog decision for " + a.toString() + ". Allowed? " + prologDecision);
+          System.out.println("------------------");
+          printer.printRecord(writerDiscrepencies, a.getSubject(), a.getObject(), a.getPermissions(), prologDecision, nistDecision);
+        }
       } catch (IOException e) {
         logger.fatal(() -> "Issue encountered printing CSV record: " + e.getMessage());
         System.exit(1);
-      }
-
-      if (nistDecision != prologDecision) {
-        System.out.println("NIST decision for " + a.toString() + ". Allowed? " + nistDecision);
-        System.out.println("Prolog decision for " + a.toString() + ". Allowed? " + prologDecision);
-        System.out.println("------------------");
       }
     }
 
     try {
       // close the writer
-      writer.close();
+      writerDecisions.close();
+      writerDiscrepencies.close();
 
     } catch (IOException e) {
       logger.fatal(() -> "Issue encountered closing CSV file: " + e.getMessage());
