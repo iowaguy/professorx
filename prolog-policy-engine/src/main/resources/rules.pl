@@ -46,7 +46,7 @@ disjProhibited(U, AT, AR) :-
     % set.
     disjunctiveProhibition(U_or_UA, ATI, ARS),
     legalAccessRights(ARS),
-    (o(AT); oa(AT)),
+    (ua(AT); oa(AT)),
 
     % The access right AR must be in the set of access
     % rights ARS in the defined prohibition.
@@ -85,4 +85,4 @@ decide(U, O, AR) :-
 
 %% This line is need to prevent an existence error if
 %% there are no disjunctive prohibitions in the policy.
-disjunctiveProhibition(testXXXXXX, testYYYYYY, testZZZZZZ).
+%% disjunctiveProhibition(testXXXXXX, testYYYYYY, testZZZZZZ).

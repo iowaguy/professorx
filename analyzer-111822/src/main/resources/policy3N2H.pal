@@ -1,4 +1,4 @@
-set resource access rights 'permission0', 'permission4';
+set resource access rights 'permission0', 'permission4', 'permission1', 'permission2';
 create policy class 'department';
 
 create user attribute 'ua1' in 'department';
@@ -34,3 +34,19 @@ associate 'ua4' and 'oa5' with ['permission0'];
 associate 'ua4' and 'oa4' with ['permission4'];
 associate 'ua4' and 'oa2' with ['permission4'];
 associate 'ua2' and 'oa2' with ['permission0'];
+associate 'ua1' and 'oa4' with ['permission1', 'permission2'];
+
+# valid prohibition
+create prohibition "u2-prohibition"
+deny user "u2"
+access rights ["permission1"]
+on union of "oa7";
+
+# invalid prohibition
+create prohibition "u2-prohibition-invalid"
+deny user "u2"
+access rights ["permission2"]
+on union of "o1";
+
+# these should not be allowed
+associate 'u1' and 'o1' with ['permission1'];

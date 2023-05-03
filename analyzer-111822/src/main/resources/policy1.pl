@@ -19,6 +19,8 @@ oa(oa7).
 pc(department).
 
 ar(permission0).
+ar(permission1).
+ar(permission2).
 ar(permission4).
 
 % User and user attribute assignments.
@@ -53,6 +55,10 @@ association(ua4,oa5,[permission0]).
 association(ua4,oa4,[permission4]).
 association(ua4,oa2,[permission4]).
 association(ua2,oa2,[permission0]).
+association(ua1,oa4,[permission1, permission2]).
+
+%% This should not be allowed
+association(u1,o1,[permission1]).
 
 % Decisions, pre-mutation
 %% decision(u2, o1, p0, deny).
@@ -60,5 +66,8 @@ association(ua2,oa2,[permission0]).
 %% decision(u2, o1, p4, deny).
 %% decision(u1, o1, p4, grant).
 
-% Effect of the following: u2 cannot do p1 on o1
-%% disjunctiveProhibition(u2, [oa7], [p1]).
+% Effect of the following: u2 cannot do permission1 on o1
+disjunctiveProhibition(u2, [oa7], [permission1]).
+
+%% Invalid prohibition. Object cannot be the "object"
+disjunctiveProhibition(u2, [o1], [permission2]).
