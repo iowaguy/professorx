@@ -1,0 +1,49 @@
+create policy class 'department';
+assign(department,ua1)
+assign(department,ua2)
+assign(department,ua4)
+assign(department,ua5)
+assign(department,oa1)
+assign(department,oa2)
+assign(department,oa4)
+assign(department,oa5)
+create object attribute 'oa5';
+assign(oa5,oa6)
+create object attribute 'oa6';
+assign(oa6,oa7)
+create object attribute 'oa7';
+assign(oa7,o1)
+create object 'o1';
+create object attribute 'oa4';
+assign(oa4,oa6)
+create object attribute 'oa2';
+assign(oa2,oa3)
+create object attribute 'oa3';
+assign(oa3,oa7)
+create object attribute 'oa1';
+assign(oa1,oa3)
+create user attribute 'ua5';
+assign(ua5,ua6)
+association(ua5,oa5,PERMISSION0)
+create user attribute 'ua6';
+assign(ua6,ua7)
+create user attribute 'ua7';
+assign(ua7,u1)
+create user 'u1';
+association(u1,o1,PERMISSION1)
+prohibition(u1,o1,PERMISSION2)
+create user attribute 'ua4';
+assign(ua4,ua6)
+association(ua4,oa5,PERMISSION0)
+association(ua4,oa4,PERMISSION4)
+association(ua4,oa2,PERMISSION4)
+create user attribute 'ua2';
+assign(ua2,ua3)
+association(ua2,oa2,PERMISSION0)
+create user attribute 'ua3';
+create user attribute 'ua1';
+assign(ua1,ua3)
+assign(ua1,u2)
+association(ua1,oa4,PERMISSION1 PERMISSION2)
+create user 'u2';
+prohibition(u2,oa7,PERMISSION1)
