@@ -1,7 +1,11 @@
 package com.northeastern;
 
+//import static com.northeastern.PolicyExample.breadthTraverseAssignGraph;
+
 import java.io.BufferedWriter;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.io.StringWriter;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Iterator;
@@ -13,11 +17,15 @@ import org.jgrapht.traverse.BreadthFirstIterator;
 import org.jgrapht.traverse.DepthFirstIterator;
 
 public class Policy1 {
+
+  private static final String prologPath = "policy-graph/src/main/resources/translatePolicy.pl";
+  private static final String pmlPath = "policy-graph/src/main/resources/translatePolicy.pal";
+
   private Policy1() {
   }
 
   public static void main(String[] args) throws IOException {
-    Graph<NodeElement, DefaultEdge> assignGraph = createAssignGraph();
+    Graph<NodeElement, Relation> assignGraph = createAssignGraph();
 
     // note directed edges are printed as: (<v1>,<v2>)
     System.out.println("-- toString output");
@@ -32,16 +40,12 @@ public class Policy1 {
 
     // perform a graph traversal starting from that vertex
     System.out.println("-- depth traverse AssignGraph output");
-    try {
-      depthTraverseAssignGraph(assignGraph, startP);
-    } catch (IOException e) {
-      throw new RuntimeException(e);
-    }
+    depthTraverseAssignGraph(assignGraph, startP);
     System.out.println();
 
-    System.out.println("-- breadth traverse AssignGraph output");
-    breadthTraverseAssignGraph(assignGraph, startP);
-    System.out.println();
+//    System.out.println("-- breadth traverse AssignGraph output");
+//    breadthTraverseAssignGraph(assignGraph, startP);
+//    System.out.println();
 
 //    System.out.println(" -- a list of vertices that are the direct successors of pc");
 //    List<NodeElement> directNodes = Graphs.successorListOf(assignGraph, startP);
@@ -53,10 +57,9 @@ public class Policy1 {
    *
    * @return a graph based on node objects.
    */
-  public static Graph<NodeElement, DefaultEdge> createAssignGraph()
-  {
+  public static Graph<NodeElement, Relation> createAssignGraph() {
 
-    Graph<NodeElement, DefaultEdge> g = new DirectedMultigraph<>(DefaultEdge.class);
+    Graph<NodeElement, Relation> g = new DirectedMultigraph<>(Relation.class);
 
     User u1 = new User("u1");
     User u2 = new User("u2");
@@ -129,18 +132,17 @@ public class Policy1 {
     g.addEdge(oa1, oa3, new Assignment());
     g.addEdge(oa7, o1, new Assignment());
 
-
-    g.addEdge(ua5, oa5, new Association(ar0));
-    g.addEdge(ua4, oa5, new Association(ar0));
-    g.addEdge(ua4, oa4, new Association(ar4));
-    g.addEdge(ua4, oa2, new Association(ar4));
-    g.addEdge(ua2, oa2, new Association(ar0));
-    g.addEdge(ua1, oa4, new Association(ar12));
-    g.addEdge(u1, o1, new Association(ar1));
+    g.addEdge(oa5, ua5, new Association(ar0));
+    g.addEdge(oa5, ua4, new Association(ar0));
+    g.addEdge(oa4, ua4, new Association(ar4));
+    g.addEdge(oa2, ua4, new Association(ar4));
+    g.addEdge(oa2, ua2, new Association(ar0));
+    g.addEdge(oa4, ua1, new Association(ar12));
+    g.addEdge(o1, u1, new Association(ar1));
 
     //TODO the target of prohibition should be a list of attributes
-    g.addEdge(u2,oa7, new Prohibition(ar1));
-    g.addEdge(u1, o1, new Prohibition(ar2));
+    g.addEdge(oa7, u2, new Prohibition(ar1));
+    g.addEdge(o1, u2, new Prohibition(ar2));
 
     return g;
   }
@@ -149,42 +151,43 @@ public class Policy1 {
    * Traverse a graph in depth-first order and print the vertices.
    *
    * @param assignGraph a graph based on policy node elements
-   *
-   * @param start the vertex where the traversal should start
+   * @param start       the vertex where the traversal should start
    */
-  private static void depthTraverseAssignGraph(Graph<NodeElement, DefaultEdge> assignGraph, NodeElement start)
-      throws IOException {
-    // create a writer
-    BufferedWriter writerProlog = null;
-    BufferedWriter writerPML = null;
+  private static void depthTraverseAssignGraph(Graph<NodeElement, Relation> assignGraph,
+      NodeElement start) {
+    AccessRight.writeAccessRights();
+    // append after access rights
     try {
-      writerProlog = Files.newBufferedWriter(Paths.get("policy-graph/src/main/resources/translatePolicy.pl"));
-      writerPML = Files.newBufferedWriter(Paths.get("policy-graph/src/main/resources/translatePolicy.pal"));
-    } catch (IOException e) {
-      System.out.println(e.getMessage());
-      System.exit(1);
-    }
-    Iterator<NodeElement> iterator = new DepthFirstIterator<>(assignGraph, start);
-    while (iterator.hasNext()) {
-      NodeElement node = iterator.next();
-      try {
-        writerProlog.write(node.toStringProlog() + System.lineSeparator());
-        writerPML.write(node.toStringPML() + System.lineSeparator());
-//        Iterator<DefaultEdge> edgeIterator = (Iterator<DefaultEdge>) assignGraph.outgoingEdgesOf(node);
-        Set<DefaultEdge> edgeSet = assignGraph.outgoingEdgesOf(node);
-        for (DefaultEdge edge : edgeSet) {
-          writerProlog.write(edge.toString() + System.lineSeparator());
-          writerPML.write(edge.toString() + System.lineSeparator());
+      FileWriter writerProlog = new FileWriter(prologPath, true);
+      FileWriter writerPML = new FileWriter(pmlPath, true);
+      Iterator<NodeElement> iterator = new DepthFirstIterator<>(assignGraph, start);
+      while (iterator.hasNext()) {
+        NodeElement node = iterator.next();
+        try {
+          writerProlog.append(node.toStringProlog() + System.lineSeparator());
+          writerPML.append(node.toStringPML() + System.lineSeparator());
+          Set<Relation> edgeSet = assignGraph.outgoingEdgesOf(node);
+          for (Relation edge : edgeSet) {
+            writerProlog.append(edge.toStringProlog() + System.lineSeparator());
+            writerPML.append(edge.toStringPML() + System.lineSeparator());
+          }
+        } catch (IOException e) {
+          System.out.println(e.getMessage());
+          System.exit(1);
         }
-      } catch (IOException e) {
-        System.out.println(e.getMessage());
-        System.exit(1);
+        try {
+          writerProlog.flush();
+          writerPML.flush();
+        } catch (IOException e) {
+          System.out.println(e.getMessage());
+          System.exit(1);
+        }
       }
-//      System.out.println(node.toString() + assignGraph.outgoingEdgesOf(node));
-      writerProlog.flush();
-      writerPML.flush();
+    } catch (IOException e) {
+      throw new RuntimeException(e);
     }
   }
+}
 
   /**
    * Traverse a graph in breadth-first order and print the vertices.
@@ -193,12 +196,12 @@ public class Policy1 {
    *
    * @param start the vertex where the traversal should start
    */
-  private static void breadthTraverseAssignGraph(Graph<NodeElement, DefaultEdge> assignGraph, NodeElement start)
-  {
-    Iterator<NodeElement> iterator = new BreadthFirstIterator<>(assignGraph, start);
-    while (iterator.hasNext()) {
-      NodeElement node = iterator.next();
-      System.out.println(node.toString() + assignGraph.outgoingEdgesOf(node));
-    }
-  }
-}
+//  private static void breadthTraverseAssignGraph(Graph<NodeElement, Relation> assignGraph, NodeElement start)
+//  {
+//    Iterator<NodeElement> iterator = new BreadthFirstIterator<>(assignGraph, start);
+//    while (iterator.hasNext()) {
+//      NodeElement node = iterator.next();
+//      System.out.println(node.toString() + assignGraph.outgoingEdgesOf(node));
+//    }
+//  }
+//}
