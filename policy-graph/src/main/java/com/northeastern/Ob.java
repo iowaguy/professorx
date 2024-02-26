@@ -1,14 +1,18 @@
 package com.northeastern;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 public class Ob extends ObjectAttribute{
 
   protected String ob;
+  private static List<NodeElement> allObs = new ArrayList<>();
 
   public Ob(String objectAttribute) {
     super(objectAttribute);
     this.ob = objectAttribute;
+    allObs.add(this);
   }
 
   public String getOb() {
@@ -44,6 +48,11 @@ public class Ob extends ObjectAttribute{
 
   @Override
   public String toStringPML() {
-    return String.format("create object \'%1$s\';", this.getOb());
+    return String.format("create object \'%1$s\'", this.getOb());
+  }
+
+  @Override
+  public List<NodeElement> getAllElements() {
+    return allObs;
   }
 }

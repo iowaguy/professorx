@@ -1,13 +1,17 @@
 package com.northeastern;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
-public class PolicyClass implements NodeElement{
+public class PolicyClass extends NodeElement{
 
   protected String policyClass;
+  private static List<NodeElement> allPolicies = new ArrayList<>();
 
   public PolicyClass(String policyClass) {
     this.policyClass = policyClass;
+    allPolicies.add(this);
   }
 
   public String getPolicyClass() {
@@ -44,5 +48,10 @@ public class PolicyClass implements NodeElement{
   @Override
   public String toStringPML() {
     return String.format("create policy class \'%1$s\';", this.getPolicyClass());
+  }
+
+  @Override
+  public List<NodeElement> getAllElements() {
+    return allPolicies;
   }
 }

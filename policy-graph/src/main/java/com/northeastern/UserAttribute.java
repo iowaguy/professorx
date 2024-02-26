@@ -1,13 +1,17 @@
 package com.northeastern;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 public class UserAttribute extends Attribute{
 
   protected String userAttribute;
+  private static List<NodeElement> allUserAttributes = new ArrayList<>();
 
   public UserAttribute(String userAttribute) {
     this.userAttribute = userAttribute;
+    allUserAttributes.add(this);
   }
 
   public String getUserAttribute() {
@@ -43,6 +47,15 @@ public class UserAttribute extends Attribute{
 
   @Override
   public String toStringPML() {
-    return String.format("create user attribute \'%1$s\';", this.getUserAttribute());
+    return String.format("create user attribute \'%1$s\'", this.getUserAttribute());
   }
+
+  @Override
+  List<NodeElement> getAllElements() {
+    return allUserAttributes;
+  }
+
+  //  public List<NodeElement> getAllElements() {
+//    return allUserAttributes;
+//  }
 }

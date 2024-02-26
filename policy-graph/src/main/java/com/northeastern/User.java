@@ -1,13 +1,17 @@
 package com.northeastern;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
-public class User implements NodeElement{
+public class User extends NodeElement {
 
   protected String user;
+  private static List<NodeElement> allUsers = new ArrayList<>();
 
   public User(String user){
     this.user = user;
+    allUsers.add(this);
   }
 
   public String getUser() {
@@ -43,6 +47,11 @@ public class User implements NodeElement{
 
   @Override
   public String toStringPML() {
-    return String.format("create user \'%1$s\';", this.getUser());
+    return String.format("create user \'%1$s\'", this.getUser());
+  }
+
+  @Override
+  public List<NodeElement> getAllElements() {
+    return allUsers;
   }
 }

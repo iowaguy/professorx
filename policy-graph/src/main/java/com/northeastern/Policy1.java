@@ -1,55 +1,109 @@
 package com.northeastern;
 
-//import static com.northeastern.PolicyExample.breadthTraverseAssignGraph;
-
 import java.io.BufferedWriter;
 import java.io.FileWriter;
-import java.io.IOException;
-import java.io.StringWriter;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
+import java.io.IOException;
+import org.jgrapht.Graph;
+import org.jgrapht.graph.DirectedMultigraph;
+import org.jgrapht.traverse.DepthFirstIterator;
 import java.util.Iterator;
 import java.util.Set;
-import org.jgrapht.Graph;
-import org.jgrapht.graph.DefaultEdge;
-import org.jgrapht.graph.DirectedMultigraph;
-import org.jgrapht.traverse.BreadthFirstIterator;
-import org.jgrapht.traverse.DepthFirstIterator;
 
 public class Policy1 {
 
-  private static final String prologPath = "policy-graph/src/main/resources/translatePolicy.pl";
-  private static final String pmlPath = "policy-graph/src/main/resources/translatePolicy.pal";
+  private static String prologPath = "policy-graph/src/main/resources/translatePolicy.pl";
+  private static String pmlPath = "policy-graph/src/main/resources/translatePolicy.pal";
+  protected static List<NodeElement> allPolicyClasses;
+  protected static List<NodeElement> allUserAttributes;
+  protected static List<NodeElement> allUsers;
+  protected static List<NodeElement> allObjects;
+  protected static List<NodeElement> allObjectAttributes;
+  protected static List<Relation> allAssignments = new ArrayList<>();
+  protected static List<Relation> allAssociations = new ArrayList<>();
+  protected static List<Relation> allProhibitions = new ArrayList<>();
+  protected static List<Element> allNodesDFSOrder = new ArrayList<>();
 
   private Policy1() {
   }
 
+  public static String buildOneTypePML(List<Relation> oneRelation) {
+    StringBuilder oneRelationPML = new StringBuilder();
+    for (Element one: oneRelation) {
+      oneRelationPML.append(one.toStringPML() + System.lineSeparator());
+    }
+    return oneRelationPML.toString();
+  }
+
+  public static String buildOneTypeProlog(List<? extends Element> oneType) {
+    StringBuilder oneTypeProlog = new StringBuilder();
+    for (Element one: oneType) {
+      oneTypeProlog.append(one.toStringProlog() + System.lineSeparator());
+    }
+    return oneTypeProlog.toString();
+  }
+
+  public static void writeNodeElementsProlog(List<NodeElement> allKinds) {
+    // create prolog file
+    BufferedWriter writerProlog = null;
+    try {
+      writerProlog = Files.newBufferedWriter(Paths.get(prologPath));
+    } catch (IOException e) {
+      System.out.println(e.getMessage());
+      System.exit(1);
+    }
+    String policyString = null;
+    String userString = null;
+    String uaString = null;
+    String obString = null;
+    String obaString = null;
+    for (NodeElement node : allKinds) {
+      if (node instanceof PolicyClass) {
+        allPolicyClasses = node.getAllElements();
+        policyString = buildOneTypeProlog(allPolicyClasses);
+      }
+      else if (node instanceof User) {
+        allUsers = node.getAllElements();
+        userString = buildOneTypeProlog(allUsers);
+      }
+      else if (node instanceof UserAttribute) {
+        allUserAttributes = node.getAllElements();
+        uaString = buildOneTypeProlog(allUserAttributes);
+      }
+      else if (node instanceof Ob) {
+        allObjects = node.getAllElements();
+        obString = buildOneTypeProlog(allObjects);
+      }
+      else if (node instanceof ObjectAttribute) {
+        allObjectAttributes = node.getAllElements();
+        obaString = buildOneTypeProlog(allObjectAttributes);
+      }
+    }
+    try {
+      writerProlog.append(userString);
+      writerProlog.append(uaString);
+      writerProlog.append(obString);
+      writerProlog.append(obaString);
+      writerProlog.append(policyString);
+      writerProlog.flush();
+    } catch (Exception e) {
+      System.out.println(e.getMessage());
+      System.exit(1);
+    }
+  }
+
   public static void main(String[] args) throws IOException {
-    Graph<NodeElement, Relation> assignGraph = createAssignGraph();
+    Graph<Element, Relation> assignGraph = createAssignGraph();
 
-    // note directed edges are printed as: (<v1>,<v2>)
-    System.out.println("-- toString output");
-    System.out.println(assignGraph.toString());
-    String output = assignGraph.toString();
-
-    System.out.println();
-
-    NodeElement startP = assignGraph.
-        vertexSet().stream().filter(pc -> pc.toString().startsWith("de")).findAny()
+    Element startP =  assignGraph.
+        vertexSet().stream().filter(pc -> pc instanceof PolicyClass).findAny()
         .get();
 
     // perform a graph traversal starting from that vertex
-    System.out.println("-- depth traverse AssignGraph output");
     depthTraverseAssignGraph(assignGraph, startP);
-    System.out.println();
-
-//    System.out.println("-- breadth traverse AssignGraph output");
-//    breadthTraverseAssignGraph(assignGraph, startP);
-//    System.out.println();
-
-//    System.out.println(" -- a list of vertices that are the direct successors of pc");
-//    List<NodeElement> directNodes = Graphs.successorListOf(assignGraph, startP);
-//    System.out.println(directNodes);
   }
 
   /**
@@ -57,10 +111,10 @@ public class Policy1 {
    *
    * @return a graph based on node objects.
    */
-  public static Graph<NodeElement, Relation> createAssignGraph() {
+  public static Graph<Element, Relation> createAssignGraph() {
+    Graph<Element, Relation> g = new DirectedMultigraph<>(Relation.class);
 
-    Graph<NodeElement, Relation> g = new DirectedMultigraph<>(Relation.class);
-
+    // Create nodes
     User u1 = new User("u1");
     User u2 = new User("u2");
     UserAttribute ua1 = new UserAttribute("ua1");
@@ -80,32 +134,39 @@ public class Policy1 {
     ObjectAttribute oa7 = new ObjectAttribute("oa7");
     PolicyClass department = new PolicyClass("department");
 
-    AccessRight[] ar0 = new AccessRight[]{AccessRight.PERMISSION0};
-    AccessRight[] ar12 = new AccessRight[]{AccessRight.PERMISSION1, AccessRight.PERMISSION2};
-    AccessRight[] ar4 = new AccessRight[]{AccessRight.PERMISSION4};
-    AccessRight[] ar1 = new AccessRight[]{AccessRight.PERMISSION1};
-    AccessRight[] ar2 = new AccessRight[]{AccessRight.PERMISSION2};
+    List<NodeElement> allKinds = new ArrayList<>();
+    allKinds.add(department);
+    allKinds.add(ua1);
+    allKinds.add(u1);
+    allKinds.add(o1);
+    allKinds.add(oa1);
 
-    // add the vertices
-    g.addVertex(u1);
-    g.addVertex(u2);
-    g.addVertex(o1);
-    UserAttribute[] listOfUA = {ua1, ua2, ua3, ua4, ua5, ua6, ua7};
-    for (int i = 0; i < listOfUA.length; i++) {
-      g.addVertex(listOfUA[i]);
-    }
-    ObjectAttribute[] listOfOA = {oa1, oa2, oa3, oa4, oa5, oa6, oa7};
-    for (int i = 0; i < listOfUA.length; i++) {
-      g.addVertex(listOfOA[i]);
-    }
-    g.addVertex(department);
+    // Add permissions and write to the files
+    //TODO Is there a better way to create list of access right?
+    AccessRight permission0 = new AccessRight("permission0");
+    AccessRight permission1 = new AccessRight("permission1");
+    AccessRight permission2 = new AccessRight("permission2");
+    AccessRight permission3 = new AccessRight("permission3");
+    AccessRight permission4 = new AccessRight("permission4");
 
-    //the direction is opposite
-    /**
-     * how to use getSpanningTreeEdge
-     * https://jgrapht.org/javadoc/org.jgrapht.core/org/jgrapht/traverse/BreadthFirstIterator.html
-     */
-    // add edges to create linking structure
+    List<AccessRight> allPermissions = AccessRight.getAllPermissions();
+
+    AccessRight[] ar0 = new AccessRight[]{permission0};
+    AccessRight[] ar12 = new AccessRight[]{permission1, permission2};
+    AccessRight[] ar4 = new AccessRight[]{permission4};
+    AccessRight[] ar1 = new AccessRight[]{permission1};
+    AccessRight[] ar2 = new AccessRight[]{permission2};
+
+    // Write nodes to prolog and get the lists of nodes
+    writeNodeElementsProlog(allKinds);
+    // Add the vertices
+    addVertices(g, allPolicyClasses);
+    addVertices(g, allUsers);
+    addVertices(g, allUserAttributes);
+    addVertices(g, allObjects);
+    addVertices(g, allObjectAttributes);
+
+    // The direction is opposite
     // User and user attribute assignments
     g.addEdge(department, ua1, new Assignment());
     g.addEdge(department, ua2, new Assignment());
@@ -144,7 +205,14 @@ public class Policy1 {
     g.addEdge(oa7, u2, new Prohibition(ar1));
     g.addEdge(o1, u2, new Prohibition(ar2));
 
+    AccessRight.writeAccessRights(allPermissions);
     return g;
+  }
+
+  private static void addVertices(Graph<Element, Relation> g, List<NodeElement> nodes) {
+    for (Element node: nodes) {
+      g.addVertex(node);
+    }
   }
 
   /**
@@ -153,55 +221,78 @@ public class Policy1 {
    * @param assignGraph a graph based on policy node elements
    * @param start       the vertex where the traversal should start
    */
-  private static void depthTraverseAssignGraph(Graph<NodeElement, Relation> assignGraph,
-      NodeElement start) {
-    AccessRight.writeAccessRights();
-    // append after access rights
-    try {
-      FileWriter writerProlog = new FileWriter(prologPath, true);
-      FileWriter writerPML = new FileWriter(pmlPath, true);
-      Iterator<NodeElement> iterator = new DepthFirstIterator<>(assignGraph, start);
-      while (iterator.hasNext()) {
-        NodeElement node = iterator.next();
-        try {
-          writerProlog.append(node.toStringProlog() + System.lineSeparator());
-          writerPML.append(node.toStringPML() + System.lineSeparator());
-          Set<Relation> edgeSet = assignGraph.outgoingEdgesOf(node);
-          for (Relation edge : edgeSet) {
-            writerProlog.append(edge.toStringProlog() + System.lineSeparator());
-            writerPML.append(edge.toStringPML() + System.lineSeparator());
-          }
-        } catch (IOException e) {
-          System.out.println(e.getMessage());
-          System.exit(1);
+  private static void depthTraverseAssignGraph(Graph<Element, Relation> assignGraph,
+      Element start) {
+    Iterator<Element> iterator = new DepthFirstIterator<>(assignGraph, start);
+    while (iterator.hasNext()) {
+      Element node = iterator.next();
+      allNodesDFSOrder.add(node);
+      Set<Relation> edgeSet = assignGraph.outgoingEdgesOf(node);
+      for (Relation edge : edgeSet) {
+        if (edge instanceof Assignment) {
+          allAssignments.add(edge);
         }
-        try {
-          writerProlog.flush();
-          writerPML.flush();
-        } catch (IOException e) {
-          System.out.println(e.getMessage());
-          System.exit(1);
+        else if (edge instanceof Association) {
+          allAssociations.add(edge);
+        }
+        else if (edge instanceof Prohibition) {
+          allProhibitions.add(edge);
         }
       }
+    }
+    // append after access rights in Prolog
+    String assignmentStringProlog = buildOneTypeProlog(allAssignments);
+    String associationStringProlog = buildOneTypeProlog(allAssociations);
+    String prohibitionStringProlog = buildOneTypeProlog(allProhibitions);
+    try {
+      FileWriter writerProlog = new FileWriter(prologPath, true);
+      writerProlog.append(assignmentStringProlog);
+      writerProlog.append(associationStringProlog);
+      writerProlog.append(prohibitionStringProlog);
+      writerProlog.flush();
     } catch (IOException e) {
-      throw new RuntimeException(e);
+      System.out.println(e.getMessage());
+      System.exit(1);
+    }
+
+    // create nodes and relations in PML
+    try {
+      FileWriter writerPML = new FileWriter(pmlPath, true);
+      List<Element> createdNodes = new ArrayList<>();
+      List<Relation> remainingAssignments = allAssignments;
+      for (Element node: allNodesDFSOrder) {
+        StringBuilder createNodeString = new StringBuilder();
+        if (assignGraph.incomingEdgesOf(node).isEmpty()) { // when it is a policy class
+          createNodeString.append(node.toStringPML() + System.lineSeparator());
+          createdNodes.add(node);
+        }
+        Set<Relation> outgoingEdges = assignGraph.outgoingEdgesOf(node);
+        Iterator<Relation> outgoingEdge = outgoingEdges.iterator();
+        while (outgoingEdge.hasNext()) {
+          Relation relation = outgoingEdge.next();
+          if (relation instanceof Assignment) {
+            NodeElement target = ((Assignment) relation).getTarget();
+            if (!createdNodes.contains(target)) {
+              createNodeString.append(target.toStringPML() +
+                  " in \'" + node.toString() + "\';" + System.lineSeparator());
+              createdNodes.add(target);
+              remainingAssignments.remove(relation);
+            }
+          }
+        }
+        writerPML.append(createNodeString);
+      }
+      // append after creating nodes
+      String assignmentStringPML = buildOneTypePML(remainingAssignments);
+      String associationStringPML = buildOneTypePML(allAssociations);
+      String prohibitionStringPML = buildOneTypePML(allProhibitions);
+      writerPML.append(assignmentStringPML);
+      writerPML.append(associationStringPML);
+      writerPML.append(prohibitionStringPML);
+      writerPML.flush();
+    } catch (IOException e) {
+      System.out.println(e.getMessage());
+      System.exit(1);
     }
   }
 }
-
-  /**
-   * Traverse a graph in breadth-first order and print the vertices.
-   *
-   * @param assignGraph a graph based on policy node elements
-   *
-   * @param start the vertex where the traversal should start
-   */
-//  private static void breadthTraverseAssignGraph(Graph<NodeElement, Relation> assignGraph, NodeElement start)
-//  {
-//    Iterator<NodeElement> iterator = new BreadthFirstIterator<>(assignGraph, start);
-//    while (iterator.hasNext()) {
-//      NodeElement node = iterator.next();
-//      System.out.println(node.toString() + assignGraph.outgoingEdgesOf(node));
-//    }
-//  }
-//}

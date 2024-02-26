@@ -1,7 +1,10 @@
 package com.northeastern;
 
-public interface NodeElement {
+import java.util.ArrayList;
+import java.util.List;
 
-  String toStringProlog();
-  String toStringPML();
+public abstract class NodeElement implements Element {
+
+
+  abstract List<NodeElement> getAllElements();
 }

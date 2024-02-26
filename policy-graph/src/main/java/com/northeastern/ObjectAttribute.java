@@ -1,13 +1,17 @@
 package com.northeastern;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 public class ObjectAttribute extends Attribute{
 
   protected String objectAttribute;
+  private static List<NodeElement> allObjectAttributes = new ArrayList<>();
 
   public ObjectAttribute(String objectAttribute) {
     this.objectAttribute = objectAttribute;
+    allObjectAttributes.add(this);
   }
 
   public String getObjectAttribute() {
@@ -43,6 +47,10 @@ public class ObjectAttribute extends Attribute{
 
   @Override
   public String toStringPML() {
-    return String.format("create object attribute \'%1$s\';", this.getObjectAttribute());
+    return String.format("create object attribute \'%1$s\'", this.getObjectAttribute());
+  }
+
+  public List<NodeElement> getAllElements() {
+    return allObjectAttributes;
   }
 }

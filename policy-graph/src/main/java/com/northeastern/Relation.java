@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import org.jgrapht.graph.DefaultEdge;
 
-public abstract class Relation extends DefaultEdge {
+public abstract class Relation extends DefaultEdge implements Element {
 
   protected AccessRight[] accessRights;
 
@@ -23,11 +23,11 @@ public abstract class Relation extends DefaultEdge {
     return arList;
   }
 
-  String toStringProlog() {
-    return "to be defined in subclass";
-  }
-
-  String toStringPML() {
-    return "to be defined in subclass";
-  }
+//  String toStringProlog() {
+//    return "to be defined in subclass";
+//  }
+//
+//  String toStringPML() {
+//    return "to be defined in subclass";
+//  }
 }

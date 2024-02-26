@@ -21,8 +21,12 @@ public class Assignment extends Relation {
   }
 
   @Override
-  String toStringPML() {
+  public String toStringPML() {
     return String.format("assign \'%1$s\' to \'%2$s\';",
         this.getTarget(), this.getSource());
+  }
+
+  protected NodeElement getTarget() {
+    return (NodeElement) super.getTarget();
   }
 }

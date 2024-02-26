@@ -16,7 +16,7 @@ public class Prohibition extends Relation {
         this.getTarget(), this.getSource(), this.getAccessRightString());
   }
 
-  //TODO Should we represent prohibited attributes by a list or [attribute]?
+  //TODO Should we represent prohibited attributes by a list or [attribute]？
   @Override
   public String toStringProlog() {
     StringBuilder ars = new StringBuilder();

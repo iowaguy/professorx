@@ -1,9 +1,27 @@
+u(u1).
+u(u2).
+ua(ua1).
+ua(ua2).
+ua(ua3).
+ua(ua4).
+ua(ua5).
+ua(ua6).
+ua(ua7).
+o(o1).
+o(o1).
+oa(oa1).
+oa(oa2).
+oa(oa3).
+oa(oa4).
+oa(oa5).
+oa(oa6).
+oa(oa7).
+pc(department).
 ar(permission0).
 ar(permission1).
 ar(permission2).
 ar(permission3).
 ar(permission4).
-pc(department).
 assign(ua1,department).
 assign(ua2,department).
 assign(ua4,department).
@@ -12,43 +30,26 @@ assign(oa1,department).
 assign(oa2,department).
 assign(oa4,department).
 assign(oa5,department).
-oa(oa5).
 assign(oa6,oa5).
-association(ua5,oa5,[permission0]).
-association(ua4,oa5,[permission0]).
-ua(ua4).
 assign(ua6,ua4).
-ua(ua6).
 assign(ua7,ua6).
-ua(ua7).
 assign(u1,ua7).
-u(u1).
-ua(ua5).
 assign(ua6,ua5).
-oa(oa6).
 assign(oa7,oa6).
-oa(oa7).
 assign(o1,oa7).
-disjunctiveProhibition(u2, [oa7], [permission1]).
-u(u2).
-o(o1).
-association(u1,o1,[permission1]).
-disjunctiveProhibition(u2, [o1], [permission2]).
-oa(oa4).
 assign(oa6,oa4).
-association(ua4,oa4,[permission4]).
-association(ua1,oa4,[permission1, permission2]).
-ua(ua1).
 assign(ua3,ua1).
 assign(u2,ua1).
-ua(ua3).
-oa(oa2).
 assign(oa3,oa2).
+assign(ua3,ua2).
+assign(oa7,oa3).
+assign(oa3,oa1).
+association(ua5,oa5,[permission0]).
+association(ua4,oa5,[permission0]).
+association(u1,o1,[permission1]).
+association(ua4,oa4,[permission4]).
+association(ua1,oa4,[permission1, permission2]).
 association(ua4,oa2,[permission4]).
 association(ua2,oa2,[permission0]).
-ua(ua2).
-assign(ua3,ua2).
-oa(oa3).
-assign(oa7,oa3).
-oa(oa1).
-assign(oa3,oa1).
+disjunctiveProhibition(u2, [oa7], [permission1]).
+disjunctiveProhibition(u2, [o1], [permission2]).
