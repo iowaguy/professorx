@@ -204,6 +204,7 @@ public class Policy1 {
     //TODO the target of prohibition should be a list of attributes
     g.addEdge(oa7, u2, new Prohibition(ar1));
     g.addEdge(o1, u2, new Prohibition(ar2));
+    g.removeVertex(oa5);
 
     AccessRight.writeAccessRights(allPermissions);
     return g;

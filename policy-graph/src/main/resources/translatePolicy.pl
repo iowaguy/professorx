@@ -29,26 +29,22 @@ assign(ua5,department).
 assign(oa1,department).
 assign(oa2,department).
 assign(oa4,department).
-assign(oa5,department).
-assign(oa6,oa5).
-assign(ua6,ua4).
-assign(ua7,ua6).
-assign(u1,ua7).
-assign(ua6,ua5).
-assign(oa7,oa6).
-assign(o1,oa7).
 assign(oa6,oa4).
 assign(ua3,ua1).
 assign(u2,ua1).
+assign(ua6,ua4).
+assign(ua7,ua6).
+assign(u1,ua7).
+assign(oa7,oa6).
+assign(o1,oa7).
 assign(oa3,oa2).
 assign(ua3,ua2).
 assign(oa7,oa3).
 assign(oa3,oa1).
-association(ua5,oa5,[permission0]).
-association(ua4,oa5,[permission0]).
-association(u1,o1,[permission1]).
+assign(ua6,ua5).
 association(ua4,oa4,[permission4]).
 association(ua1,oa4,[permission1, permission2]).
+association(u1,o1,[permission1]).
 association(ua4,oa2,[permission4]).
 association(ua2,oa2,[permission0]).
 disjunctiveProhibition(u2, [oa7], [permission1]).

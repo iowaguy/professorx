@@ -31,8 +31,8 @@ public class Prohibition extends Relation {
     StringBuilder ars = new StringBuilder();
     ars.append("[\"").append(String.join("\", \"", this.getAccessRightString())).append("\"]");
 
-    return String.format("create prohibition \"%1$s-prohibition\"\ndeny user \"%1$s\"\naccess rights"
+    return String.format("create prohibition \"%1$s-prohibition-%2$s-%4$s\"\ndeny user \"%1$s\"\naccess rights"
             + " %3$s\non union of \"%2$s\";",
-        this.getTarget(), this.getSource(), ars);
+        this.getTarget(), this.getSource(), ars, ars.toString().replace("\"", "\\"));
   }
 }
