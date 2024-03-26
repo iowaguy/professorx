@@ -46,7 +46,7 @@ disjProhibited(U, AT, AR) :-
     % set.
     disjunctiveProhibition(U_or_UA, ATI, ARS),
     legalAccessRights(ARS),
-    (ua(AT); oa(AT)),
+    (ua(AT); oa(AT); o(AT)),
 
     % The access right AR must be in the set of access
     % rights ARS in the defined prohibition.
