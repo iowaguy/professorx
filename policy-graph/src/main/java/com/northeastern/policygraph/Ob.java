@@ -1,17 +1,16 @@
-package com.northeastern;
+package com.northeastern.policygraph;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-public class Ob extends ObjectAttribute{
+public class Ob extends NodeElement {
 
   protected String ob;
   private static List<NodeElement> allObs = new ArrayList<>();
 
-  public Ob(String objectAttribute) {
-    super(objectAttribute);
-    this.ob = objectAttribute;
+  public Ob(String ob) {
+    this.ob = ob;
     allObs.add(this);
   }
 
@@ -51,8 +50,17 @@ public class Ob extends ObjectAttribute{
     return String.format("create object \'%1$s\'", this.getOb());
   }
 
-  @Override
-  public List<NodeElement> getAllElements() {
+  public static List<NodeElement> getAllElements() {
     return allObs;
+  }
+
+  @Override
+  String getTypeNameProlog() {
+    return "o";
+  }
+
+  @Override
+  String getTypeNamePML() {
+    return "object";
   }
 }

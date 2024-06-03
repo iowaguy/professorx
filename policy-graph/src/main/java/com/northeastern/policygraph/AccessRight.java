@@ -1,4 +1,4 @@
-package com.northeastern;
+package com.northeastern.policygraph;
 
 import java.io.BufferedWriter;
 import java.io.FileWriter;
@@ -18,6 +18,22 @@ public class AccessRight {
   public AccessRight(String permission) {
     this.permission = permission;
     permissions.add(this);
+  }
+
+  public static List<String> buildAccessRights(List<AccessRight> allPermissions) {
+    String buildPML;
+    StringBuilder buildProlog = new StringBuilder();
+    Iterator<AccessRight> accessRightIterator = allPermissions.iterator();
+    List<String> arPML = new ArrayList<>();
+    while (accessRightIterator.hasNext()) {
+      String arToString = accessRightIterator.next().toString().toLowerCase();
+      buildProlog.append(String.format("ar(%1$s).", arToString) + System.lineSeparator());
+      arPML.add("'" + arToString + "'");
+    }
+    String arsPML = String.join(", ", arPML);
+    arsPML += ";";
+    buildPML = String.format("set resource access rights %1$s", arsPML) + System.lineSeparator();
+    return List.of(buildProlog.toString(), buildPML);
   }
 
   public String getPermission() {

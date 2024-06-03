@@ -7,11 +7,14 @@
     <groupId>com.northeastern.mutationanalysis</groupId>
     <artifactId>mutationanalysis</artifactId>
     <version>0.1</version>
-    <relativePath>../pom-051920.xml</relativePath>
+    <relativePath>../pom-111822.xml</relativePath>
   </parent>
 
-  <groupId>org.example</groupId>
+  <groupId>org.example.policygraph</groupId>
   <artifactId>policy-graph</artifactId>
+  <version>0.1</version>
+
+  <name>policy-graph</name>
 
   <properties>
     <maven.compiler.source>17</maven.compiler.source>
@@ -34,6 +37,12 @@
       <groupId>org.jgrapht</groupId>
       <artifactId>jgrapht</artifactId>
       <version>1.5.1</version>
+    </dependency>
+    <dependency>
+      <groupId>org.jgrapht</groupId>
+      <artifactId>jgrapht-core</artifactId>
+      <version>1.5.1</version>
+      <scope>compile</scope>
     </dependency>
   </dependencies>
 

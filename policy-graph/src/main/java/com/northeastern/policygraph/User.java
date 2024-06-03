@@ -1,4 +1,4 @@
-package com.northeastern;
+package com.northeastern.policygraph;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -50,8 +50,17 @@ public class User extends NodeElement {
     return String.format("create user \'%1$s\'", this.getUser());
   }
 
-  @Override
-  public List<NodeElement> getAllElements() {
+  public static List<NodeElement> getAllElements() {
     return allUsers;
+  }
+
+  @Override
+  String getTypeNameProlog() {
+    return "u";
+  }
+
+  @Override
+  String getTypeNamePML() {
+    return "user";
   }
 }

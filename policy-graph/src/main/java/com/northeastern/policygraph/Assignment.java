@@ -1,11 +1,15 @@
-package com.northeastern;
+package com.northeastern.policygraph;
 
-import org.jgrapht.graph.DefaultEdge;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Assignment extends Relation {
 
+  private static List<Relation> allAssignments = new ArrayList<>();
+
   public Assignment() {
     super(null);
+    allAssignments.add(this);
   }
 
   @Override
@@ -26,7 +30,12 @@ public class Assignment extends Relation {
         this.getTarget(), this.getSource());
   }
 
+  public static List<Relation> getAllAssignments() {
+    return allAssignments;
+  }
+
   protected NodeElement getTarget() {
     return (NodeElement) super.getTarget();
   }
+
 }

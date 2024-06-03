@@ -3,6 +3,7 @@ package com.northeastern.analyzer;
 import java.io.IOException;
 import java.io.Writer;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Set;
 
@@ -36,7 +37,8 @@ public class Runner {
 
   private static void testNewPolicyEngine(String[] args) {
 
-    Policy policy = new PolicyImpl(args[0]);
+    Path fileName = java.nio.file.Path.of(args[0]);
+    Policy policy = new PolicyImpl(fileName);
     PolicyEngine policyEngine = null;
     try {
       policyEngine = new PolicyEngine((PolicyImpl) policy);

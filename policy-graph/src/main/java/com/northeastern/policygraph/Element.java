@@ -1,4 +1,4 @@
-package com.northeastern;
+package com.northeastern.policygraph;
 
 public interface Element {
   String toStringProlog();

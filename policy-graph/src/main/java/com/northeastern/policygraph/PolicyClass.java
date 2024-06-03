@@ -1,4 +1,4 @@
-package com.northeastern;
+package com.northeastern.policygraph;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -50,8 +50,17 @@ public class PolicyClass extends NodeElement{
     return String.format("create policy class \'%1$s\';", this.getPolicyClass());
   }
 
-  @Override
-  public List<NodeElement> getAllElements() {
+  public static List<NodeElement> getAllElements() {
     return allPolicies;
+  }
+
+  @Override
+  String getTypeNameProlog() {
+    return "pc";
+  }
+
+  @Override
+  String getTypeNamePML() {
+    return "policy class";
   }
 }

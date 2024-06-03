@@ -1,10 +1,10 @@
-package com.northeastern;
+package com.northeastern.policygraph;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-public class UserAttribute extends Attribute{
+public class UserAttribute extends NodeElement{
 
   protected String userAttribute;
   private static List<NodeElement> allUserAttributes = new ArrayList<>();
@@ -50,12 +50,17 @@ public class UserAttribute extends Attribute{
     return String.format("create user attribute \'%1$s\'", this.getUserAttribute());
   }
 
-  @Override
-  List<NodeElement> getAllElements() {
+  public static List<NodeElement> getAllElements() {
     return allUserAttributes;
   }
 
-  //  public List<NodeElement> getAllElements() {
-//    return allUserAttributes;
-//  }
+  @Override
+  String getTypeNameProlog() {
+    return "ua";
+  }
+
+  @Override
+  String getTypeNamePML() {
+    return "user attribute";
+  }
 }

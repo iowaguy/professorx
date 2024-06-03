@@ -1,13 +1,14 @@
-package com.northeastern;
+package com.northeastern.policygraph;
+
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Iterator;
 import java.util.List;
 
 public class Association extends Relation {
 
+  private static List<Relation> allAssociations = new ArrayList<>();
   public Association(AccessRight[] accessRights) {
     super(accessRights);
+    allAssociations.add(this);
   }
 
   @Override
@@ -32,5 +33,9 @@ public class Association extends Relation {
 
     return String.format("associate \'%1$s\' and \'%2$s\' with %3$s;",
         this.getTarget(), this.getSource(), ars);
+  }
+
+  public static List<Relation> getAllAssociations() {
+    return allAssociations;
   }
 }

@@ -2,6 +2,7 @@ package com.northeastern.policyengine;
 
 import com.northeastern.policy.MyPMException;
 import com.northeastern.policy.Policy;
+import java.nio.file.Paths;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -13,10 +14,9 @@ public class PolicyImpl implements Policy {
   private String policyString;
   static Logger logger = LogManager.getLogger(PolicyImpl.class);
 
-  public PolicyImpl(String policyPath) {
+  public PolicyImpl(Path policyPath) {
     // Read the policy from disk
-    Path fileName = Path.of(policyPath);
-    String policyString;
+    Path fileName = policyPath;
 
     try {
       this.policyString = Files.readString(fileName);
@@ -24,6 +24,7 @@ public class PolicyImpl implements Policy {
     } catch (IOException io) {
       logger.fatal("Problem reading file: {}", io.getMessage());
     }
+
 
 //    UserContext superUser = new UserContext(SUPER_USER);
 //    try {
@@ -33,6 +34,11 @@ public class PolicyImpl implements Policy {
 //    }
   }
 
+  public PolicyImpl(String policyString) {
+    // Read the policy from String
+    this.policyString = policyString;
+    logger.info("Full policy:\n {}", this.policyString);
+  }
   private Policy attributeExchangeExplicit(String source, String dest, String newSource,
                                                String newDest) throws MyPMException {
 //    Map<String, OperationSet> associations = null;

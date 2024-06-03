@@ -1,13 +1,16 @@
-package com.northeastern;
+package com.northeastern.policygraph;
 
-import org.jgrapht.graph.DefaultEdge;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Prohibition extends Relation {
 
+  private static List<Relation> allProhibitions = new ArrayList<>();
   protected AccessRight[] accessRights;
 
   public Prohibition(AccessRight[] accessRights) {
     super(accessRights);
+    allProhibitions.add(this);
   }
 
   @Override
@@ -34,5 +37,9 @@ public class Prohibition extends Relation {
     return String.format("create prohibition \"%1$s-prohibition-%2$s-%4$s\"\ndeny user \"%1$s\"\naccess rights"
             + " %3$s\non union of \"%2$s\";",
         this.getTarget(), this.getSource(), ars, ars.toString().replace("\"", "\\"));
+  }
+
+  public static List<Relation> getAllProhibitions() {
+    return allProhibitions;
   }
 }
