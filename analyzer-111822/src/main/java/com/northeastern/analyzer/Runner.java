@@ -1,10 +1,19 @@
 package com.northeastern.analyzer;
 
+import static com.northeastern.policygraph.GraphRunner.createFile;
+import static com.northeastern.policygraph.Mutation.mutateAddNode;
+import static com.northeastern.policygraph.PolicyGraph.buildPMLString;
+import static com.northeastern.policygraph.PolicyGraph.buildPrologString;
+
+import com.northeastern.policygraph.Mutation;
+import com.northeastern.policygraph.NodeElementType;
 import java.io.IOException;
 import java.io.Writer;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.csv.CSVPrinter;
@@ -21,25 +30,42 @@ import com.northeastern.policy.ResourceAccess;
 import com.northeastern.policyengine.ExhaustiveAccessor;
 import com.northeastern.policyengine.PolicyEngine;
 import com.northeastern.policyengine.PolicyImpl;
+import com.northeastern.policygraph.PolicyGraph;
+import org.jpl7.Query;
 
 
 public class Runner {
   static Logger logger = LogManager.getLogger(Runner.class);
-
+  private static String prologPathMutated = "analyzer-111822/src/main/resources/mutatedPolicy.pl";
+  private static String prologRule = "prolog-policy-engine/src/main/resources/rules.pl";
   public static void main(String[] args) {
     if (args.length != 3) {
       System.err.printf("%d arguments provided. Need 3.", args.length);
       System.exit(1);
     }
 
-    testNewPolicyEngine(args);
+    testNewPolicyEngineInitial(args);
+    PolicyGraph initialGraph = new PolicyGraph();
+    mutateAddNodeImp(initialGraph, 0);
   }
 
-  private static void testNewPolicyEngine(String[] args) {
-
+  private static void testNewPolicyEngineInitial(String[] args) {
     Path fileName = java.nio.file.Path.of(args[0]);
-    Policy policy = new PolicyImpl(fileName);
+    // Read the policy from disk
+    try {
+      String policyString = Files.readString(fileName);
+      args[0] = policyString;
+      testNewPolicyEngine(args);
+    } catch (IOException io) {
+      logger.fatal("Problem reading file: {}", io.getMessage());
+    }
+  }
+  private static void testNewPolicyEngine(String[] args) {
+//    Path fileName = java.nio.file.Path.of(args[0]);
+//    Policy policy = new PolicyImpl(fileName);
+    Policy policy = new PolicyImpl(args[0]);
     PolicyEngine policyEngine = null;
+//    System.
     try {
       policyEngine = new PolicyEngine((PolicyImpl) policy);
     } catch (MyPMException e) {
@@ -130,6 +156,9 @@ public class Runner {
       // close the writer
       writerDecisions.close();
       writerDiscrepencies.close();
+      Query unloadPolicy = new Query(
+          "unload_file('policy-graph/src/main/resources/translatePolicy.pl')");
+      unloadPolicy.hasSolution();
 
     } catch (IOException e) {
       logger.fatal(() -> "Issue encountered closing CSV file: " + e.getMessage());
@@ -175,5 +204,19 @@ public class Runner {
 //
 //    b = newPolicyEngine.getDecision(testAccess2);
 //    System.out.println("New explicit access: " + testAccess2.toString() + ". Allowed after mutation? " + b);
+  }
+
+  private static void mutateAddNodeImp(PolicyGraph initialGraph, int rounds) {
+    for (int i = 0; i < rounds; i++) {
+      PolicyGraph mutatedGraph = mutateAddNode(initialGraph, NodeElementType.USER,
+          NodeElementType.USER_ATTRIBUTE);
+      List<String> proPMLString = new ArrayList<>();
+      proPMLString.add(buildPrologString(mutatedGraph.getNodeLists(), mutatedGraph.getRelationLists()));
+      proPMLString.add(buildPMLString(mutatedGraph, mutatedGraph.getNodeLists()));
+      createFile(proPMLString.get(0), prologPathMutated);
+      // Build the new args
+      String[] newArgs = {proPMLString.get(1), prologPathMutated, prologRule};
+      testNewPolicyEngine(newArgs);
+    }
   }
 }

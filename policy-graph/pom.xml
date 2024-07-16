@@ -10,8 +10,9 @@
     <relativePath>../pom-111822.xml</relativePath>
   </parent>
 
-  <groupId>org.example.policygraph</groupId>
+  <groupId>com.northeastern.policygraph</groupId>
   <artifactId>policy-graph</artifactId>
+  <packaging>jar</packaging>
   <version>0.1</version>
 
   <name>policy-graph</name>
@@ -22,28 +23,28 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
 
-  <dependencies>
-    <dependency>
-      <groupId>org.jgrapht</groupId>
-      <artifactId>jgrapht-core</artifactId>
-      <version>1.5.1</version>
-    </dependency>
-    <dependency>
-      <groupId>org.jgrapht</groupId>
-      <artifactId>jgrapht-io</artifactId>
-      <version>1.5.1</version>
-    </dependency>
-    <dependency>
-      <groupId>org.jgrapht</groupId>
-      <artifactId>jgrapht</artifactId>
-      <version>1.5.1</version>
-    </dependency>
-    <dependency>
-      <groupId>org.jgrapht</groupId>
-      <artifactId>jgrapht-core</artifactId>
-      <version>1.5.1</version>
-      <scope>compile</scope>
-    </dependency>
-  </dependencies>
+<!--  <dependencies>-->
+<!--    <dependency>-->
+<!--      <groupId>org.jgrapht</groupId>-->
+<!--      <artifactId>jgrapht-core</artifactId>-->
+<!--      <version>1.5.1</version>-->
+<!--    </dependency>-->
+<!--    <dependency>-->
+<!--      <groupId>org.jgrapht</groupId>-->
+<!--      <artifactId>jgrapht-io</artifactId>-->
+<!--      <version>1.5.1</version>-->
+<!--    </dependency>-->
+<!--    <dependency>-->
+<!--      <groupId>org.jgrapht</groupId>-->
+<!--      <artifactId>jgrapht</artifactId>-->
+<!--      <version>1.5.1</version>-->
+<!--    </dependency>-->
+<!--&lt;!&ndash;    <dependency>&ndash;&gt;-->
+<!--&lt;!&ndash;      <groupId>org.jgrapht</groupId>&ndash;&gt;-->
+<!--&lt;!&ndash;      <artifactId>jgrapht-core</artifactId>&ndash;&gt;-->
+<!--&lt;!&ndash;      <version>1.5.1</version>&ndash;&gt;-->
+<!--&lt;!&ndash;      <scope>compile</scope>&ndash;&gt;-->
+<!--&lt;!&ndash;    </dependency>&ndash;&gt;-->
+<!--  </dependencies>-->
 
 </project>

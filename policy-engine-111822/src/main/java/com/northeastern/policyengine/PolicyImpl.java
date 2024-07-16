@@ -14,17 +14,16 @@ public class PolicyImpl implements Policy {
   private String policyString;
   static Logger logger = LogManager.getLogger(PolicyImpl.class);
 
-  public PolicyImpl(Path policyPath) {
-    // Read the policy from disk
-    Path fileName = policyPath;
-
-    try {
-      this.policyString = Files.readString(fileName);
-      logger.info("Full policy:\n {}", this.policyString);
-    } catch (IOException io) {
-      logger.fatal("Problem reading file: {}", io.getMessage());
-    }
-
+//  public PolicyImpl(Path policyPath) {
+//    // Read the policy from disk
+//    Path fileName = policyPath;
+//
+//    try {
+//      this.policyString = Files.readString(fileName);
+//      logger.info("Full policy:\n {}", this.policyString);
+//    } catch (IOException io) {
+//      logger.fatal("Problem reading file: {}", io.getMessage());
+//    }
 
 //    UserContext superUser = new UserContext(SUPER_USER);
 //    try {
@@ -32,7 +31,7 @@ public class PolicyImpl implements Policy {
 //    } catch (PMException e) {
 //      logger.fatal("Problem compile policy string: {}", e.getMessage());
 //    }
-  }
+//  }
 
   public PolicyImpl(String policyString) {
     // Read the policy from String

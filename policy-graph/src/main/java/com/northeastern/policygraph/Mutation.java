@@ -6,63 +6,94 @@ import static com.northeastern.policygraph.PolicyGraph.buildPMLString;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 public class Mutation {
+
+  static final int NODE_TYPE_NUMBER = 5;
 
   public Mutation() {
   }
 
-  // TODO public static List<String> mutateAddNode(PolicyGraph initialGraph,
-  //  NodeElementType newNodeType, NodeElementType targetNodeType)
+//  public static List<String> mutateAddNode(PolicyGraph initialGraph,
+//      NodeElementType newNodeType, NodeElementType targetNodeType) {
+//    List<String> proPMLString = new ArrayList<>();
+//    List<List<NodeElement>> initialNodes = initialGraph.getNodeLists();
+//
+//    // Create the new node
+//    NodeElement newNode = NodeElementType.createNewNode(newNodeType);
+//    System.out.println("Initial Node list after creating a new node: " + initialGraph.getNodeLists());
+//
+//    // Get the nodes list of assignedNodeType
+//    // and randomly select one node to be assigned
+//    List<NodeElement> assignedNodeList = NodeElementType.getNodeList(
+//        targetNodeType, initialNodes);
+//    Random random = new Random();
+//    NodeElement assignedNode = null;
+//    if (!assignedNodeList.isEmpty()) {
+//      assignedNode = assignedNodeList.get(random.nextInt(assignedNodeList.size()));
+//    }
+//    System.out.println("Randomly selected node: " + assignedNode);
+//    initialGraph.addVertex(newNode);
+//    initialGraph.addEdge(assignedNode, newNode, new Assignment());
+//
+//    // get the nodeLists and relationLists of mutatedGraph
+//    List<List<NodeElement>> mutatedNodeLists = initialGraph.getNodeLists();
+//    System.out.println("Node list after adding a vertex: " + mutatedNodeLists);
+//    List<List<Relation>> mutatedRelationLists = initialGraph.getRelationLists();
+//
+////    proPMLString.add(buildPrologString(mutatedNodeLists, mutatedRelationLists));
+////    proPMLString.add(buildPMLString(initialGraph, mutatedNodeLists));
+////    System.out.println(proPMLString.get(1));
+//    System.out.println(proPMLString.get(0));
+//    return proPMLString;
+//  }
+  public static PolicyGraph mutateAddNode(PolicyGraph initialGraph,
+      NodeElementType newNodeType, NodeElementType targetNodeType) {
+//    List<String> proPMLString = new ArrayList<>();
+    List<List<NodeElement>> initialNodes = initialGraph.getNodeLists();
 
-  /**
-   *
-   * @param initialGraph
-   * @return String array consisting of the Prolog string and PML string
-   */
-  public static List<String> mutateAddUA(PolicyGraph initialGraph) {
-    List<String> proPMLString = new ArrayList<>();
-    // add a new UserAttribute
-    UserAttribute addUA = new UserAttribute("uaX");
-    PolicyGraph mutateGraph = initialGraph;
-    mutateGraph.addVertex(addUA);
+    // Create the new node
+    NodeElement newNode = NodeElementType.createNewNode(newNodeType);
+    System.out.println("Node list after creating a new node: " + initialGraph.getNodeLists());
 
-    // get the nodeLists and relationLists of initialGraph
-    List<List<NodeElement>> mutateNodeLists = mutateGraph.getNodeLists();
-    System.out.println(mutateNodeLists.get(2));
-    List<List<Relation>> mutateRelationLists = mutateGraph.getRelationLists();
-
-//    mutateNodeLists.get(2).add(addUA);
-    // TODO add uaX to a list of existing ua?
-    // assign uaX to ua3
-    for (NodeElement node: mutateNodeLists.get(2)) {
-      if (node.toString().equals("ua3")) {
-        mutateGraph.addEdge(node, addUA, new Assignment());
-//        mutateRelationLists.get(0).add(Assignment.getAllAssignments().
-//            get(Assignment.getAllAssignments().size() - 1));
-        break;
-      }
+    // Get the nodes list of assignedNodeType
+    // and randomly select one node to be assigned
+    List<NodeElement> assignedNodeList = NodeElementType.getNodeList(
+        targetNodeType, initialNodes);
+    Random random = new Random();
+    NodeElement assignedNode = null;
+    if (!assignedNodeList.isEmpty()) {
+      assignedNode = assignedNodeList.get(random.nextInt(assignedNodeList.size()));
     }
+    System.out.println("Randomly selected node: " + assignedNode);
+    initialGraph.addVertex(newNode);
+    initialGraph.addEdge(assignedNode, newNode, new Assignment());
 
-    proPMLString.add(buildPrologString(mutateNodeLists, mutateRelationLists));
-    proPMLString.add(buildPMLString(mutateGraph, mutateNodeLists));
-    System.out.println(proPMLString.get(1));
-    return proPMLString;
+    // get the nodeLists and relationLists of mutatedGraph
+    List<List<NodeElement>> mutatedNodeLists = initialGraph.getNodeLists();
+    System.out.println("Node list after adding a vertex: " + mutatedNodeLists);
+    List<List<Relation>> mutatedRelationLists = initialGraph.getRelationLists();
+
+//    proPMLString.add(buildPrologString(mutatedNodeLists, mutatedRelationLists));
+//    proPMLString.add(buildPMLString(initialGraph, mutatedNodeLists));
+//    System.out.println(proPMLString.get(1));
+//    System.out.println(proPMLString.get(0));
+    return initialGraph;
   }
 
-  public static List<String> mutateAddU(PolicyGraph initialGraph) {
-    List<String> proPMLString = new ArrayList<>();
-    return proPMLString;
+  public static PolicyGraph mutateAddNode(PolicyGraph initialGraph,
+      NodeElementType newNodeType) {
+    Random random = new Random();
+    int randomIndex = random.nextInt(NODE_TYPE_NUMBER);
+    return mutateAddNode(initialGraph, newNodeType, NodeElementType.getNodeType(randomIndex));
   }
-
-  public static List<String> mutateAddOb(PolicyGraph initialGraph) {
-    List<String> proPMLString = new ArrayList<>();
-    return proPMLString;
-  }
-  public static List<String> mutateAddOa(PolicyGraph initialGraph) {
-    List<String> proPMLString = new ArrayList<>();
-    return proPMLString;
-  }
+//  public static List<String> mutateAddNode(PolicyGraph initialGraph,
+//      NodeElementType newNodeType) {
+//    Random random = new Random();
+//    int randomIndex = random.nextInt(NODE_TYPE_NUMBER);
+//    return mutateAddNode(initialGraph, newNodeType, NodeElementType.getNodeType(randomIndex));
+//  }
 
   // TODO public static List<String> mutateAddAssignment(PolicyGraph initialGraph,
   //  NodeElementType sourceNodeType, NodeElementType targetNodeType)

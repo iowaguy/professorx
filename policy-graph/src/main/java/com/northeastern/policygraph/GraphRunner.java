@@ -1,9 +1,13 @@
 package com.northeastern.policygraph;
 
+import static com.northeastern.policygraph.PolicyGraph.buildPMLString;
+import static com.northeastern.policygraph.PolicyGraph.buildPrologString;
+
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.List;
 
 public class GraphRunner {
@@ -152,21 +156,26 @@ public class GraphRunner {
 //  }
   public static void main(String[] args) {
     initialGraph = new PolicyGraph();
-    allPermissions = AccessRight.getAllPermissions();
+//    allPermissions = AccessRight.getAllPermissions();
     String proString = initialGraph.buildPrologString(
         initialGraph.getNodeLists(), initialGraph.getRelationLists());
     String pmlString = initialGraph.buildPMLString(
         initialGraph, initialGraph.getNodeLists());
-
+    System.out.println("Initial Node List before creating a new node: " + initialGraph.getNodeLists());
     createFile(proString, prologPath);
     createFile(pmlString, pmlPath);
-//    Mutation.mutateAddUA(initialGraph);
-//    Mutation.mutateAddUaAssignment(initialGraph);
-//    Mutation.mutateAddAssociation(initialGraph);
-    Mutation.mutateAddProhibition(initialGraph);
+
+//    PolicyGraph mutatedGraph = Mutation.mutateAddNode(initialGraph, NodeElementType.USER_ATTRIBUTE,
+//        NodeElementType.OBJECT);
+//    List<String> proPMLString = new ArrayList<>();
+//    proPMLString.add(buildPrologString(mutatedGraph.getNodeLists(), mutatedGraph.getRelationLists()));
+//    proPMLString.add(buildPMLString(mutatedGraph, mutatedGraph.getNodeLists()));
+//    createFile(proPMLString.get(0), prologPath);
+//    createFile(proPMLString.get(1), pmlPath);
   }
 
-  private static void createFile(String proString, String filePath) {
+
+  public static void createFile(String proString, String filePath) {
     BufferedWriter writerProlog = null;
     try {
       writerProlog = Files.newBufferedWriter(Paths.get(filePath));

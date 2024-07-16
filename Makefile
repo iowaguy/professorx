@@ -39,3 +39,6 @@ old: buildold
 
 new: buildnew
 	java -jar -Djava.library.path=lib analyzer-$(newversion)/target/analyzer-$(newversion)-0.1.jar analyzer-$(newversion)/src/main/resources/policy3N2H.pal prolog-policy-engine/src/main/resources/rules.pl analyzer-$(newversion)/src/main/resources/policy1.pl
+
+test: buildnew
+	java -jar -Djava.library.path=lib analyzer-$(newversion)/target/analyzer-$(newversion)-0.1.jar policy-graph/src/main/resources/translatePolicy.pal prolog-policy-engine/src/main/resources/rules.pl policy-graph/src/main/resources/translatePolicy.pl

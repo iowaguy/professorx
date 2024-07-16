@@ -59,6 +59,7 @@ public class PolicyGraph extends DirectedMultigraph<NodeElement, Relation> {
     // create nodes
     User u1 = new User("u1");
     User u2 = new User("u2");
+    User uNew = new User("uNew");
     UserAttribute ua1 = new UserAttribute("ua1");
     UserAttribute ua2 = new UserAttribute("ua2");
     UserAttribute ua3 = new UserAttribute("ua3");
@@ -107,6 +108,8 @@ public class PolicyGraph extends DirectedMultigraph<NodeElement, Relation> {
     this.addEdge(ua1, ua3, new Assignment());
     this.addEdge(ua7, u1, new Assignment());
     this.addEdge(ua1, u2, new Assignment());
+    this.addEdge(ua3, uNew, new Assignment());
+    this.addEdge(ua7, uNew, new Assignment());
 
     // Object and object attribute assignments
     this.addEdge(department, oa1, new Assignment());
@@ -207,6 +210,7 @@ public class PolicyGraph extends DirectedMultigraph<NodeElement, Relation> {
       for (Relation relation : assignGraph.outgoingEdgesOf(node)) {
         if (relation instanceof Assignment) {
           remainingAssignments.add(relation);
+          System.out.println("Assignment relation during dfs: " + relation.toStringPML());
         }
         else if (relation instanceof Association) {
           associations.add(relation);
@@ -250,6 +254,7 @@ public class PolicyGraph extends DirectedMultigraph<NodeElement, Relation> {
       NodeElement node = (NodeElement) iterator.next();
       nodesDFSOrder.add(node);
     }
+    System.out.println("PML DFS order node list: " + nodesDFSOrder);
     return nodesDFSOrder;
   }
 

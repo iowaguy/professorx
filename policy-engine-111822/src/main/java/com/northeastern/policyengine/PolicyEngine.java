@@ -44,6 +44,9 @@ public class PolicyEngine {
     AccessRightSet permissions = null;
     try {
       permissions = this.pdp.policyReviewer().getAccessRights(new UserContext(subject), object);
+//      this.pdp.runTx(superUser, (policy -> {
+//        policy.graph().createObjectAttribute("newOA", "oa1");
+//      }));
     } catch (PMException e) {
       throw new MyPMException(e);
     }

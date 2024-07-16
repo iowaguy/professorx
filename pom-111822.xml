@@ -46,6 +46,16 @@
       <artifactId>commons-csv</artifactId>
       <version>1.10.0</version>
     </dependency>
+    <dependency>
+      <groupId>org.jgrapht</groupId>
+      <artifactId>jgrapht-core</artifactId>
+      <version>1.5.1</version>
+    </dependency>
+    <dependency>
+      <groupId>org.jgrapht</groupId>
+      <artifactId>jgrapht-io</artifactId>
+      <version>1.5.1</version>
+    </dependency>
   </dependencies>
 
   <build>
@@ -134,6 +144,7 @@
     <module>policy</module>
     <module>policy-engine-111822</module>
     <module>prolog-policy-engine</module>
+    <module>policy-graph</module>
     <module>analyzer-111822</module>
   </modules>
 </project>

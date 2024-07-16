@@ -33,8 +33,6 @@ assign(ua6,ua4).
 assign(ua3,ua1).
 assign(u1,ua7).
 assign(u2,ua1).
-assign(uNew,ua3).
-assign(uNew,ua7).
 assign(oa1,department).
 assign(oa2,department).
 assign(oa3,oa2).
@@ -46,6 +44,8 @@ assign(oa6,oa4).
 assign(oa7,oa3).
 assign(oa3,oa1).
 assign(o1,oa7).
+assign(uNew,ua3).
+assign(uNew,ua7).
 association(ua5,oa5,[permission0]).
 association(ua4,oa5,[permission0]).
 association(ua4,oa4,[permission4]).
