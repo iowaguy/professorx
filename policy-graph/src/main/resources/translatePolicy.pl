@@ -1,6 +1,6 @@
 u(u1).
 u(u2).
-u(uNew).
+u(uTest).
 ua(ua1).
 ua(ua2).
 ua(ua3).
@@ -33,8 +33,8 @@ assign(ua6,ua4).
 assign(ua3,ua1).
 assign(u1,ua7).
 assign(u2,ua1).
-assign(uNew,ua3).
-assign(uNew,ua7).
+assign(uTest,ua3).
+assign(uTest,ua7).
 assign(oa1,department).
 assign(oa2,department).
 assign(oa3,oa2).

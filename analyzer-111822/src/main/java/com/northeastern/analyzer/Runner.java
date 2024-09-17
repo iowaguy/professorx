@@ -5,7 +5,6 @@ import static com.northeastern.policygraph.Mutation.mutateAddNode;
 import static com.northeastern.policygraph.PolicyGraph.buildPMLString;
 import static com.northeastern.policygraph.PolicyGraph.buildPrologString;
 
-import com.northeastern.policygraph.Mutation;
 import com.northeastern.policygraph.NodeElementType;
 import java.io.IOException;
 import java.io.Writer;
@@ -16,7 +15,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.commons.csv.CSVPrinter;
 import org.apache.commons.csv.CSVFormat;
 
 import com.northeastern.prologpolicyengine.PrologPolicyEngine;
@@ -36,7 +34,7 @@ import org.jpl7.Query;
 
 public class Runner {
   static Logger logger = LogManager.getLogger(Runner.class);
-  private static String prologPathMutated = "analyzer-111822/src/main/resources/mutatedPolicy.pl";
+  private static String prologMutated = "analyzer-111822/src/main/resources/mutatedPolicy.pl";
   private static String prologRule = "prolog-policy-engine/src/main/resources/rules.pl";
   public static void main(String[] args) {
     if (args.length != 3) {
@@ -46,7 +44,7 @@ public class Runner {
 
     testNewPolicyEngineInitial(args);
     PolicyGraph initialGraph = new PolicyGraph();
-    mutateAddNodeImp(initialGraph, 0);
+//    mutateAddNodeImp(initialGraph, 1);
   }
 
   private static void testNewPolicyEngineInitial(String[] args) {
@@ -65,14 +63,15 @@ public class Runner {
 //    Policy policy = new PolicyImpl(fileName);
     Policy policy = new PolicyImpl(args[0]);
     PolicyEngine policyEngine = null;
-//    System.
+    System.out.println("******* Start loading PML policy *******");
     try {
       policyEngine = new PolicyEngine((PolicyImpl) policy);
     } catch (MyPMException e) {
       logger.fatal(() -> "Issue encountered creating 111822 policy engine: " + e.getMessage());
       System.exit(1);
     }
-
+    System.out.println("******* Successful loading! *******");
+    System.out.println("******* Start creating PML accessor *******");
     Accessor accessor = null;
     try {
       accessor = new ExhaustiveAccessor((PolicyImpl) policy);
@@ -80,7 +79,8 @@ public class Runner {
       logger.fatal(() -> "Issue encountered creating exhaustive accessor: " + e.getMessage());
       System.exit(1);
     }
-
+    System.out.println("******* Successful creating! *******");
+    System.out.println("******* Start generating accesses *******");
     Set<ResourceAccess> accesses = null;
     try {
       accesses = accessor.generateAccesses();
@@ -88,7 +88,7 @@ public class Runner {
       logger.fatal(() -> "Issue encountered generating accesses: " + e.getMessage());
       System.exit(1);
     }
-
+    System.out.println("******* Successful generating accesses! *******");
     // TODO do prolog stuff here
     // convert policy into prolog facts
     // load prolog rules
@@ -138,13 +138,16 @@ public class Runner {
       }
 
       try {
-        printer.printRecord(writerDecisions, a.getSubject(), a.getObject(), a.getPermissions(), prologDecision, nistDecision);
+        String prologDecisionS = convertToString(prologDecision);
+        String nistDecisionS = convertToString(nistDecision);
+        printer.printRecord(writerDecisions, a.getSubject(), a.getObject(), a.getPermissions(), prologDecisionS, nistDecisionS);
+//        printer.printRecord(writerDecisions, a.getSubject(), a.getObject(), a.getPermissions(), prologDecision, nistDecision);
 
         if (prologDecision != nistDecision) {
-          System.out.println("NIST decision for " + a.toString() + ". Allowed? " + nistDecision);
-          System.out.println("Prolog decision for " + a.toString() + ". Allowed? " + prologDecision);
+          System.out.println("NIST decision for " + a.toString() + ". Allowed? " + nistDecisionS);
+          System.out.println("Prolog decision for " + a.toString() + ". Allowed? " + prologDecisionS);
           System.out.println("------------------");
-          printer.printRecord(writerDiscrepencies, a.getSubject(), a.getObject(), a.getPermissions(), prologDecision, nistDecision);
+          printer.printRecord(writerDiscrepencies, a.getSubject(), a.getObject(), a.getPermissions(), prologDecisionS, nistDecisionS);
         }
       } catch (IOException e) {
         logger.fatal(() -> "Issue encountered printing CSV record: " + e.getMessage());
@@ -156,9 +159,9 @@ public class Runner {
       // close the writer
       writerDecisions.close();
       writerDiscrepencies.close();
-      Query unloadPolicy = new Query(
-          "unload_file('policy-graph/src/main/resources/translatePolicy.pl')");
-      unloadPolicy.hasSolution();
+//      Query unloadPolicy = new Query(
+//          "unload_file('policy-graph/src/main/resources/translatePolicy.pl')");
+//      unloadPolicy.hasSolution();
 
     } catch (IOException e) {
       logger.fatal(() -> "Issue encountered closing CSV file: " + e.getMessage());
@@ -206,6 +209,13 @@ public class Runner {
 //    System.out.println("New explicit access: " + testAccess2.toString() + ". Allowed after mutation? " + b);
   }
 
+  private static String convertToString(boolean decision) {
+    if (decision) {
+      return "Permit";
+    }
+    return "Deny";
+  }
+
   private static void mutateAddNodeImp(PolicyGraph initialGraph, int rounds) {
     for (int i = 0; i < rounds; i++) {
       PolicyGraph mutatedGraph = mutateAddNode(initialGraph, NodeElementType.USER,
@@ -213,9 +223,9 @@ public class Runner {
       List<String> proPMLString = new ArrayList<>();
       proPMLString.add(buildPrologString(mutatedGraph.getNodeLists(), mutatedGraph.getRelationLists()));
       proPMLString.add(buildPMLString(mutatedGraph, mutatedGraph.getNodeLists()));
-      createFile(proPMLString.get(0), prologPathMutated);
+      createFile(proPMLString.get(0), prologMutated);
       // Build the new args
-      String[] newArgs = {proPMLString.get(1), prologPathMutated, prologRule};
+      String[] newArgs = {proPMLString.get(1), prologRule, prologMutated};
       testNewPolicyEngine(newArgs);
     }
   }
