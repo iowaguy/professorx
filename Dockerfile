@@ -6,7 +6,8 @@ RUN echo "ulimit -c unlimited" >> /etc/profile
 RUN apt-get install -y maven
 RUN apt-get install -y swi-prolog
 
-ADD ../ /app/
+ADD ./ /app/
 WORKDIR /app/
+EXPOSE 12345
 
 ENTRYPOINT make test
