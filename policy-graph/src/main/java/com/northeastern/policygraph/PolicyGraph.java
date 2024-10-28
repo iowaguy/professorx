@@ -6,6 +6,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import org.jgrapht.Graph;
+import org.jgrapht.GraphPath;
+import org.jgrapht.alg.shortestpath.AllDirectedPaths;
 import org.jgrapht.graph.DirectedMultigraph;
 import org.jgrapht.traverse.DepthFirstIterator;
 
@@ -22,16 +24,8 @@ public class PolicyGraph extends DirectedMultigraph<NodeElement, Relation> {
 
   public PolicyGraph() {
     super(edgeClass);
-    createDefaultGraph();
-  }
-
-  public PolicyGraph(Integer policyNumber, List<List<NodeElement>> nodeLists,
-      List<List<Relation>> relationLists) {
-    super(edgeClass);
-    this.policyNumber = policyNumber;
-    this.nodeLists = nodeLists;
-    this.relationLists = relationLists;
-    addVertices();
+//    createDefaultGraph();
+    createDefaultGraphSimple();
   }
 
   public void buildNodeList() {
@@ -55,11 +49,82 @@ public class PolicyGraph extends DirectedMultigraph<NodeElement, Relation> {
     relationLists.add(Association.getAllAssociations());
     relationLists.add(Prohibition.getAllProhibitions());
   }
+
+  private void createDefaultGraphSimple() {
+    // create nodes
+    User u1 = new User("u1");
+    User u2 = new User("u2");
+    UserAttribute ua1 = new UserAttribute("ua1");
+    UserAttribute ua2 = new UserAttribute("ua2");
+//    UserAttribute ua3 = new UserAttribute("ua3");
+//    UserAttribute ua4 = new UserAttribute("ua4");
+//    UserAttribute ua5 = new UserAttribute("ua5");
+//    UserAttribute ua6 = new UserAttribute("ua6");
+//    UserAttribute ua7 = new UserAttribute("ua7");
+    Ob o1 = new Ob("o1");
+    ObjectAttribute oa1 = new ObjectAttribute("oa1");
+//    ObjectAttribute oa2 = new ObjectAttribute("oa2");
+//    ObjectAttribute oa3 = new ObjectAttribute("oa3");
+//    ObjectAttribute oa4 = new ObjectAttribute("oa4");
+//    ObjectAttribute oa5 = new ObjectAttribute("oa5");
+//    ObjectAttribute oa6 = new ObjectAttribute("oa6");
+//    ObjectAttribute oa7 = new ObjectAttribute("oa7");
+    PolicyClass department = new PolicyClass("department");
+
+    buildNodeList();
+    addVertices();
+
+    // add permissions
+    // TODO Is there a better way to create list of access right?
+    AccessRight permission1 = new AccessRight("p1");
+    AccessRight permission2 = new AccessRight("p2");
+//    AccessRight permission2 = new AccessRight("permission2");
+//    AccessRight permission3 = new AccessRight("permission3");
+//    AccessRight permission4 = new AccessRight("permission4");
+    allPermissions = AccessRight.getAllPermissions();
+
+//    AccessRight[] ar0 = new AccessRight[]{permission0};
+//    AccessRight[] ar12 = new AccessRight[]{permission1, permission2};
+//    AccessRight[] ar4 = new AccessRight[]{permission4};
+    AccessRight[] ar1 = new AccessRight[]{permission1};
+    AccessRight[] ar2 = new AccessRight[]{permission2};
+
+    // add edges
+    // User and user attribute assignments
+    this.addEdge(department, ua1, new Assignment());
+    this.addEdge(department, ua2, new Assignment());
+//    this.addEdge(ua2, ua3, new Assignment());
+//    this.addEdge(department, ua4, new Assignment());
+//    this.addEdge(department, ua5, new Assignment());
+//    this.addEdge(ua5, ua6, new Assignment());
+//    this.addEdge(ua6, ua7, new Assignment());
+//    this.addEdge(ua4, ua6, new Assignment());
+//    this.addEdge(ua1, ua3, new Assignment());
+    this.addEdge(ua1, u1, new Assignment());
+    this.addEdge(ua2, u2, new Assignment());
+//    this.addEdge(ua2, u1, new Assignment());
+//    this.addEdge(ua1, u2, new Assignment());
+
+    // Object and object attribute assignments
+    this.addEdge(department, oa1, new Assignment());
+//    this.addEdge(department, oa2, new Assignment());
+//    this.addEdge(oa1, oa2, new Assignment());
+    this.addEdge(oa1, o1, new Assignment());
+
+    this.addEdge(oa1, ua1, new Association(ar1));
+    this.addEdge(oa1, ua2, new Association(ar2));
+
+    // TODO the target of prohibition should be a list of attributes
+    this.addEdge(o1, u2, new Prohibition(ar1));
+//    this.addEdge(o1, u2, new Prohibition(ar2));
+
+    buildRelationList();
+  }
+
   private void createDefaultGraph() {
     // create nodes
     User u1 = new User("u1");
     User u2 = new User("u2");
-    User uNew = new User("uNew");
     UserAttribute ua1 = new UserAttribute("ua1");
     UserAttribute ua2 = new UserAttribute("ua2");
     UserAttribute ua3 = new UserAttribute("ua3");
@@ -108,8 +173,6 @@ public class PolicyGraph extends DirectedMultigraph<NodeElement, Relation> {
     this.addEdge(ua1, ua3, new Assignment());
     this.addEdge(ua7, u1, new Assignment());
     this.addEdge(ua1, u2, new Assignment());
-    this.addEdge(ua3, uNew, new Assignment());
-    this.addEdge(ua7, uNew, new Assignment());
 
     // Object and object attribute assignments
     this.addEdge(department, oa1, new Assignment());
@@ -210,7 +273,7 @@ public class PolicyGraph extends DirectedMultigraph<NodeElement, Relation> {
       for (Relation relation : assignGraph.outgoingEdgesOf(node)) {
         if (relation instanceof Assignment) {
           remainingAssignments.add(relation);
-          System.out.println("Assignment relation during dfs: " + relation.toStringPML());
+//          System.out.println("Assignment relation during dfs: " + relation.toStringPML());
         }
         else if (relation instanceof Association) {
           associations.add(relation);
@@ -254,7 +317,7 @@ public class PolicyGraph extends DirectedMultigraph<NodeElement, Relation> {
       NodeElement node = (NodeElement) iterator.next();
       nodesDFSOrder.add(node);
     }
-    System.out.println("PML DFS order node list: " + nodesDFSOrder);
+//    System.out.println("PML DFS order node list: " + nodesDFSOrder);
     return nodesDFSOrder;
   }
 
@@ -264,5 +327,12 @@ public class PolicyGraph extends DirectedMultigraph<NodeElement, Relation> {
 
   public List<List<Relation>> getRelationLists() {
     return relationLists;
+  }
+
+  public static boolean isAncestor(PolicyGraph graph, NodeElement descendant, NodeElement ancestor) {
+    AllDirectedPaths<NodeElement, Relation> allPaths = new AllDirectedPaths<>(graph);
+    List<GraphPath<NodeElement, Relation>> paths = allPaths.getAllPaths(ancestor, descendant, true, null);
+
+    return !paths.isEmpty();
   }
 }

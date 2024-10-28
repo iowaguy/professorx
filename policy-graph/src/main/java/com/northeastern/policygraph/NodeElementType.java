@@ -1,5 +1,6 @@
 package com.northeastern.policygraph;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public enum NodeElementType {
@@ -9,22 +10,26 @@ public enum NodeElementType {
   OBJECT,
   OBJECT_ATTRIBUTE;
 
+  // the maximum number of node elements, e.g. ua7
+  private static int number = 2;
+
   public static NodeElement createNewNode(NodeElementType newNodeType) {
+    number++;
     switch (newNodeType) {
       case POLICY_CLASS -> {
-        return new PolicyClass("pcNew");
+        return new PolicyClass("pc" + number);
       }
       case USER -> {
-        return new User("uNew");
+        return new User("u" + number);
       }
       case USER_ATTRIBUTE -> {
-        return new UserAttribute("uaNew");
+        return new UserAttribute("ua" + number);
       }
       case OBJECT -> {
-        return new Ob("oNew");
+        return new Ob("o" + number);
       }
       case OBJECT_ATTRIBUTE -> {
-        return new ObjectAttribute("oaNew");
+        return new ObjectAttribute("oa" + number);
       }
       default -> {
         return null;
@@ -56,6 +61,12 @@ public enum NodeElementType {
     }
   }
 
+  public static List<NodeElement> getNodeList(NodeElementType targetNodeType,
+      PolicyGraph policyGraph) {
+    List<List<NodeElement>> initialNodes = policyGraph.getNodeLists();
+    return getNodeList(targetNodeType, initialNodes);
+  }
+
   public static NodeElementType getNodeType(Integer randomIndex) {
     switch (randomIndex) {
       case 0 -> {
@@ -78,6 +89,29 @@ public enum NodeElementType {
       }
     }
   }
+
+  public static ArrayList<Integer> getIndexRange(NodeElementType newNodeType) {
+    ArrayList<Integer> indexRange = new ArrayList<>();
+    switch (newNodeType) {
+      case USER -> {
+        indexRange.add(2);
+      }
+      case USER_ATTRIBUTE -> {
+        indexRange.add(0);
+        indexRange.add(2);
+      }
+      case OBJECT -> {
+        indexRange.add(4);
+      }
+      case OBJECT_ATTRIBUTE -> {
+        indexRange.add(0);
+        indexRange.add(4);
+      }
+      default -> {}
+    }
+    return indexRange;
+  }
+
   public String mutateForProlog() {
     switch (this) {
       case POLICY_CLASS -> {
