@@ -12,6 +12,7 @@ import java.nio.file.Path;
 
 public class PolicyImpl implements Policy {
   private String policyString;
+  private Path policyPath;
   static Logger logger = LogManager.getLogger(PolicyImpl.class);
 
 //  public PolicyImpl(Path policyPath) {
@@ -33,7 +34,8 @@ public class PolicyImpl implements Policy {
 //    }
 //  }
 
-  public PolicyImpl(String policyString) {
+  public PolicyImpl(String policyString, Path policyPath) {
+    this.policyPath = policyPath;
     // Read the policy from String
     this.policyString = policyString;
     logger.info("Full policy:\n {}", this.policyString);
@@ -42,7 +44,7 @@ public class PolicyImpl implements Policy {
 
   public PolicyImpl(Path policyPath) {
     // Read the policy from String
-    this.policyString = policyString;
+    this.policyPath = policyPath;
 
     try {
         policyString = Files.readString(policyPath);
@@ -87,5 +89,9 @@ public class PolicyImpl implements Policy {
 
   public String getPolicyString() {
     return this.policyString;
+  }
+
+  public Path getPolicyPath() {
+    return policyPath;
   }
 }

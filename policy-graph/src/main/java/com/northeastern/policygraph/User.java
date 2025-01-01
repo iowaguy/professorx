@@ -47,7 +47,7 @@ public class User extends NodeElement {
 
   @Override
   public String toStringPML() {
-    return String.format("create user \'%1$s\'", this.getUser());
+    return String.format("create u \"%1$s\"", this.getUser());
   }
 
   public static List<NodeElement> getAllElements() {
@@ -61,6 +61,6 @@ public class User extends NodeElement {
 
   @Override
   String getTypeNamePML() {
-    return "user";
+    return "u";
   }
 }

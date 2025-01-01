@@ -33,7 +33,8 @@ import com.northeastern.policygraph.PolicyGraph;
 
 public class Runner {
   static Logger logger = LogManager.getLogger(Runner.class);
-  private static final String prologMutated = "analyzer-v3.0.0-alpha.3/src/main/resources/mutatedPolicy.pl";
+  private static final String prologMutated = "policy-graph/src/main/resources/mutantPolicy.pl";
+  private static final String pmlMutated = "policy-graph/src/main/resources/mutantPolicy.pal";
   private static final String prologRule = "prolog-policy-engine/src/main/resources/rules.pl";
   private static Random random;
   private static Mutation mutation;
@@ -126,7 +127,7 @@ public class Runner {
     PrologPolicyEngine prologPolicyEngine = null;
     try {
       prologPolicyEngine = new PrologPolicyEngine(prologRulesPath);
-      prologPolicyEngine.loadPolicy(prologPolicy.getPolicyString());
+      prologPolicyEngine.loadPolicy(prologPolicy.getPolicyPath());
     } catch (MyPMException e) {
       logger.fatal(() -> "Issue encountered loading prolog rules: " + e.getMessage());
       System.exit(1);
@@ -264,7 +265,8 @@ public class Runner {
   private static boolean evalMutation(PolicyGraph mutatedGraph) {
       PolicyImpl newPMLPolicy = buildPMLPolicy(mutatedGraph, mutatedGraph.getNodeLists());
       PolicyImpl newPrologPolicy = buildPrologPolicy(mutatedGraph.getNodeLists(), mutatedGraph.getRelationLists());
-      createFile(newPMLPolicy.getPolicyString(), prologMutated);
+      createFile(newPMLPolicy.getPolicyString(), pmlMutated);
+      createFile(newPrologPolicy.getPolicyString(), prologMutated);
       return testNewPolicyEngine(newPMLPolicy, Path.of(prologRule), newPrologPolicy);
   }
 

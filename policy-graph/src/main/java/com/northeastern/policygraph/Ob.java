@@ -47,7 +47,7 @@ public class Ob extends NodeElement {
 
   @Override
   public String toStringPML() {
-    return String.format("create object \'%1$s\'", this.getOb());
+    return String.format("create o \"%1$s\"", this.getOb());
   }
 
   public static List<NodeElement> getAllElements() {
@@ -61,6 +61,6 @@ public class Ob extends NodeElement {
 
   @Override
   String getTypeNamePML() {
-    return "object";
+    return "o";
   }
 }

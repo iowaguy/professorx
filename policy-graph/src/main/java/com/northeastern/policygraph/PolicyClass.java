@@ -47,7 +47,7 @@ public class PolicyClass extends NodeElement{
 
   @Override
   public String toStringPML() {
-    return String.format("create policy class \'%1$s\';", this.getPolicyClass());
+    return String.format("create pc \"%1$s\"", this.getPolicyClass());
   }
 
   public static List<NodeElement> getAllElements() {
@@ -61,6 +61,6 @@ public class PolicyClass extends NodeElement{
 
   @Override
   String getTypeNamePML() {
-    return "policy class";
+    return "pc";
   }
 }

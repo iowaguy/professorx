@@ -29,9 +29,9 @@ public class Association extends Relation {
   @Override
   public String toStringPML() {
     StringBuilder ars = new StringBuilder();
-    ars.append("[\'").append(String.join("\', \'", this.getAccessRightString())).append("\']");
+    ars.append("[\"").append(String.join("\", \"", this.getAccessRightString())).append("\"]");
 
-    return String.format("associate \'%1$s\' and \'%2$s\' with %3$s;",
+    return String.format("associate \"%1$s\" and \"%2$s\" with %3$s",
         this.getTarget(), this.getSource(), ars);
   }
 

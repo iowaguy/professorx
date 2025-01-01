@@ -9,3 +9,5 @@
 **/dependency-reduced-pom.xml
 **/*.iml
 /policy/pom.xml
+/policy-graph/src/main/resources/mutantPolicy.pl
+/policy-graph/src/main/resources/mutantPolicy.pal

@@ -25,12 +25,12 @@ public class PrologPolicyEngine {
         // TODO do this eventually
     }
 
-    public void loadPolicy(String policyPath) throws MyPMException {
+    public void loadPolicy(Path policyPath) throws MyPMException {
         if (this.policy != null && this.policy.isOpen()) {
             this.policy.close();
         }
 
-        this.policy = new Query( "consult", new Term[] {new Atom(policyPath)});
+        this.policy = new Query( "consult", new Term[] {new Atom(policyPath.toString())});
         if (!this.policy.hasSolution()) {
             throw new MyPMException("Could not load Prolog policy.");
         }
@@ -41,17 +41,12 @@ public class PrologPolicyEngine {
     }
 
     public boolean getDecision(String subject, String object, String action) throws MyPMException {
-        // Query query = new Query( "decide",
-        //         new Term[] {
-        //                 new Atom(subject),
-        //                 new Atom(object),
-        //                 new Atom(action)
-        // });
-        Query query = new Query( "assign",
+        Query query = new Query( "decide",
                 new Term[] {
                         new Atom(subject),
-                        new Variable("X")
-                });
+                        new Atom(object),
+                        new Atom(action)
+        });
         return query.hasSolution();
     }
 }

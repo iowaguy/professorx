@@ -1,5 +1,6 @@
 package com.northeastern.policygraph;
 
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -15,8 +16,8 @@ import org.jgrapht.traverse.DepthFirstIterator;
 
 public class PolicyGraph extends DirectedMultigraph<NodeElement, Relation> {
 
-  private static String prologPath = "policy-graph/src/main/resources/translatePolicy.pl";
-  private static String pmlPath = "policy-graph/src/main/resources/translatePolicy.pal";
+  private static Path prologPath = Path.of("policy-graph/src/main/resources/mutantPolicy.pl");
+  private static Path pmlPath = Path.of("policy-graph/src/main/resources/mutantPolicy.pal");
 
   private final static Class edgeClass = Relation.class;
   private Integer policyNumber;
@@ -240,7 +241,7 @@ public class PolicyGraph extends DirectedMultigraph<NodeElement, Relation> {
     proString.append(userString).append(uaString).append(obString)
         .append(obaString).append(policyString).append(permString).
         append(assiString).append(assoString).append(prohString);
-    return new PolicyImpl(proString.toString());
+    return new PolicyImpl(proString.toString(), prologPath);
   }
 
   /**
@@ -258,7 +259,7 @@ public class PolicyGraph extends DirectedMultigraph<NodeElement, Relation> {
     for (NodeElement node : nodeLists.get(0)) {
       pmlString.append(depthTraverseOnePC(assignGraph, node));
     }
-    return new PolicyImpl(pmlString.toString());
+    return new PolicyImpl(pmlString.toString(), pmlPath);
   }
 
   private static String depthTraverseOnePC(PolicyGraph assignGraph,
@@ -297,7 +298,7 @@ public class PolicyGraph extends DirectedMultigraph<NodeElement, Relation> {
           NodeElement target = ((Assignment) relation).getTarget();
           if (!createdNodes.contains(target)) {
             pmlString.append(target.toStringPML() +
-                " in '" + node.toString() + "';" + System.lineSeparator());
+                " in [\"" + node.toString() + "\"]" + System.lineSeparator());
             createdNodes.add(target);
             remainingAssignments.remove(relation);
           }

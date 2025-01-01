@@ -47,7 +47,7 @@ public class ObjectAttribute extends NodeElement {
 
   @Override
   public String toStringPML() {
-    return String.format("create object attribute \'%1$s\'", this.getObjectAttribute());
+    return String.format("create oa \"%1$s\"", this.getObjectAttribute());
   }
 
   public static List<NodeElement> getAllElements() {
@@ -61,6 +61,6 @@ public class ObjectAttribute extends NodeElement {
 
   @Override
   String getTypeNamePML() {
-    return "object attribute";
+    return "oa";
   }
 }
