@@ -1,10 +1,9 @@
 package com.northeastern.analyzer;
 
 import static com.northeastern.policygraph.GraphRunner.createFile;
-import static com.northeastern.policygraph.Mutation.mutateAddAssignment;
 import static com.northeastern.policygraph.Mutation.mutateAddNode;
-import static com.northeastern.policygraph.PolicyGraph.buildPMLString;
-import static com.northeastern.policygraph.PolicyGraph.buildPrologString;
+import static com.northeastern.policygraph.PolicyGraph.buildPMLPolicy;
+import static com.northeastern.policygraph.PolicyGraph.buildPrologPolicy;
 
 import com.northeastern.policygraph.Mutation;
 import java.io.IOException;
@@ -96,6 +95,12 @@ public class Runner {
     }
   }
 
+  /**
+   * Tests the new policy engine with the initial policy provided in a file.
+   *
+   * @param args an array of strings where the first element is the path to the policy file
+   * @return true if the policy engine is consistent, false otherwise
+   */
   private static boolean testNewPolicyEngineInitial(String[] args) {
     boolean consistent = true;
     Path fileName = java.nio.file.Path.of(args[0]);
@@ -262,16 +267,6 @@ public class Runner {
       return "Grant";
     }
     return "Deny";
-  }
-
-  private static String[] getStrings(PolicyGraph graph) {
-    List<String> proPMLString = new ArrayList<>();
-    proPMLString.add(buildPrologString(graph.getNodeLists(), graph.getRelationLists()));
-    proPMLString.add(buildPMLString(graph, graph.getNodeLists()));
-    createFile(proPMLString.get(0), prologMutated);
-    // Build the new args
-    String[] newArgs = {proPMLString.get(1), prologRule, prologMutated};
-    return newArgs;
   }
 
   private static boolean mutateAddNodeImp(PolicyGraph initialGraph, int rounds) {

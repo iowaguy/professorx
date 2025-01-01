@@ -6,13 +6,16 @@ import com.northeastern.policy.ResourceAccess;
 import org.jpl7.Atom;
 import org.jpl7.Query;
 import org.jpl7.Term;
+import org.jpl7.Variable;
+
+import java.nio.file.Path;
 
 public class PrologPolicyEngine {
     private Query rules;
     private Query policy;
 
-    public PrologPolicyEngine(String rulesPath) throws MyPMException {
-        this.rules = new Query( "consult", new Term[] {new Atom(rulesPath)});
+    public PrologPolicyEngine(Path rulesPath) throws MyPMException {
+        this.rules = new Query( "consult", new Term[] {new Atom(rulesPath.toString())});
         if (!this.rules.hasSolution()) {
             throw new MyPMException("Could not load Prolog rules.");
         }
@@ -38,12 +41,17 @@ public class PrologPolicyEngine {
     }
 
     public boolean getDecision(String subject, String object, String action) throws MyPMException {
-        Query query = new Query( "decide",
+        // Query query = new Query( "decide",
+        //         new Term[] {
+        //                 new Atom(subject),
+        //                 new Atom(object),
+        //                 new Atom(action)
+        // });
+        Query query = new Query( "assign",
                 new Term[] {
                         new Atom(subject),
-                        new Atom(object),
-                        new Atom(action)
-        });
+                        new Variable("X")
+                });
         return query.hasSolution();
     }
 }

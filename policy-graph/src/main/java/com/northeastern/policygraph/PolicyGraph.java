@@ -5,6 +5,8 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+
+import com.northeastern.policyengine.PolicyImpl;
 import org.jgrapht.Graph;
 import org.jgrapht.GraphPath;
 import org.jgrapht.alg.shortestpath.AllDirectedPaths;
@@ -223,8 +225,8 @@ public class PolicyGraph extends DirectedMultigraph<NodeElement, Relation> {
    * @param nodeLists
    * @param relationLists
    */
-  public static String buildPrologString(List<List<NodeElement>> nodeLists,
-      List<List<Relation>> relationLists) {
+  public static PolicyImpl buildPrologPolicy(List<List<NodeElement>> nodeLists,
+                                             List<List<Relation>> relationLists) {
     StringBuilder proString = new StringBuilder();
     String policyString = buildOneTypeProlog(nodeLists.get(0));
     String userString = buildOneTypeProlog(nodeLists.get(1));
@@ -238,7 +240,7 @@ public class PolicyGraph extends DirectedMultigraph<NodeElement, Relation> {
     proString.append(userString).append(uaString).append(obString)
         .append(obaString).append(policyString).append(permString).
         append(assiString).append(assoString).append(prohString);
-    return proString.toString();
+    return new PolicyImpl(proString.toString());
   }
 
   /**
@@ -247,8 +249,8 @@ public class PolicyGraph extends DirectedMultigraph<NodeElement, Relation> {
    * @param nodeLists
    * @return
    */
-  public static String buildPMLString(PolicyGraph assignGraph,
-      List<List<NodeElement>> nodeLists) {
+  public static PolicyImpl buildPMLPolicy(PolicyGraph assignGraph,
+                                          List<List<NodeElement>> nodeLists) {
     StringBuilder pmlString = new StringBuilder();
     pmlString.append(AccessRight.buildAccessRights(allPermissions).get(1));
 
@@ -256,7 +258,7 @@ public class PolicyGraph extends DirectedMultigraph<NodeElement, Relation> {
     for (NodeElement node : nodeLists.get(0)) {
       pmlString.append(depthTraverseOnePC(assignGraph, node));
     }
-    return pmlString.toString();
+    return new PolicyImpl(pmlString.toString());
   }
 
   private static String depthTraverseOnePC(PolicyGraph assignGraph,

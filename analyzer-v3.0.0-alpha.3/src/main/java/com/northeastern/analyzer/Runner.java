@@ -1,11 +1,11 @@
 package com.northeastern.analyzer;
 
 import static com.northeastern.policygraph.GraphRunner.createFile;
-import static com.northeastern.policygraph.Mutation.mutateAddAssignment;
 import static com.northeastern.policygraph.Mutation.mutateAddNode;
-import static com.northeastern.policygraph.PolicyGraph.buildPMLString;
-import static com.northeastern.policygraph.PolicyGraph.buildPrologString;
+import static com.northeastern.policygraph.PolicyGraph.buildPMLPolicy;
+import static com.northeastern.policygraph.PolicyGraph.buildPrologPolicy;
 
+import com.northeastern.policy.Policy;
 import com.northeastern.policygraph.Mutation;
 import java.io.IOException;
 import java.io.Writer;
@@ -25,7 +25,6 @@ import org.apache.logging.log4j.Logger;
 
 import com.northeastern.policy.Accessor;
 import com.northeastern.policy.MyPMException;
-import com.northeastern.policy.Policy;
 import com.northeastern.policy.ResourceAccess;
 import com.northeastern.policyengine.ExhaustiveAccessor;
 import com.northeastern.policyengine.PolicyEngine;
@@ -34,8 +33,8 @@ import com.northeastern.policygraph.PolicyGraph;
 
 public class Runner {
   static Logger logger = LogManager.getLogger(Runner.class);
-  private static String prologMutated = "analyzer-111822/src/main/resources/mutatedPolicy.pl";
-  private static String prologRule = "prolog-policy-engine/src/main/resources/rules.pl";
+  private static final String prologMutated = "analyzer-v3.0.0-alpha.3/src/main/resources/mutatedPolicy.pl";
+  private static final String prologRule = "prolog-policy-engine/src/main/resources/rules.pl";
   private static Random random;
   private static Mutation mutation;
   private static PolicyGraph mutatedGraph;
@@ -43,8 +42,7 @@ public class Runner {
   public static void main(String[] args) {
     if (args.length == 3) {
       initializeRandom();
-    }
-    else if (args.length == 4) {
+    } else if (args.length == 4) {
       Long fixedSeed = Long.parseLong(args[3]);
       initializeRandom(fixedSeed);
     } else {
@@ -53,8 +51,11 @@ public class Runner {
       System.exit(1);
     }
 
-    if (!testNewPolicyEngineInitial(args)) {
-      System.err.printf("Discrepancies found in initial policy!");
+    Path prologRulesPath = java.nio.file.Path.of(args[0]);
+    PolicyImpl pmlPolicy = new PolicyImpl(Path.of(args[1]));
+    PolicyImpl prologPolicy = new PolicyImpl(Path.of(args[2]));
+    if (!testNewPolicyEngine(pmlPolicy, prologRulesPath, prologPolicy)) {
+      System.err.print("Discrepancies found in initial policy!");
       System.exit(2);
     };
     PolicyGraph initialGraph = new PolicyGraph();
@@ -96,34 +97,18 @@ public class Runner {
     }
   }
 
-  private static boolean testNewPolicyEngineInitial(String[] args) {
+  private static boolean testNewPolicyEngine(PolicyImpl pmlPolicy, Path prologRulesPath, PolicyImpl prologPolicy) {
     boolean consistent = true;
-    Path fileName = java.nio.file.Path.of(args[0]);
-    // Read the policy from disk
-    try {
-      String policyString = Files.readString(fileName);
-      args[0] = policyString;
-      consistent = testNewPolicyEngine(args);
-    } catch (IOException io) {
-      logger.fatal("Problem reading file: {}", io.getMessage());
-    }
-    return consistent;
-  }
-  private static boolean testNewPolicyEngine(String[] args) {
-    boolean consistent = true;
-    //    Path fileName = java.nio.file.Path.of(args[0]);
-//    Policy policy = new PolicyImpl(fileName);
-    Policy policy = new PolicyImpl(args[0]);
     PolicyEngine policyEngine = null;
     try {
-      policyEngine = new PolicyEngine((PolicyImpl) policy);
+      policyEngine = new PolicyEngine(pmlPolicy);
     } catch (MyPMException e) {
-      logger.fatal(() -> "Issue encountered creating 111822 policy engine: " + e.getMessage());
+      logger.fatal(() -> "Issue encountered creating v3.0.0-alpha.3 policy engine: " + e.getMessage());
       System.exit(1);
     }
     Accessor accessor = null;
     try {
-      accessor = new ExhaustiveAccessor((PolicyImpl) policy);
+      accessor = new ExhaustiveAccessor(pmlPolicy);
     } catch (MyPMException e) {
       logger.fatal(() -> "Issue encountered creating exhaustive accessor: " + e.getMessage());
       System.exit(1);
@@ -140,8 +125,8 @@ public class Runner {
     // load prolog rules
     PrologPolicyEngine prologPolicyEngine = null;
     try {
-      prologPolicyEngine = new PrologPolicyEngine(args[1]);
-      prologPolicyEngine.loadPolicy(args[2]);
+      prologPolicyEngine = new PrologPolicyEngine(prologRulesPath);
+      prologPolicyEngine.loadPolicy(prologPolicy.getPolicyString());
     } catch (MyPMException e) {
       logger.fatal(() -> "Issue encountered loading prolog rules: " + e.getMessage());
       System.exit(1);
@@ -207,7 +192,7 @@ public class Runner {
       writerDecisions.close();
       writerDiscrepencies.close();
 //      Query unloadPolicy = new Query(
-//          "unload_file('policy-graph/src/main/resources/translatePolicy.pl')");
+//          "unload_file('policy-graph/src/main/resources/seedPolicy.pl')");
 //      unloadPolicy.hasSolution();
 
     } catch (IOException e) {
@@ -264,54 +249,43 @@ public class Runner {
     return "Deny";
   }
 
-  private static String[] getStrings(PolicyGraph graph) {
-    List<String> proPMLString = new ArrayList<>();
-    proPMLString.add(buildPrologString(graph.getNodeLists(), graph.getRelationLists()));
-    proPMLString.add(buildPMLString(graph, graph.getNodeLists()));
-    createFile(proPMLString.get(0), prologMutated);
-    // Build the new args
-    String[] newArgs = {proPMLString.get(1), prologRule, prologMutated};
-    return newArgs;
-  }
-
   private static boolean mutateAddNodeImp(PolicyGraph initialGraph, int rounds) {
     boolean consistent = true;
     for (int i = 0; i < rounds; i++) {
       mutatedGraph = mutation.mutateAddNode(initialGraph);
-      consistent = testNewPolicyEngine(getStrings(mutatedGraph));
-      if (!consistent) {
-//        System.out.println(String.format("No. %d add NODE mutation terminated!", i+1));
-        return consistent;
-      };
-//      System.out.println(String.format("No. %d round add NODE mutation completed!", i+1));
+      if (!evalMutation(mutatedGraph)) {
+          return false;
+      }
       initialGraph = mutatedGraph;
     }
-    return consistent;
+    return true;
+  }
+
+  private static boolean evalMutation(PolicyGraph mutatedGraph) {
+      PolicyImpl newPMLPolicy = buildPMLPolicy(mutatedGraph, mutatedGraph.getNodeLists());
+      PolicyImpl newPrologPolicy = buildPrologPolicy(mutatedGraph.getNodeLists(), mutatedGraph.getRelationLists());
+      createFile(newPMLPolicy.getPolicyString(), prologMutated);
+      return testNewPolicyEngine(newPMLPolicy, Path.of(prologRule), newPrologPolicy);
   }
 
   private static boolean mutateAddAssiImp(PolicyGraph initialGraph, int rounds) {
-    boolean consistent = true;
     for (int i = 0; i < rounds; i++) {
       mutatedGraph = mutation.mutateAddAssignment(initialGraph);
-      consistent = testNewPolicyEngine(getStrings(mutatedGraph));
-      if (!consistent) {
-//        System.out.println(String.format("No. %d add ASSI mutation terminated!", i+1));
-        return consistent;
+      if (!evalMutation(mutatedGraph)) {
+        return false;
       }
-//      System.out.println(String.format("No. %d round add ASSI mutation completed!", i+1));
     }
-    return consistent;
+    return true;
   }
 
   private static boolean mutateAddProhImp(PolicyGraph initialGraph, int rounds) {
     boolean consistent = true;
     for (int i = 0; i < rounds; i++) {
       mutatedGraph = mutation.mutateAddProhibition(initialGraph);
-      consistent = testNewPolicyEngine(getStrings(mutatedGraph));
-      if (!consistent) {
-        return consistent;
+      if (!evalMutation(mutatedGraph)) {
+          return false;
       }
     }
-    return consistent;
+    return true;
   }
 }

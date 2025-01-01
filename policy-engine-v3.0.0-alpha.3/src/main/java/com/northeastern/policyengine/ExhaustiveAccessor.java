@@ -4,9 +4,9 @@ import com.northeastern.policy.Accessor;
 import com.northeastern.policy.MyPMException;
 import com.northeastern.policy.ResourceAccess;
 import gov.nist.csd.pm.pap.PAP;
-import gov.nist.csd.pm.policy.exceptions.PMException;
-import gov.nist.csd.pm.policy.model.access.AccessRightSet;
-import gov.nist.csd.pm.policy.model.graph.nodes.NodeType;
+import gov.nist.csd.pm.pap.exception.PMException;
+import gov.nist.csd.pm.pap.graph.relationship.AccessRightSet;
+import gov.nist.csd.pm.pap.graph.node.NodeType;
 
 import java.util.*;
 
@@ -37,9 +37,9 @@ public class ExhaustiveAccessor implements Accessor {
     Set<String> allU = new HashSet<>();
     for (int i = 0; i < this.policies.size(); i++) {
       try {
-        List<String> u = this.paps.get(i).graph().search(NodeType.U, new HashMap<>());
+        Collection<String> u = this.paps.get(i).query().graph().search(NodeType.U, new HashMap<>());
         allU.addAll(u);
-        List<String> ua = this.paps.get(i).graph().search(NodeType.UA, new HashMap<>());
+        Collection<String> ua = this.paps.get(i).query().graph().search(NodeType.UA, new HashMap<>());
         allU.addAll(ua);
         allU.removeAll(removeMe);
       } catch (PMException e) {
@@ -51,10 +51,10 @@ public class ExhaustiveAccessor implements Accessor {
     Set<String> allOA = new HashSet<>();
     for (int i = 0; i < this.policies.size(); i++) {
       try {
-        List<String> o = this.paps.get(i).graph().search(NodeType.O, new HashMap<>());
+        Collection<String> o = this.paps.get(i).query().graph().search(NodeType.O, new HashMap<>());
         allOA.addAll(o);
 
-        List<String> oa = this.paps.get(i).graph().search(NodeType.OA, new HashMap<>());
+        Collection<String> oa = this.paps.get(i).query().graph().search(NodeType.OA, new HashMap<>());
         allOA.addAll(oa);
         allOA.removeAll(removeMe);
       } catch (PMException e) {
@@ -67,7 +67,7 @@ public class ExhaustiveAccessor implements Accessor {
     for (int i = 0; i < this.policies.size(); i++) {
       AccessRightSet targetOps = null;
       try {
-        targetOps = this.paps.get(i).graph().  getResourceAccessRights();
+        targetOps = this.paps.get(i).policyStore().operations().getResourceOperations();
         possiblePermissions.addAll(targetOps);
       } catch (PMException e) {
         throw new MyPMException(e);

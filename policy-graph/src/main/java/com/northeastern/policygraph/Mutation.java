@@ -1,8 +1,6 @@
 package com.northeastern.policygraph;
 
 import static com.northeastern.policygraph.PolicyGraph.allPermissions;
-import static com.northeastern.policygraph.PolicyGraph.buildPrologString;
-import static com.northeastern.policygraph.PolicyGraph.buildPMLString;
 import static com.northeastern.policygraph.PolicyGraph.isAncestor;
 
 import java.util.ArrayList;

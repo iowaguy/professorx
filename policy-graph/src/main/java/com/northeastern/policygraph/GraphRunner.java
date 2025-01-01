@@ -1,13 +1,12 @@
 package com.northeastern.policygraph;
 
-import static com.northeastern.policygraph.PolicyGraph.buildPMLString;
-import static com.northeastern.policygraph.PolicyGraph.buildPrologString;
+import static com.northeastern.policygraph.PolicyGraph.buildPMLPolicy;
+import static com.northeastern.policygraph.PolicyGraph.buildPrologPolicy;
 
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.List;
 
 public class GraphRunner {
@@ -21,10 +20,10 @@ public class GraphRunner {
   public static void main(String[] args) {
     initialGraph = new PolicyGraph();
 //    allPermissions = AccessRight.getAllPermissions();
-    String proString = buildPrologString(
-        initialGraph.getNodeLists(), initialGraph.getRelationLists());
-    String pmlString = buildPMLString(
-        initialGraph, initialGraph.getNodeLists());
+    String proString = buildPrologPolicy(
+        initialGraph.getNodeLists(), initialGraph.getRelationLists()).getPolicyString();
+    String pmlString = buildPMLPolicy(
+        initialGraph, initialGraph.getNodeLists()).getPolicyString();
     System.out.println("Initial Node List: " + initialGraph.getNodeLists());
     String prologPath = "policy-graph/src/main/resources/translatePolicy.pl";
     createFile(proString, prologPath);

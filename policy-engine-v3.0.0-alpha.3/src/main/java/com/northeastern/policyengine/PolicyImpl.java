@@ -38,6 +38,20 @@ public class PolicyImpl implements Policy {
     this.policyString = policyString;
     logger.info("Full policy:\n {}", this.policyString);
   }
+
+
+  public PolicyImpl(Path policyPath) {
+    // Read the policy from String
+    this.policyString = policyString;
+
+    try {
+        policyString = Files.readString(policyPath);
+    } catch (IOException e) {
+        logger.fatal(() -> "Issue encountered reading file: " + policyPath);
+        System.exit(1);
+    }
+  }
+
   private Policy attributeExchangeExplicit(String source, String dest, String newSource,
                                                String newDest) throws MyPMException {
 //    Map<String, OperationSet> associations = null;

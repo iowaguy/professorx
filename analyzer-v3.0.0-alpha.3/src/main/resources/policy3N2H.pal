@@ -1,4 +1,4 @@
-set resource access rights 'permission0', 'permission4', 'permission1', 'permission2';
+set resource operations 'permission0', 'permission4', 'permission1', 'permission2';
 create policy class 'department';
 
 create user attribute 'ua1' in 'department';

@@ -6,14 +6,14 @@
         <artifactId>mutationanalysis</artifactId>
         <groupId>com.northeastern.mutationanalysis</groupId>
         <version>0.1</version>
-        <relativePath>../pom-111822.xml</relativePath>
+        <relativePath>../pom-v3.0.0-alpha.3.xml</relativePath>
     </parent>
 
     <groupId>com.northeastern.analyzer</groupId>
-    <artifactId>analyzer-111822</artifactId>
+    <artifactId>analyzer-v3.0.0-alpha.3</artifactId>
     <version>0.1</version>
     <packaging>jar</packaging>
-    <name>analyzer-111822</name>
+    <name>analyzer-v3.0.0-alpha.3</name>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -29,7 +29,7 @@
         </dependency>
         <dependency>
             <groupId>com.northeastern.policyengine</groupId>
-            <artifactId>policy-engine-111822</artifactId>
+            <artifactId>policy-engine-v3.0.0-alpha.3</artifactId>
             <version>0.1</version>
         </dependency>
         <dependency>

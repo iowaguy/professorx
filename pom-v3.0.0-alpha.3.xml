@@ -142,9 +142,9 @@
 
   <modules>
     <module>policy</module>
-    <module>policy-engine-111822</module>
+    <module>policy-engine-v3.0.0-alpha.3</module>
     <module>prolog-policy-engine</module>
     <module>policy-graph</module>
-    <module>analyzer-111822</module>
+    <module>analyzer-v3.0.0-alpha.3</module>
   </modules>
 </project>

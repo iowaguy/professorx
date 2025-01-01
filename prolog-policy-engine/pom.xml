@@ -13,7 +13,7 @@
     <artifactId>mutationanalysis</artifactId>
     <groupId>com.northeastern.mutationanalysis</groupId>
     <version>0.1</version>
-    <relativePath>../pom-111822.xml</relativePath>
+    <relativePath>../pom-v3.0.0-alpha.3.xml</relativePath>
   </parent>
 
   <groupId>com.northeastern.prologpolicyengine</groupId>

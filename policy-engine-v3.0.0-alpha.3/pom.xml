@@ -5,14 +5,14 @@
     <artifactId>mutationanalysis</artifactId>
     <groupId>com.northeastern.mutationanalysis</groupId>
     <version>0.1</version>
-    <relativePath>../pom-111822.xml</relativePath>
+    <relativePath>../pom-v3.0.0-alpha.3.xml</relativePath>
   </parent>
 
   <groupId>com.northeastern.policyengine</groupId>
-  <artifactId>policy-engine-111822</artifactId>
+  <artifactId>policy-engine-v3.0.0-alpha.3</artifactId>
   <version>0.1</version>
 
-  <name>policy-engine-111822</name>
+  <name>policy-engine-v3.0.0-alpha.3</name>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -32,7 +32,7 @@
     <dependency>
       <groupId>com.github.PM-Master</groupId>
       <artifactId>policy-machine-core</artifactId>
-      <version>35872a1</version>
+      <version>4a924fc</version>
     </dependency>
     <dependency>
       <groupId>com.northeastern.policy</groupId>

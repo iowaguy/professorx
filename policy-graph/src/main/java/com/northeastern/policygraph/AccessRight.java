@@ -27,12 +27,12 @@ public class AccessRight {
     List<String> arPML = new ArrayList<>();
     while (accessRightIterator.hasNext()) {
       String arToString = accessRightIterator.next().toString().toLowerCase();
-      buildProlog.append(String.format("ar(%1$s).", arToString) + System.lineSeparator());
+      buildProlog.append(String.format("ar(%1$s).", arToString)).append(System.lineSeparator());
       arPML.add("'" + arToString + "'");
     }
     String arsPML = String.join(", ", arPML);
     arsPML += ";";
-    buildPML = String.format("set resource access rights %1$s", arsPML) + System.lineSeparator();
+    buildPML = String.format("set resource operations %1$s", arsPML) + System.lineSeparator();
     return List.of(buildProlog.toString(), buildPML);
   }
 
