@@ -12,6 +12,7 @@ import org.jgrapht.Graph;
 import org.jgrapht.GraphPath;
 import org.jgrapht.alg.shortestpath.AllDirectedPaths;
 import org.jgrapht.graph.DirectedMultigraph;
+import org.jgrapht.traverse.BreadthFirstIterator;
 import org.jgrapht.traverse.DepthFirstIterator;
 
 public class PolicyGraph extends DirectedMultigraph<NodeElement, Relation> {
@@ -24,6 +25,7 @@ public class PolicyGraph extends DirectedMultigraph<NodeElement, Relation> {
   protected List<List<NodeElement>> nodeLists = new ArrayList<>();
   protected List<List<Relation>> relationLists = new ArrayList<>();
   protected static List<AccessRight> allPermissions;
+  private static Set<NodeElement> createdNodesOneTra = new HashSet<>();
 
   public PolicyGraph() {
     super(edgeClass);
@@ -254,29 +256,30 @@ public class PolicyGraph extends DirectedMultigraph<NodeElement, Relation> {
                                           List<List<NodeElement>> nodeLists) {
     StringBuilder pmlString = new StringBuilder();
     pmlString.append(AccessRight.buildAccessRights(allPermissions).get(1));
+    Set<NodeElement> createdNodes = new HashSet<>();
 
-    // use every policy class node to build the DFS trees
+    // use every policy class node to build the BFS trees
     for (NodeElement node : nodeLists.get(0)) {
-      pmlString.append(depthTraverseOnePC(assignGraph, node));
+      pmlString.append(breadthTraverseOnePC(assignGraph, node, createdNodes));
+      createdNodes.addAll(createdNodesOneTra);
+      createdNodesOneTra.clear();
     }
     return new PolicyImpl(pmlString.toString(), pmlPath);
   }
 
-  private static String depthTraverseOnePC(PolicyGraph assignGraph,
-      NodeElement startP) {
+  private static String breadthTraverseOnePC(PolicyGraph assignGraph,
+      NodeElement startP, Set<NodeElement> createdNodes) {
     // create nodes and relations in PML
     StringBuilder pmlString = new StringBuilder();
-    Set<NodeElement> createdNodes = new HashSet<>();
     List<Relation> remainingAssignments = new ArrayList<>();
     List<Relation> associations = new ArrayList<>();
     List<Relation> prohibitions = new ArrayList<>();
 
     // build three relations list in one policy class
-    for (NodeElement node: buildDFSLists(assignGraph, startP)) {
+    for (NodeElement node: buildBFSLists(assignGraph, startP)) {
       for (Relation relation : assignGraph.outgoingEdgesOf(node)) {
         if (relation instanceof Assignment) {
           remainingAssignments.add(relation);
-//          System.out.println("Assignment relation during dfs: " + relation.toStringPML());
         }
         else if (relation instanceof Association) {
           associations.add(relation);
@@ -287,19 +290,19 @@ public class PolicyGraph extends DirectedMultigraph<NodeElement, Relation> {
       }
     }
 
-    createdNodes.add(startP);
+    createdNodesOneTra.add(startP);
     pmlString.append(startP.toStringPML() + System.lineSeparator());
-    for (NodeElement node : buildDFSLists(assignGraph, startP)) {
+    for (NodeElement node : buildBFSLists(assignGraph, startP)) {
       Iterator<Relation> outgoingEdge = assignGraph.outgoingEdgesOf(node)
           .iterator();
       while (outgoingEdge.hasNext()) {
         Relation relation = outgoingEdge.next();
         if (relation instanceof Assignment) {
           NodeElement target = ((Assignment) relation).getTarget();
-          if (!createdNodes.contains(target)) {
+          if (!createdNodes.contains(target) && !createdNodesOneTra.contains(target)) {
             pmlString.append(target.toStringPML() +
                 " in [\"" + node.toString() + "\"]" + System.lineSeparator());
-            createdNodes.add(target);
+            createdNodesOneTra.add(target);
             remainingAssignments.remove(relation);
           }
         }
@@ -312,16 +315,15 @@ public class PolicyGraph extends DirectedMultigraph<NodeElement, Relation> {
     return pmlString.toString();
   }
 
-  private static List<NodeElement> buildDFSLists(Graph
+  private static List<NodeElement> buildBFSLists(Graph
       assignGraph, Element start) {
-    DepthFirstIterator iterator = new DepthFirstIterator(assignGraph, start);
-    List<NodeElement> nodesDFSOrder = new ArrayList<>();
+    BreadthFirstIterator iterator = new BreadthFirstIterator(assignGraph, start);
+    List<NodeElement> nodesBFSOrder = new ArrayList<>();
     while (iterator.hasNext()) {
       NodeElement node = (NodeElement) iterator.next();
-      nodesDFSOrder.add(node);
+      nodesBFSOrder.add(node);
     }
-//    System.out.println("PML DFS order node list: " + nodesDFSOrder);
-    return nodesDFSOrder;
+    return nodesBFSOrder;
   }
 
   public List<List<NodeElement>> getNodeLists() {
