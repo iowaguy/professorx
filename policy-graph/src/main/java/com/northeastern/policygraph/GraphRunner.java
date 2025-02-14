@@ -1,6 +1,7 @@
 package com.northeastern.policygraph;
 
 import static com.northeastern.policygraph.PolicyGraph.buildPMLPolicy;
+import static com.northeastern.policygraph.PolicyGraph.buildPMLPolicy22;
 import static com.northeastern.policygraph.PolicyGraph.buildPrologPolicy;
 
 import java.io.BufferedWriter;
@@ -22,25 +23,17 @@ public class GraphRunner {
 //    allPermissions = AccessRight.getAllPermissions();
     String proString = buildPrologPolicy(
         initialGraph.getNodeLists(), initialGraph.getRelationLists()).getPolicyString();
-    String pmlString = buildPMLPolicy(
-        initialGraph, initialGraph.getNodeLists()).getPolicyString();
+    String pmlString = buildPMLPolicy(initialGraph, initialGraph.getNodeLists()).getPolicyString();
+//    String pmlString = buildPMLPolicy22(initialGraph, initialGraph.getNodeLists()).getPolicyString();
     System.out.println("Initial Node List: " + initialGraph.getNodeLists());
     String prologPath = "policy-graph/src/main/resources/translatePolicy.pl";
     createFile(proString, prologPath);
     String pmlPath = "policy-graph/src/main/resources/translatePolicy.pal";
     createFile(pmlString, pmlPath);
-
-//    PolicyGraph mutatedGraph = Mutation.mutateAddNode(initialGraph, NodeElementType.USER_ATTRIBUTE,
-//        NodeElementType.OBJECT);
-//    List<String> proPMLString = new ArrayList<>();
-//    proPMLString.add(buildPrologString(mutatedGraph.getNodeLists(), mutatedGraph.getRelationLists()));
-//    proPMLString.add(buildPMLString(mutatedGraph, mutatedGraph.getNodeLists()));
-//    createFile(proPMLString.get(0), prologPath);
-//    createFile(proPMLString.get(1), pmlPath);
   }
 
 
-  public static void createFile(String proString, String filePath) {
+  public static void createFile(String policyString, String filePath) {
     BufferedWriter writerProlog = null;
     try {
       writerProlog = Files.newBufferedWriter(Paths.get(filePath));
@@ -49,7 +42,7 @@ public class GraphRunner {
       System.exit(1);
     }
     try {
-      writerProlog.append(proString);
+      writerProlog.append(policyString);
       writerProlog.flush();
     } catch (Exception e) {
       System.out.println(e.getMessage());

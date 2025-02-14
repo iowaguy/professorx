@@ -35,6 +35,15 @@ public class Association extends Relation {
         this.getTarget(), this.getSource(), ars);
   }
 
+  @Override
+  public String toStringPML22() {
+    StringBuilder ars = new StringBuilder();
+    ars.append("[\'").append(String.join("\', \'", this.getAccessRightString())).append("\']");
+
+    return String.format("associate \'%1$s\' and \'%2$s\' with %3$s;",
+        this.getTarget(), this.getSource(), ars);
+  }
+
   public static List<Relation> getAllAssociations() {
     return allAssociations;
   }

@@ -50,6 +50,11 @@ public class UserAttribute extends NodeElement{
     return String.format("create ua \"%1$s\"", this.getUserAttribute());
   }
 
+  @Override
+  public String toStringPML22() {
+    return String.format("create user attribute \'%1$s\'", this.getUserAttribute());
+  }
+
   public static List<NodeElement> getAllElements() {
     return allUserAttributes;
   }

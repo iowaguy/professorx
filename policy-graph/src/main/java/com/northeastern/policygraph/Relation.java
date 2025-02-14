@@ -27,4 +27,6 @@ public abstract class Relation extends DefaultEdge implements Element {
     }
     return arList;
   }
+
+  public abstract String toStringPML22();
 }

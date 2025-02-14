@@ -13,7 +13,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.Random;
 import java.util.Set;
@@ -38,12 +37,16 @@ public class Runner {
   private static final String prologMutated = "policy-graph/src/main/resources/mutantPolicy.pl";
   private static final String pmlMutated = "policy-graph/src/main/resources/mutantPolicy.pal";
   private static final String prologRule = "prolog-policy-engine/src/main/resources/rules.pl";
+  private static final String[] HEADERS =
+      {"mutation", "subject", "object", "permission", "prolog_decision", "nist_decision"
+      , "cur_access_time", "cur_round_time"};
   private static Random random;
   private static Mutation mutation;
   private static PolicyGraph mutatedGraph;
-  private static Integer roundNo = 0;
+//  private static Integer roundNo = 0;
   private static Boolean consistent = true;
   private static MutationStatus mutationStatus;
+  private static long currentRoundTime;
   
   public static void main(String[] args) {
     if (args.length == 4) {
@@ -61,9 +64,10 @@ public class Runner {
     PolicyImpl pmlPolicy = new PolicyImpl(Path.of(args[1]));
     PolicyImpl prologPolicy = new PolicyImpl(Path.of(args[2]));
     Integer rounds = Integer.parseInt(args[3]);
-    testNewPolicyEngine(pmlPolicy, prologRulesPath, prologPolicy);
+    List<String[]> initialResults = testNewPolicyEngine(pmlPolicy, prologRulesPath, prologPolicy);
     if (!consistent) {
       System.err.print("Discrepancies found in initial policy!");
+      writeToCSV("initialResults.csv", HEADERS, initialResults);
       System.exit(2);
     };
     PolicyGraph initialGraph = new PolicyGraph();
@@ -85,28 +89,28 @@ public class Runner {
 
   private static void mutate(PolicyGraph initialGraph, Integer rounds) {
     List<String[]> allDecisions = new ArrayList<>();
+    List<String[]> roundDecisions = new ArrayList<>();
     List<String[]> timerRecords = new ArrayList<>();
-    String[] HEADERS =
-        {"round_no", "mutation", "subject", "object", "permission", "prolog_decision", "nist_decision"};
     String[] HEADERS_TIMER =
-        {"round_no", "duration"};
-
+        {"cur_round_time", "round_no", "duration"};
+    Integer roundNo = 0;
     while (roundNo < rounds) {
       roundNo++;
-      List<String[]> roundDecisons = new ArrayList<>();
+      roundDecisions.clear();
       long startTime = System.nanoTime();
+      currentRoundTime = System.currentTimeMillis();
       int choice = random.nextInt(3);
-      System.out.println("----------------------");
-      System.out.println(String.format("No.%d mutation begins!", roundNo));
+//      System.out.println("----------------------");
+//      System.out.println(String.format("No.%d mutation begins!", roundNo));
       if (choice == 0) {
-        roundDecisons = mutateAddNodeImp(initialGraph, 1);
+        roundDecisions = mutateAddNodeImp(initialGraph, 1);
       } else if (choice == 1) {
-        roundDecisons = mutateAddAssiImp(initialGraph, 1);
+        roundDecisions = mutateAddAssiImp(initialGraph, 1);
       } else if (choice == 2) {
-        roundDecisons = mutateAddProhImp(initialGraph, 1);
+        roundDecisions = mutateAddProhImp(initialGraph, 1);
       }
-      allDecisions.addAll(roundDecisons);
-      timerRecords.add(new String[]{String.valueOf(roundNo),
+      allDecisions.addAll(roundDecisions);
+      timerRecords.add(new String[]{String.valueOf(currentRoundTime), String.valueOf(roundNo),
           String.valueOf(System.nanoTime()-startTime)});
       if (!consistent) {
         break;
@@ -119,10 +123,9 @@ public class Runner {
     writeToCSV("timer.csv", HEADERS_TIMER, timerRecords);
     if (!consistent) {
       List<String[]> discrepancies = new ArrayList<>();
-      discrepancies.add(allDecisions.get(roundNo - 1));
+      discrepancies.addAll(roundDecisions);
       writeToCSV("discrepancies.csv", HEADERS, discrepancies);
     }
-    System.out.println("Finished with " + roundNo + " rounds");
   }
 
   private static List<String[]> testNewPolicyEngine(
@@ -164,6 +167,7 @@ public class Runner {
     for (ResourceAccess a : accesses) {
       boolean nistDecision = false;
       boolean prologDecision = false;
+      long currentAccessTime = System.currentTimeMillis() * 1_000_000L + System.nanoTime();
       try {
         nistDecision = policyEngine.getDecision(a);
         prologDecision = prologPolicyEngine.getDecision(a);
@@ -174,8 +178,9 @@ public class Runner {
 
       String prologDecisionS = convertToString(prologDecision);
       String nistDecisionS = convertToString(nistDecision);
-      results.add(new String[]{String.valueOf(roundNo), Mutation.getCurMutation(), a.getSubject(),
-          a.getObject(), a.getPermissions(), prologDecisionS, nistDecisionS});
+      results.add(new String[]{Mutation.getCurMutation(), a.getSubject(),
+          a.getObject(), a.getPermissions(), prologDecisionS, nistDecisionS, String.valueOf(
+          currentAccessTime), String.valueOf(currentRoundTime)});
       if (prologDecision != nistDecision) {
         System.out.println("NIST decision for " + a.toString() + ". Allowed? " + nistDecision);
         System.out.println("Prolog decision for " + a.toString() + ". Allowed? " + prologDecision);
@@ -191,6 +196,7 @@ public class Runner {
       CSVFormat csvFormat = CSVFormat.DEFAULT.builder()
           .setHeader(headers)
           .setAutoFlush(true)
+          .setDelimiter(';')
           .build();
 
       try (CSVPrinter printer = new CSVPrinter(writer, csvFormat)) {

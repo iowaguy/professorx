@@ -79,6 +79,7 @@ public class Mutation {
       System.out.println(String.format("Mutate - Add Node!\nAdded policy class: %s", newNode));
       curMutation = String.format("Add-Node_%s", newNode);
       return new MutationStatus(mutatedGraph, true);
+//      return mutateAddNode(initialGraph);
     } else {
       return mutateAddNode(initialGraph, NodeElementType.getNodeType(newNodeIndex));
     }
@@ -91,7 +92,7 @@ public class Mutation {
         .mapToInt(List::size)
         .sum();
     Integer maxSkipNumber = nodeNumber * (nodeNumber - 1);
-    System.out.println("MaxSkipNumber: " + maxSkipNumber + "!!!!!!!!" + "\n" + "SkipNumber: " + skipNumber);
+//    System.out.println("MaxSkipNumber: " + maxSkipNumber + "!!!!!!!!" + "\n" + "SkipNumber: " + skipNumber);
     if (skipNumber <= maxSkipNumber) {
       if (sourceNodeIndex == 0) { // when add assignment from policy class to others, skip！
         skipNumber++;
@@ -109,18 +110,18 @@ public class Mutation {
           targetNode = targetList.get(random.nextInt(targetList.size()));
         }
         if (sourceNode == targetNode) {
-          System.out.println(String.format("Mutate - Add Assignment!\n"
-              + "Source node and target node are the same. Skip"));
+//          System.out.println(String.format("Mutate - Add Assignment!\n"
+//              + "Source node and target node are the same. Skip"));
           skipNumber++;
           return mutateAddAssignment(initialGraph);
         } else if (isAncestor(initialGraph, sourceNode, targetNode)) {
-          System.out.println(String.format("Mutate - Add Assignment!\n"
-              + "Assignment (%s, %s) exists. Skip", sourceNode, targetNode));
+//          System.out.println(String.format("Mutate - Add Assignment!\n"
+//              + "Assignment (%s, %s) exists. Skip", sourceNode, targetNode));
           skipNumber++;
           return mutateAddAssignment(initialGraph);
         } else if (isAncestor(initialGraph, targetNode, sourceNode)) {
-          System.out.println(String.format("Mutate - Add Assignment!\n"
-              + "Assignment (%s, %s) will cause a loop. Skip", targetNode, sourceNode));
+//          System.out.println(String.format("Mutate - Add Assignment!\n"
+//              + "Assignment (%s, %s) will cause a loop. Skip", targetNode, sourceNode));
           skipNumber++;
           return mutateAddAssignment(initialGraph);
         } else {
@@ -136,48 +137,6 @@ public class Mutation {
       System.out.println("When no more assignments!!!!!!!!!!");
       return new MutationStatus(initialGraph, false);
     }
-    //    if (skipNumber > maxSkipNumber) {
-//      System.out.println("Impossible to add more assignments!!!!!!!!");
-//      return new MutationStatus(initialGraph, false);
-//    } else if (sourceNodeIndex == 0) { // when add assignment from policy class to others, skip！
-//      skipNumber++;
-//      mutateAddAssignment(initialGraph);
-//    } else {
-//      legalAssiTargets(NodeElementType.getNodeType(sourceNodeIndex));
-//      List<NodeElement> sourceList = NodeElementType.getNodeList(
-//          NodeElementType.getNodeType(sourceNodeIndex), initialGraph);
-//      List<NodeElement> targetList = NodeElementType.getNodeList(
-//          NodeElementType.getNodeType(targetNodeIndex), initialGraph);
-//      NodeElement sourceNode = null;
-//      NodeElement targetNode = null;
-//      if (!sourceList.isEmpty() && !targetList.isEmpty()) {
-//        sourceNode = sourceList.get(random.nextInt(sourceList.size()));
-//        targetNode = targetList.get(random.nextInt(targetList.size()));
-//      }
-//      if (sourceNode == targetNode && skipNumber < maxSkipNumber) {
-//        System.out.println(String.format("Mutate - Add Assignment!\n"
-//            + "Source node and target node are the same. Skip"));
-//        skipNumber++;
-//        mutateAddAssignment(initialGraph);
-//      } else if (isAncestor(initialGraph, sourceNode, targetNode)) {
-//        System.out.println(String.format("Mutate - Add Assignment!\n"
-//            + "Assignment (%s, %s) exists. Skip", sourceNode, targetNode));
-//        skipNumber++;
-//        mutateAddAssignment(initialGraph);
-//      } else if (isAncestor(initialGraph, targetNode, sourceNode)) {
-//        System.out.println(String.format("Mutate - Add Assignment!\n"
-//            + "Assignment (%s, %s) will cause a loop. Skip", targetNode, sourceNode));
-//        skipNumber++;
-//        mutateAddAssignment(initialGraph);
-//      } else {
-//        initialGraph.addEdge(targetNode, sourceNode, new Assignment());
-//        System.out.println(String.format("Mutate - Add Assignment!\n"
-//            + "Added assignment: (%s, %s)", sourceNode, targetNode));
-//        curMutation = String.format("Mutate - Add Assignment! - "
-//            + "Added assignment: (%s, %s)", sourceNode, targetNode);
-//      }
-//    }
-//    return new MutationStatus(initialGraph, true);
   }
 
   public static MutationStatus mutateAddProhibition(PolicyGraph initialGraph) {
@@ -199,8 +158,8 @@ public class Mutation {
     sourceNode = sourceList.get(random.nextInt(sourceList.size()));
     targetNode = targetList.get(random.nextInt(targetList.size()));
     if (sourceNode == targetNode) {
-      System.out.println(String.format("Mutate - Add Prohibition!\n"
-          + "Source node and target node are the same. Skip"));
+//      System.out.println(String.format("Mutate - Add Prohibition!\n"
+//          + "Source node and target node are the same. Skip"));
       mutateAddProhibition(initialGraph);
     } else {
       AccessRight[] ar = new AccessRight[]{

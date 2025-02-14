@@ -12,6 +12,7 @@ import java.nio.file.Path;
 
 public class PolicyImpl implements Policy {
   private String policyString;
+  private Path policyPath;
   static Logger logger = LogManager.getLogger(PolicyImpl.class);
 
 //  public PolicyImpl(Path policyPath) {
@@ -33,11 +34,25 @@ public class PolicyImpl implements Policy {
 //    }
 //  }
 
-  public PolicyImpl(String policyString) {
+  public PolicyImpl(String policyString, Path policyPath) {
+    this.policyPath = policyPath;
     // Read the policy from String
     this.policyString = policyString;
     logger.info("Full policy:\n {}", this.policyString);
   }
+
+  public PolicyImpl(Path policyPath) {
+    // Read the policy from String
+    this.policyPath = policyPath;
+
+    try {
+      policyString = Files.readString(policyPath);
+    } catch (IOException e) {
+      logger.fatal(() -> "Issue encountered reading file: " + policyPath);
+      System.exit(1);
+    }
+  }
+
   private Policy attributeExchangeExplicit(String source, String dest, String newSource,
                                                String newDest) throws MyPMException {
 //    Map<String, OperationSet> associations = null;
@@ -73,5 +88,9 @@ public class PolicyImpl implements Policy {
 
   public String getPolicyString() {
     return this.policyString;
+  }
+
+  public Path getPolicyPath() {
+    return this.policyPath;
   }
 }

@@ -30,6 +30,11 @@ public class Assignment extends Relation {
         this.getTarget(), this.getSource());
   }
 
+  @Override
+  public String toStringPML22() {
+    return String.format("assign \'%1$s\' to \'%2$s\';",
+        this.getTarget(), this.getSource());
+  }
   public static List<Relation> getAllAssignments() {
     return allAssignments;
   }
@@ -37,5 +42,4 @@ public class Assignment extends Relation {
   protected NodeElement getTarget() {
     return (NodeElement) super.getTarget();
   }
-
 }

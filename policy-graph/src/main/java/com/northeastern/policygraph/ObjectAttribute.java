@@ -50,6 +50,11 @@ public class ObjectAttribute extends NodeElement {
     return String.format("create oa \"%1$s\"", this.getObjectAttribute());
   }
 
+  @Override
+  public String toStringPML22() {
+    return String.format("create object attribute \'%1$s\'", this.getObjectAttribute());
+  }
+
   public static List<NodeElement> getAllElements() {
     return allObjectAttributes;
   }

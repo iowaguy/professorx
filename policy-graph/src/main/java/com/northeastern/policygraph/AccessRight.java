@@ -35,6 +35,22 @@ public class AccessRight {
     return List.of(buildProlog.toString(), buildPML);
   }
 
+  public static List<String> buildAccessRights22(List<AccessRight> allPermissions) {
+    String buildPML;
+    StringBuilder buildProlog = new StringBuilder();
+    Iterator<AccessRight> accessRightIterator = allPermissions.iterator();
+    List<String> arPML = new ArrayList<>();
+    while (accessRightIterator.hasNext()) {
+      String arToString = accessRightIterator.next().toString().toLowerCase();
+      buildProlog.append(String.format("ar(%1$s).", arToString) + System.lineSeparator());
+      arPML.add("'" + arToString + "'");
+    }
+    String arsPML = String.join(", ", arPML);
+    arsPML += ";";
+    buildPML = String.format("set resource access rights %1$s", arsPML) + System.lineSeparator();
+    return List.of(buildProlog.toString(), buildPML);
+  }
+
   public String getPermission() {
     return permission;
   }

@@ -50,6 +50,11 @@ public class Ob extends NodeElement {
     return String.format("create o \"%1$s\"", this.getOb());
   }
 
+  @Override
+  public String toStringPML22() {
+    return String.format("create object \'%1$s\'", this.getOb());
+  }
+
   public static List<NodeElement> getAllElements() {
     return allObs;
   }

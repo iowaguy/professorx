@@ -50,6 +50,11 @@ public class PolicyClass extends NodeElement{
     return String.format("create pc \"%1$s\"", this.getPolicyClass());
   }
 
+  @Override
+  public String toStringPML22() {
+    return String.format("create policy class \'%1$s\';", this.getPolicyClass());
+  }
+
   public static List<NodeElement> getAllElements() {
     return allPolicies;
   }

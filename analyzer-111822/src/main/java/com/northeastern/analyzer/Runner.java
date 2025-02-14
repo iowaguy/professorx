@@ -2,10 +2,11 @@ package com.northeastern.analyzer;
 
 import static com.northeastern.policygraph.GraphRunner.createFile;
 import static com.northeastern.policygraph.Mutation.mutateAddNode;
-import static com.northeastern.policygraph.PolicyGraph.buildPMLPolicy;
+import static com.northeastern.policygraph.PolicyGraph.buildPMLPolicy22;
 import static com.northeastern.policygraph.PolicyGraph.buildPrologPolicy;
 
 import com.northeastern.policygraph.Mutation;
+import com.northeastern.policygraph.MutationStatus;
 import java.io.IOException;
 import java.io.Writer;
 import java.nio.file.Files;
@@ -19,12 +20,12 @@ import java.util.Set;
 import org.apache.commons.csv.CSVFormat;
 
 import com.northeastern.prologpolicyengine.PrologPolicyEngine;
+import org.apache.commons.csv.CSVPrinter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import com.northeastern.policy.Accessor;
 import com.northeastern.policy.MyPMException;
-import com.northeastern.policy.Policy;
 import com.northeastern.policy.ResourceAccess;
 import com.northeastern.policyengine.ExhaustiveAccessor;
 import com.northeastern.policyengine.PolicyEngine;
@@ -33,31 +34,42 @@ import com.northeastern.policygraph.PolicyGraph;
 
 public class Runner {
   static Logger logger = LogManager.getLogger(Runner.class);
-  private static String prologMutated = "analyzer-111822/src/main/resources/mutatedPolicy.pl";
-  private static String prologRule = "prolog-policy-engine/src/main/resources/rules.pl";
+  private static final String prologMutated = "policy-graph/src/main/resources/mutantPolicy.pl";
+  private static final String pmlMutated = "policy-graph/src/main/resources/mutantPolicy.pal";
+  private static final String prologRule = "prolog-policy-engine/src/main/resources/rules.pl";
+  private static final String[] HEADERS =
+      {"round_no", "mutation", "subject", "object", "permission", "prolog_decision", "nist_decision"};
   private static Random random;
   private static Mutation mutation;
   private static PolicyGraph mutatedGraph;
-  
+  private static Integer roundNo = 0;
+  private static Boolean consistent = true;
+  private static MutationStatus mutationStatus;
+
   public static void main(String[] args) {
-    if (args.length == 3) {
+    if (args.length == 4) {
       initializeRandom();
-    }
-    else if (args.length == 4) {
-      Long fixedSeed = Long.parseLong(args[3]);
+    } else if (args.length == 5) {
+      Long fixedSeed = Long.parseLong(args[4]);
       initializeRandom(fixedSeed);
     } else {
       System.err.printf("%d arguments provided. \n "
-          + "Need 3 for random mutation. Need 4 for fixed mutation.", args.length);
+          + "Need 4 for random mutation. Need 5 for fixed mutation.", args.length);
       System.exit(1);
     }
 
-    if (!testNewPolicyEngineInitial(args)) {
-      System.err.printf("Discrepancies found in initial policy!");
+    Path prologRulesPath = java.nio.file.Path.of(args[0]);
+    PolicyImpl pmlPolicy = new PolicyImpl(Path.of(args[1]));
+    PolicyImpl prologPolicy = new PolicyImpl(Path.of(args[2]));
+    Integer rounds = Integer.parseInt(args[3]);
+    List<String[]> initialResults = testNewPolicyEngine(pmlPolicy, prologRulesPath, prologPolicy);
+    if (!consistent) {
+      System.err.print("Discrepancies found in initial policy!");
+      writeToCSV("initialResults.csv", HEADERS, initialResults);
       System.exit(2);
     };
     PolicyGraph initialGraph = new PolicyGraph();
-    mutate(initialGraph, 10);
+    mutate(initialGraph, rounds);
   }
 
   public static void initializeRandom() {
@@ -74,61 +86,59 @@ public class Runner {
   }
 
   private static void mutate(PolicyGraph initialGraph, Integer rounds) {
-    for (int round = 0; round < rounds; round++) {
+    List<String[]> allDecisions = new ArrayList<>();
+    List<String[]> roundDecisions = new ArrayList<>();
+    List<String[]> timerRecords = new ArrayList<>();
+    String[] HEADERS_TIMER =
+        {"round_no", "duration"};
+
+    while (roundNo < rounds) {
+      roundNo++;
+      roundDecisions.clear();
+      long startTime = System.nanoTime();
       int choice = random.nextInt(3);
       System.out.println("----------------------");
-      System.out.println(String.format("No. %d mutation begins!", round+1));
+      System.out.println(String.format("No.%d mutation begins!", roundNo));
       if (choice == 0) {
-        if (!mutateAddNodeImp(initialGraph, 1)){
-          break;
-        };
+        roundDecisions = mutateAddNodeImp(initialGraph, 1);
       } else if (choice == 1) {
-        if (!mutateAddAssiImp(initialGraph, 1)){
-          break;
-        };
+        roundDecisions = mutateAddAssiImp(initialGraph, 1);
       } else if (choice == 2) {
-        if (!mutateAddProhImp(initialGraph, 1)){
-          break;
-        }
+        roundDecisions = mutateAddProhImp(initialGraph, 1);
+      }
+      allDecisions.addAll(roundDecisions);
+      timerRecords.add(new String[]{String.valueOf(roundNo),
+          String.valueOf(System.nanoTime()-startTime)});
+      if (!consistent) {
+        break;
       }
       initialGraph = mutatedGraph;
     }
+
+    // Write to files
+    writeToCSV("decisions.csv", HEADERS, allDecisions);
+    writeToCSV("timer.csv", HEADERS_TIMER, timerRecords);
+    if (!consistent) {
+      List<String[]> discrepancies = new ArrayList<>();
+      discrepancies.addAll(roundDecisions);
+      writeToCSV("discrepancies.csv", HEADERS, discrepancies);
+    }
+    System.out.println("Finished with " + roundNo + " rounds");
   }
 
-  /**
-   * Tests the new policy engine with the initial policy provided in a file.
-   *
-   * @param args an array of strings where the first element is the path to the policy file
-   * @return true if the policy engine is consistent, false otherwise
-   */
-  private static boolean testNewPolicyEngineInitial(String[] args) {
-    boolean consistent = true;
-    Path fileName = java.nio.file.Path.of(args[0]);
-    // Read the policy from disk
-    try {
-      String policyString = Files.readString(fileName);
-      args[0] = policyString;
-      consistent = testNewPolicyEngine(args);
-    } catch (IOException io) {
-      logger.fatal("Problem reading file: {}", io.getMessage());
-    }
-    return consistent;
-  }
-  private static boolean testNewPolicyEngine(String[] args) {
-    boolean consistent = true;
-    //    Path fileName = java.nio.file.Path.of(args[0]);
-//    Policy policy = new PolicyImpl(fileName);
-    Policy policy = new PolicyImpl(args[0]);
+  private static List<String[]> testNewPolicyEngine(
+      PolicyImpl pmlPolicy, Path prologRulesPath, PolicyImpl prologPolicy) {
+    List<String[]> results = new ArrayList<>();
     PolicyEngine policyEngine = null;
     try {
-      policyEngine = new PolicyEngine((PolicyImpl) policy);
+      policyEngine = new PolicyEngine(pmlPolicy);
     } catch (MyPMException e) {
-      logger.fatal(() -> "Issue encountered creating 111822 policy engine: " + e.getMessage());
+      logger.fatal(() -> "Issue encountered creating v3.0.0-alpha.3 policy engine: " + e.getMessage());
       System.exit(1);
     }
     Accessor accessor = null;
     try {
-      accessor = new ExhaustiveAccessor((PolicyImpl) policy);
+      accessor = new ExhaustiveAccessor(pmlPolicy);
     } catch (MyPMException e) {
       logger.fatal(() -> "Issue encountered creating exhaustive accessor: " + e.getMessage());
       System.exit(1);
@@ -145,38 +155,13 @@ public class Runner {
     // load prolog rules
     PrologPolicyEngine prologPolicyEngine = null;
     try {
-      prologPolicyEngine = new PrologPolicyEngine(args[1]);
-      prologPolicyEngine.loadPolicy(args[2]);
+      prologPolicyEngine = new PrologPolicyEngine(prologRulesPath);
+      prologPolicyEngine.loadPolicy(prologPolicy.getPolicyPath());
     } catch (MyPMException e) {
       logger.fatal(() -> "Issue encountered loading prolog rules: " + e.getMessage());
       System.exit(1);
     }
 
-    // create a writer
-    Writer writerDecisions = null;
-    Writer writerDiscrepencies = null;
-    try {
-      writerDecisions = Files.newBufferedWriter(Paths.get("decisions.csv"));
-      writerDiscrepencies = Files.newBufferedWriter(Paths.get("discrepencies.csv"));
-    } catch (IOException e) {
-      logger.fatal(() -> "Issue encountered loading opening csv for writing: " + e.getMessage());
-      System.exit(1);
-    }
-
-    String[] HEADERS = { "subject", "object", "permission", "prolog_decision", "nist_decision"};
-    // write CSV file
-    CSVFormat printer = CSVFormat.DEFAULT.builder()
-            .setHeader(HEADERS)
-            .setAutoFlush(true)
-            .build();
-
-    try {
-      printer.printRecord(writerDecisions, HEADERS);
-      printer.printRecord(writerDiscrepencies, HEADERS);
-    } catch (IOException e) {
-      logger.fatal(() -> "Issue encountered printing CSV header: " + e.getMessage());
-      System.exit(1);
-    }
     for (ResourceAccess a : accesses) {
       boolean nistDecision = false;
       boolean prologDecision = false;
@@ -188,78 +173,34 @@ public class Runner {
         System.exit(1);
       }
 
-      try {
-        String prologDecisionS = convertToString(prologDecision);
-        String nistDecisionS = convertToString(nistDecision);
-        printer.printRecord(writerDecisions, a.getSubject(), a.getObject(), a.getPermissions(), prologDecisionS, nistDecisionS);
-//        printer.printRecord(writerDecisions, a.getSubject(), a.getObject(), a.getPermissions(), prologDecision, nistDecision);
-
-        if (prologDecision != nistDecision) {
-          System.out.println("NIST decision for " + a.toString() + ". Allowed? " + nistDecisionS);
-          System.out.println("Prolog decision for " + a.toString() + ". Allowed? " + prologDecisionS);
-          System.out.println("------------------");
-          printer.printRecord(writerDiscrepencies, a.getSubject(), a.getObject(), a.getPermissions(), prologDecisionS, nistDecisionS);
-          consistent = false;
-        }
-      } catch (IOException e) {
-        logger.fatal(() -> "Issue encountered printing CSV record: " + e.getMessage());
-        System.exit(1);
+      String prologDecisionS = convertToString(prologDecision);
+      String nistDecisionS = convertToString(nistDecision);
+      results.add(new String[]{String.valueOf(roundNo), Mutation.getCurMutation(), a.getSubject(),
+          a.getObject(), a.getPermissions(), prologDecisionS, nistDecisionS});
+      if (prologDecision != nistDecision) {
+        System.out.println("NIST decision for " + a.toString() + ". Allowed? " + nistDecision);
+        System.out.println("Prolog decision for " + a.toString() + ". Allowed? " + prologDecision);
+        System.out.println("------------------");
+        consistent = false;
       }
     }
+    return results;
+  }
 
-    try {
-      // close the writer
-      writerDecisions.close();
-      writerDiscrepencies.close();
-//      Query unloadPolicy = new Query(
-//          "unload_file('policy-graph/src/main/resources/translatePolicy.pl')");
-//      unloadPolicy.hasSolution();
+  private static void writeToCSV(String fileName, String[] headers, List<String[]> data) {
+    try (Writer writer = Files.newBufferedWriter(Paths.get(fileName))) {
+      CSVFormat csvFormat = CSVFormat.DEFAULT.builder()
+          .setHeader(headers)
+          .setAutoFlush(true)
+          .build();
 
+      try (CSVPrinter printer = new CSVPrinter(writer, csvFormat)) {
+        printer.printRecords(data);
+      }
     } catch (IOException e) {
-      logger.fatal(() -> "Issue encountered closing CSV file: " + e.getMessage());
+      logger.fatal(() -> "Issue encountered loading opening csv for writing: " + e.getMessage());
       System.exit(1);
     }
-//    Policy newPolicy = null;
-//    try {
-//      newPolicy = Mutations.ATTRIBUTE_EXCHANGE_SOURCE_EXPLICIT.applyExplicit(policy, "UA4", "OA2", "UA1", "OA2", null);
-//    } catch(MyPMException pm) {
-//      logger.fatal(() -> "Issue encountered mutating policy: " + pm.getMessage());
-//      System.exit(1);
-//    }
-//
-//    PolicyEngine051920 newPolicyEngine = new PolicyEngine051920((PolicyImpl051920) newPolicy);
-//    Accessor accessorAfterMutation = new ExhaustiveAccessor051920((PolicyImpl051920) policy, (PolicyImpl051920) newPolicy);
-//
-//    Set<ResourceAccess> accessesAfterMutation = null;
-//    try {
-//      accessesAfterMutation = accessorAfterMutation.generateAccesses();
-//    } catch (MyPMException e) {
-//      logger.fatal(() -> "Issue encountered generating accesses: " + e.getMessage());
-//      System.exit(1);
-//    }
-//
-//    for (ResourceAccess a : accessesAfterMutation) {
-//      boolean b = newPolicyEngine.getDecision(a);
-//      System.out.println(a.toString() + ". Allowed after mutation? " + b);
-//    }
-//
-//
-//    System.out.println("-----------Explicit access test------------");
-//    ResourceAccess testAccess1 = new ResourceAccess("UA4", "OA2", "permission4");
-//    boolean b = policyEngine.getDecision(testAccess1);
-//    System.out.println("Explicit access: " + testAccess1.toString() + ". Allowed before mutation? " + b);
-//
-//    b = newPolicyEngine.getDecision(testAccess1);
-//    System.out.println("Explicit access: " + testAccess1.toString() + ". Allowed after mutation? " + b);
-//
-//
-//    ResourceAccess testAccess2 = new ResourceAccess("UA1", "OA2", "permission4");
-//    b = policyEngine.getDecision(testAccess2);
-//    System.out.println("New explicit access: " + testAccess2.toString() + ". Allowed before mutation? " + b);
-//
-//    b = newPolicyEngine.getDecision(testAccess2);
-//    System.out.println("New explicit access: " + testAccess2.toString() + ". Allowed after mutation? " + b);
-    return consistent;
   }
 
   private static String convertToString(boolean decision) {
@@ -269,44 +210,54 @@ public class Runner {
     return "Deny";
   }
 
-  private static boolean mutateAddNodeImp(PolicyGraph initialGraph, int rounds) {
-    boolean consistent = true;
+  private static List<String[]> mutateAddNodeImp(PolicyGraph initialGraph, int rounds) {
+    List<String[]> roundDecisions = new ArrayList<>();
     for (int i = 0; i < rounds; i++) {
-      mutatedGraph = mutation.mutateAddNode(initialGraph);
-      consistent = testNewPolicyEngine(getStrings(mutatedGraph));
+      mutatedGraph = mutation.mutateAddNode(initialGraph).getPolicyGraph();
+      roundDecisions.addAll(evalMutation(mutatedGraph));
       if (!consistent) {
-//        System.out.println(String.format("No. %d add NODE mutation terminated!", i+1));
-        return consistent;
-      };
-//      System.out.println(String.format("No. %d round add NODE mutation completed!", i+1));
+        return roundDecisions;
+      }
       initialGraph = mutatedGraph;
     }
-    return consistent;
+    return roundDecisions;
   }
 
-  private static boolean mutateAddAssiImp(PolicyGraph initialGraph, int rounds) {
-    boolean consistent = true;
-    for (int i = 0; i < rounds; i++) {
-      mutatedGraph = mutation.mutateAddAssignment(initialGraph);
-      consistent = testNewPolicyEngine(getStrings(mutatedGraph));
-      if (!consistent) {
-//        System.out.println(String.format("No. %d add ASSI mutation terminated!", i+1));
-        return consistent;
-      }
-//      System.out.println(String.format("No. %d round add ASSI mutation completed!", i+1));
-    }
-    return consistent;
+  private static List<String[]> evalMutation(PolicyGraph mutatedGraph) {
+    PolicyImpl newPMLPolicy = buildPMLPolicy22(mutatedGraph, mutatedGraph.getNodeLists());
+    PolicyImpl newPrologPolicy = buildPrologPolicy(mutatedGraph.getNodeLists(), mutatedGraph.getRelationLists());
+    createFile(newPMLPolicy.getPolicyString(), pmlMutated);
+    createFile(newPrologPolicy.getPolicyString(), prologMutated);
+    return testNewPolicyEngine(newPMLPolicy, Path.of(prologRule), newPrologPolicy);
   }
 
-  private static boolean mutateAddProhImp(PolicyGraph initialGraph, int rounds) {
-    boolean consistent = true;
+  private static List<String[]> mutateAddAssiImp(PolicyGraph initialGraph, int rounds) {
+    List<String[]> roundDecisions = new ArrayList<>();
     for (int i = 0; i < rounds; i++) {
-      mutatedGraph = mutation.mutateAddProhibition(initialGraph);
-      consistent = testNewPolicyEngine(getStrings(mutatedGraph));
+      mutationStatus = mutation.mutateAddAssignment(initialGraph);
+      Mutation.skipNumber = 0;
+      // when it is impossible to add more assignments in the graph, add a node instead
+      if (!mutationStatus.isSuccess()) {
+        mutationStatus = mutation.mutateAddNode(mutationStatus.getPolicyGraph());
+      }
+      mutatedGraph = mutationStatus.getPolicyGraph();
+      roundDecisions.addAll(evalMutation(mutatedGraph));
       if (!consistent) {
-        return consistent;
+        return roundDecisions;
       }
     }
-    return consistent;
+    return roundDecisions;
+  }
+
+  private static List<String[]> mutateAddProhImp(PolicyGraph initialGraph, int rounds) {
+    List<String[]> roundDecisions = new ArrayList<>();
+    for (int i = 0; i < rounds; i++) {
+      mutatedGraph = mutation.mutateAddProhibition(initialGraph).getPolicyGraph();
+      roundDecisions.addAll(evalMutation(mutatedGraph));
+      if (!consistent) {
+        return roundDecisions;
+      }
+    }
+    return roundDecisions;
   }
 }

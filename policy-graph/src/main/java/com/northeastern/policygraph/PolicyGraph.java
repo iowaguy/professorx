@@ -8,12 +8,12 @@ import java.util.List;
 import java.util.Set;
 
 import com.northeastern.policyengine.PolicyImpl;
+import java.util.stream.Collectors;
 import org.jgrapht.Graph;
 import org.jgrapht.GraphPath;
 import org.jgrapht.alg.shortestpath.AllDirectedPaths;
 import org.jgrapht.graph.DirectedMultigraph;
 import org.jgrapht.traverse.BreadthFirstIterator;
-import org.jgrapht.traverse.DepthFirstIterator;
 
 public class PolicyGraph extends DirectedMultigraph<NodeElement, Relation> {
 
@@ -25,12 +25,15 @@ public class PolicyGraph extends DirectedMultigraph<NodeElement, Relation> {
   protected List<List<NodeElement>> nodeLists = new ArrayList<>();
   protected List<List<Relation>> relationLists = new ArrayList<>();
   protected static List<AccessRight> allPermissions;
-  private static Set<NodeElement> createdNodesOneTra = new HashSet<>();
+  private static Set<NodeElement> createdNodes = new HashSet<>();
+  private static List<Relation> associations = new ArrayList<>();
+  private static List<Relation> prohibitions = new ArrayList<>();
 
   public PolicyGraph() {
     super(edgeClass);
 //    createDefaultGraph();
     createDefaultGraphSimple();
+//    createDefaultGraphMultiPC();
   }
 
   public void buildNodeList() {
@@ -126,6 +129,54 @@ public class PolicyGraph extends DirectedMultigraph<NodeElement, Relation> {
     buildRelationList();
   }
 
+  private void createDefaultGraphMultiPC() {
+    // create nodes
+    User u1 = new User("u1");
+    User u2 = new User("u2");
+    UserAttribute ua1 = new UserAttribute("ua1");
+    UserAttribute ua2 = new UserAttribute("ua2");
+    Ob o1 = new Ob("o1");
+    ObjectAttribute oa1 = new ObjectAttribute("oa1");
+    ObjectAttribute oa2 = new ObjectAttribute("oa2");
+    PolicyClass department = new PolicyClass("department");
+    PolicyClass pc2 = new PolicyClass("pc2");
+    PolicyClass pc3 = new PolicyClass("pc3");
+
+    buildNodeList();
+    addVertices();
+
+    // add permissions
+    // TODO Is there a better way to create list of access right?
+    AccessRight permission1 = new AccessRight("p1");
+    AccessRight permission2 = new AccessRight("p2");
+    allPermissions = AccessRight.getAllPermissions();
+    AccessRight[] ar1 = new AccessRight[]{permission1};
+    AccessRight[] ar2 = new AccessRight[]{permission2};
+
+    // add edges
+    // User and user attribute assignments
+    this.addEdge(department, ua1, new Assignment());
+    this.addEdge(department, ua2, new Assignment());
+    this.addEdge(ua1, u1, new Assignment());
+    this.addEdge(ua2, u2, new Assignment());
+
+    // Object and object attribute assignments
+    this.addEdge(department, oa1, new Assignment());
+    this.addEdge(oa1, oa2, new Assignment());
+    this.addEdge(oa1, o1, new Assignment());
+    this.addEdge(pc2, oa1, new Assignment());
+    this.addEdge(pc3, oa2, new Assignment());
+
+    this.addEdge(oa1, ua1, new Association(ar1));
+    this.addEdge(oa1, ua2, new Association(ar2));
+
+    // TODO the target of prohibition should be a list of attributes
+    this.addEdge(o1, u2, new Prohibition(ar1));
+//    this.addEdge(o1, u2, new Prohibition(ar2));
+
+    buildRelationList();
+  }
+
   private void createDefaultGraph() {
     // create nodes
     User u1 = new User("u1");
@@ -207,22 +258,6 @@ public class PolicyGraph extends DirectedMultigraph<NodeElement, Relation> {
     buildRelationList();
   }
 
-  public static String buildOneTypePML(List<Relation> oneRelation) {
-    StringBuilder oneRelationPML = new StringBuilder();
-    for (Element one : oneRelation) {
-      oneRelationPML.append(one.toStringPML() + System.lineSeparator());
-    }
-    return oneRelationPML.toString();
-  }
-
-  public static String buildOneTypeProlog(List<? extends Element> oneType) {
-    StringBuilder oneTypeProlog = new StringBuilder();
-    for (Element one : oneType) {
-      oneTypeProlog.append(one.toStringProlog() + System.lineSeparator());
-    }
-    return oneTypeProlog.toString();
-  }
-
   /**
    * Build string in Prolog.
    * @param nodeLists
@@ -246,40 +281,94 @@ public class PolicyGraph extends DirectedMultigraph<NodeElement, Relation> {
     return new PolicyImpl(proString.toString(), prologPath);
   }
 
+  public static String buildOneTypeProlog(List<? extends Element> oneType) {
+    StringBuilder oneTypeProlog = new StringBuilder();
+    for (Element one : oneType) {
+      oneTypeProlog.append(one.toStringProlog() + System.lineSeparator());
+    }
+    return oneTypeProlog.toString();
+  }
+
   /**
    * Build string in PML.
-   * @param assignGraph
+   * @param initialGraph
    * @param nodeLists
    * @return
    */
-  public static PolicyImpl buildPMLPolicy(PolicyGraph assignGraph,
-                                          List<List<NodeElement>> nodeLists) {
+  public static PolicyImpl buildPMLPolicy(PolicyGraph initialGraph,
+      List<List<NodeElement>> nodeLists) {
     StringBuilder pmlString = new StringBuilder();
     pmlString.append(AccessRight.buildAccessRights(allPermissions).get(1));
-    Set<NodeElement> createdNodes = new HashSet<>();
+    List<Relation> uniqueRelations;
+    createdNodes.clear();
 
     // use every policy class node to build the BFS trees
     for (NodeElement node : nodeLists.get(0)) {
-      pmlString.append(breadthTraverseOnePC(assignGraph, node, createdNodes));
-      createdNodes.addAll(createdNodesOneTra);
-      createdNodesOneTra.clear();
+      pmlString.append(breadthTraverseOnePC(initialGraph, node));
     }
+
+    uniqueRelations = associations.stream().distinct().collect(Collectors.toList());
+    uniqueRelations.addAll(prohibitions.stream().distinct().collect(Collectors.toList()));
+    pmlString.append(buildOneTypePML(uniqueRelations));
     return new PolicyImpl(pmlString.toString(), pmlPath);
   }
 
-  private static String breadthTraverseOnePC(PolicyGraph assignGraph,
-      NodeElement startP, Set<NodeElement> createdNodes) {
+  public static PolicyImpl buildPMLPolicy22(PolicyGraph initialGraph,
+      List<List<NodeElement>> nodeLists) {
+    StringBuilder pmlString = new StringBuilder();
+    pmlString.append(AccessRight.buildAccessRights22(allPermissions).get(1));
+    List<Relation> uniqueRelations;
+    createdNodes.clear();
+
+    // use every policy class node to build the BFS trees
+    for (NodeElement node : nodeLists.get(0)) {
+      pmlString.append(breadthTraverseOnePC22(initialGraph, node));
+    }
+
+    uniqueRelations = associations.stream().distinct().collect(Collectors.toList());
+    uniqueRelations.addAll(prohibitions.stream().distinct().collect(Collectors.toList()));
+    pmlString.append(buildOneTypePML22(uniqueRelations));
+    return new PolicyImpl(pmlString.toString(), pmlPath);
+  }
+
+  public static String buildOneTypePML(List<Relation> oneRelation) {
+    StringBuilder oneRelationPML = new StringBuilder();
+    for (Element one : oneRelation) {
+      oneRelationPML.append(one.toStringPML() + System.lineSeparator());
+    }
+    return oneRelationPML.toString();
+  }
+
+  public static String buildOneTypePML22(List<Relation> oneRelation) {
+    StringBuilder oneRelationPML = new StringBuilder();
+    for (Element one : oneRelation) {
+      oneRelationPML.append(one.toStringPML22() + System.lineSeparator());
+    }
+    return oneRelationPML.toString();
+  }
+
+  private static String breadthTraverseOnePC(PolicyGraph initialGraph,
+      NodeElement startP) {
     // create nodes and relations in PML
     StringBuilder pmlString = new StringBuilder();
     List<Relation> remainingAssignments = new ArrayList<>();
-    List<Relation> associations = new ArrayList<>();
-    List<Relation> prohibitions = new ArrayList<>();
+    List<NodeElement> nodesInBFS = buildBFSLists(initialGraph, startP);
+
+    createdNodes.add(startP);
+    pmlString.append(startP.toStringPML() + System.lineSeparator());
 
     // build three relations list in one policy class
-    for (NodeElement node: buildBFSLists(assignGraph, startP)) {
-      for (Relation relation : assignGraph.outgoingEdgesOf(node)) {
+    for (NodeElement node : nodesInBFS) {
+      for (Relation relation : initialGraph.outgoingEdgesOf(node)) {
         if (relation instanceof Assignment) {
           remainingAssignments.add(relation);
+          NodeElement target = ((Assignment) relation).getTarget();
+          if (!createdNodes.contains(target)) {
+            pmlString.append(target.toStringPML() +
+                " in [\"" + node.toString() + "\"]" + System.lineSeparator());
+            PolicyGraph.createdNodes.add(target);
+            remainingAssignments.remove(relation);
+          }
         }
         else if (relation instanceof Association) {
           associations.add(relation);
@@ -289,34 +378,45 @@ public class PolicyGraph extends DirectedMultigraph<NodeElement, Relation> {
         }
       }
     }
-
-    createdNodesOneTra.add(startP);
-    pmlString.append(startP.toStringPML() + System.lineSeparator());
-    for (NodeElement node : buildBFSLists(assignGraph, startP)) {
-      Iterator<Relation> outgoingEdge = assignGraph.outgoingEdgesOf(node)
-          .iterator();
-      while (outgoingEdge.hasNext()) {
-        Relation relation = outgoingEdge.next();
-        if (relation instanceof Assignment) {
-          NodeElement target = ((Assignment) relation).getTarget();
-          if (!createdNodes.contains(target) && !createdNodesOneTra.contains(target)) {
-            pmlString.append(target.toStringPML() +
-                " in [\"" + node.toString() + "\"]" + System.lineSeparator());
-            createdNodesOneTra.add(target);
-            remainingAssignments.remove(relation);
-          }
-        }
-      }
-    }
-    // append after creating nodes
-    pmlString.append(buildOneTypePML(remainingAssignments))
-        .append(buildOneTypePML(associations))
-        .append(buildOneTypePML(prohibitions));
+    pmlString.append(buildOneTypePML(remainingAssignments));
     return pmlString.toString();
   }
 
-  private static List<NodeElement> buildBFSLists(Graph
-      assignGraph, Element start) {
+  private static String breadthTraverseOnePC22(PolicyGraph initialGraph, NodeElement startP) {
+    // create nodes and relations in PML
+    StringBuilder pmlString = new StringBuilder();
+    List<Relation> remainingAssignments = new ArrayList<>();
+    List<NodeElement> nodesInBFS = buildBFSLists(initialGraph, startP);
+
+    createdNodes.add(startP);
+    pmlString.append(startP.toStringPML22() + System.lineSeparator());
+
+    // build three relations list in one policy class
+    for (NodeElement node : nodesInBFS) {
+      for (Relation relation : initialGraph.outgoingEdgesOf(node)) {
+        if (relation instanceof Assignment) {
+          remainingAssignments.add(relation);
+          NodeElement target = ((Assignment) relation).getTarget();
+          if (!createdNodes.contains(target)) {
+            pmlString.append(target.toStringPML() +
+                " in '" + node.toString() + "';" + System.lineSeparator());
+            createdNodes.add(target);
+            remainingAssignments.remove(relation);
+          }
+        }
+        else if (relation instanceof Association) {
+          associations.add(relation);
+        }
+        else {
+          prohibitions.add(relation);
+        }
+      }
+    }
+    pmlString.append(buildOneTypePML22(remainingAssignments));
+    return pmlString.toString();
+  }
+
+  private static List<NodeElement> buildBFSLists(Graph assignGraph, Element start) {
     BreadthFirstIterator iterator = new BreadthFirstIterator(assignGraph, start);
     List<NodeElement> nodesBFSOrder = new ArrayList<>();
     while (iterator.hasNext()) {

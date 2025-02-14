@@ -50,6 +50,11 @@ public class User extends NodeElement {
     return String.format("create u \"%1$s\"", this.getUser());
   }
 
+  @Override
+  public String toStringPML22() {
+    return String.format("create user \'%1$s\'", this.getUser());
+  }
+
   public static List<NodeElement> getAllElements() {
     return allUsers;
   }
