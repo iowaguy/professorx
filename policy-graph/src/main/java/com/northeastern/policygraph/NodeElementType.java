@@ -10,6 +10,10 @@ public enum NodeElementType {
   OBJECT,
   OBJECT_ATTRIBUTE;
 
+  public static void setNumber(int number) {
+    NodeElementType.number = number;
+  }
+
   // the maximum number of node elements, e.g. ua7
   private static int number = 2;
 

@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
+import java.util.Set;
 
 public class Mutation {
 
@@ -43,10 +44,11 @@ public class Mutation {
   
   public static MutationStatus mutateAddNode(PolicyGraph initialGraph,
       NodeElementType newNodeType, NodeElementType targetNodeType) {
-    PolicyGraph mutatedGraph = (PolicyGraph) initialGraph.clone();
+//    PolicyGraph mutatedGraph = (PolicyGraph) initialGraph.clone();
     List<List<NodeElement>> initialNodes = deepCopyNodes(initialGraph.getNodeLists());
     NodeElement newNode = createNewNode(newNodeType);
-    mutatedGraph.addVertex(newNode);
+//    mutatedGraph.addVertex(newNode);
+    initialGraph.addVertex(newNode, initialGraph);
     // Get the nodes list of assignedNodeType (before adding the new node)
     // and randomly select one node to be assigned
    List<NodeElement> assignedNodeList = NodeElementType.getNodeList(
@@ -55,12 +57,14 @@ public class Mutation {
     if (!assignedNodeList.isEmpty()) {
       assignedNode = assignedNodeList.get(random.nextInt(assignedNodeList.size()));
     }
-    mutatedGraph.addEdge(assignedNode, newNode, new Assignment());
+//    mutatedGraph.addEdge(assignedNode, newNode, new Assignment());
+    initialGraph.addEdge(assignedNode, newNode, new Assignment(), initialGraph);
     System.out.println(String.format("Mutate - Add Node!\n"
         + "Added Node: %s\nAdded assignment: (%s, %s)", newNode, newNode, assignedNode));
     curMutation = String.format("Add-Node_"
         + "%s_(%s, %s)", newNode, newNode, assignedNode);
-    return new MutationStatus(mutatedGraph, true);
+//    return new MutationStatus(mutatedGraph, true);
+    return new MutationStatus(initialGraph, true);
   }
 
   public static MutationStatus mutateAddNode(PolicyGraph initialGraph,
@@ -73,20 +77,18 @@ public class Mutation {
     newNodeIndex = random.nextInt(NODE_TYPE_NUMBER);
     // when create a new policy class
     if (newNodeIndex == 0) {
-      PolicyGraph mutatedGraph = (PolicyGraph) initialGraph.clone();
+//      PolicyGraph mutatedGraph = (PolicyGraph) initialGraph.clone();
       NodeElement newNode = createNewNode(NodeElementType.getNodeType(newNodeIndex));
-      mutatedGraph.addVertex(newNode);
+      initialGraph.addVertex(newNode, initialGraph);
       System.out.println(String.format("Mutate - Add Node!\nAdded policy class: %s", newNode));
       curMutation = String.format("Add-Node_%s", newNode);
-      return new MutationStatus(mutatedGraph, true);
-//      return mutateAddNode(initialGraph);
+      return new MutationStatus(initialGraph, true);
     } else {
       return mutateAddNode(initialGraph, NodeElementType.getNodeType(newNodeIndex));
     }
   }
 
   public static MutationStatus mutateAddAssignment(PolicyGraph initialGraph) {
-    MutationStatus mutationStatus = null;
     Integer sourceNodeIndex = random.nextInt(NODE_TYPE_NUMBER);
     Integer nodeNumber = initialGraph.getNodeLists().stream()
         .mapToInt(List::size)
@@ -125,7 +127,7 @@ public class Mutation {
           skipNumber++;
           return mutateAddAssignment(initialGraph);
         } else {
-          initialGraph.addEdge(targetNode, sourceNode, new Assignment());
+          initialGraph.addEdge(targetNode, sourceNode, new Assignment(), initialGraph);
           System.out.println(String.format("Mutate - Add Assignment!\n"
               + "Added assignment: (%s, %s)", sourceNode, targetNode));
           curMutation = String.format("Add-Assignment_"
@@ -162,9 +164,9 @@ public class Mutation {
 //          + "Source node and target node are the same. Skip"));
       mutateAddProhibition(initialGraph);
     } else {
-      AccessRight[] ar = new AccessRight[]{
-          allPermissions.get(random.nextInt(allPermissions.size()))};
-      initialGraph.addEdge(targetNode, sourceNode, new Prohibition(ar));
+      String arString = allPermissions.get(random.nextInt(allPermissions.size()));
+      AccessRight[] ar = new AccessRight[]{new AccessRight(arString)};
+      initialGraph.addEdge(targetNode, sourceNode, new Prohibition(ar), initialGraph);
       System.out.println(String.format("Mutate - Add Prohibition!\n"
           + "Added prohibition: (%s, %s, %s)", sourceNode, targetNode, Arrays.toString(ar)));
       curMutation = String.format("Add-Prohibition_"

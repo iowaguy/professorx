@@ -61,7 +61,7 @@ public class ObjectAttribute extends NodeElement {
 
   @Override
   String getTypeNameProlog() {
-    return "ob";
+    return "oa";
   }
 
   @Override

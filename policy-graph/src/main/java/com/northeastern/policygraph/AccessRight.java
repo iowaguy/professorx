@@ -6,24 +6,27 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 public class AccessRight {
 
   protected String permission;
-  private static List<AccessRight> permissions = new ArrayList<>();
+//  private static List<AccessRight> permissions = new ArrayList<>();
+  private static Set<String> permissions = new HashSet<>();
   private static String prologPath = "policy-graph/src/main/resources/translatePolicy.pl";
   private static String pmlPath = "policy-graph/src/main/resources/translatePolicy.pal";
   public AccessRight(String permission) {
     this.permission = permission;
-    permissions.add(this);
+    permissions.add(this.toString());
   }
 
-  public static List<String> buildAccessRights(List<AccessRight> allPermissions) {
+  public static List<String> buildAccessRights(List<String> allPermissions) {
     String buildPML;
     StringBuilder buildProlog = new StringBuilder();
-    Iterator<AccessRight> accessRightIterator = allPermissions.iterator();
+    Iterator<String> accessRightIterator = allPermissions.iterator();
     List<String> arPML = new ArrayList<>();
     while (accessRightIterator.hasNext()) {
       String arToString = accessRightIterator.next().toString().toLowerCase();
@@ -55,7 +58,11 @@ public class AccessRight {
     return permission;
   }
 
-  public static List<AccessRight> getAllPermissions() {
+//  public static List<AccessRight> getAllPermissions() {
+//    return permissions;
+//  }
+
+  public static Set<String> getAllPermissions() {
     return permissions;
   }
 
