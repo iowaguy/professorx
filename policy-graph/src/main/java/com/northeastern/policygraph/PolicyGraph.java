@@ -6,8 +6,10 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Queue;
 import java.util.Set;
 
 import com.northeastern.policyengine.PolicyImpl;
@@ -410,6 +412,7 @@ public class PolicyGraph extends DirectedMultigraph<NodeElement, Relation> {
 
     // use every policy class node to build the BFS trees
     for (NodeElement node : nodeLists.get(0)) {
+      createdNodes.add(node);
       pmlString.append(breadthTraverseOnePC(this, node, createdNodes));
       createdNodes.addAll(createdNodesOneTra);
       createdNodesOneTra.clear();
@@ -458,54 +461,16 @@ public class PolicyGraph extends DirectedMultigraph<NodeElement, Relation> {
   private String breadthTraverseOnePC(PolicyGraph initialGraph,
       NodeElement startP, Set<NodeElement> createdNodes) {
     StringBuilder pmlString = new StringBuilder();
-    List<Relation> remainingAssignments = new ArrayList<>();
+    List<NodeElement> nodesInBFS = buildBFSLists(initialGraph, startP);
+    createdNodesOneTra.add(startP);
+    pmlString.append(startP.toStringPML() + System.lineSeparator());
 //    List<Relation> associations = new ArrayList<>();
 //    List<Relation> prohibitions = new ArrayList<>();
 
-    for (NodeElement node: buildBFSLists(initialGraph, startP)) {
-      for (Relation relation : initialGraph.outgoingEdgesOf(node)) {
-        if (relation instanceof Assignment) {
-          remainingAssignments.add(relation);
-        }
-        else if (relation instanceof Association) {
-          associations.add(relation);
-        }
-        else {
-          prohibitions.add(relation);
-        }
-      }
-    }
-
-    createdNodesOneTra.add(startP);
-    pmlString.append(startP.toStringPML() + System.lineSeparator());
-    for (NodeElement node : buildDFSLists(initialGraph, startP)) {
-      Iterator<Relation> outgoingEdge = initialGraph.outgoingEdgesOf(node)
-          .iterator();
-      while (outgoingEdge.hasNext()) {
-        Relation relation = outgoingEdge.next();
-        if (relation instanceof Assignment) {
-          NodeElement target = ((Assignment) relation).getTarget();
-          if (!createdNodes.contains(target) && !createdNodesOneTra.contains(target)) {
-            pmlString.append(target.toStringPML() +
-                " in [\"" + node.toString() + "\"]" + System.lineSeparator());
-            createdNodesOneTra.add(target);
-            remainingAssignments.remove(relation);
-          }
-        }
-      }
-    }
-    // build three relations list in one policy class
-//    for (NodeElement node : nodesInBFS) {
+//    for (NodeElement node: buildBFSLists(initialGraph, startP)) {
 //      for (Relation relation : initialGraph.outgoingEdgesOf(node)) {
 //        if (relation instanceof Assignment) {
 //          remainingAssignments.add(relation);
-//          NodeElement target = ((Assignment) relation).getTarget();
-//          if (!createdNodes.contains(target) && createdNodes.contains(node)) {
-//            pmlString.append(target.toStringPML() +
-//                " in [\"" + node.toString() + "\"]" + System.lineSeparator());
-//            createdNodes.add(target);
-//            remainingAssignments.remove(relation);
-//          }
 //        }
 //        else if (relation instanceof Association) {
 //          associations.add(relation);
@@ -515,7 +480,46 @@ public class PolicyGraph extends DirectedMultigraph<NodeElement, Relation> {
 //        }
 //      }
 //    }
-//    return pmlString.toString();
+//
+//    createdNodesOneTra.add(startP);
+//    pmlString.append(startP.toStringPML() + System.lineSeparator());
+//    for (NodeElement node : buildDFSLists(initialGraph, startP)) {
+//      Iterator<Relation> outgoingEdge = initialGraph.outgoingEdgesOf(node)
+//          .iterator();
+//      while (outgoingEdge.hasNext()) {
+//        Relation relation = outgoingEdge.next();
+//        if (relation instanceof Assignment) {
+//          NodeElement target = ((Assignment) relation).getTarget();
+//          if (!createdNodes.contains(target) && !createdNodesOneTra.contains(target)) {
+//            pmlString.append(target.toStringPML() +
+//                " in [\"" + node.toString() + "\"]" + System.lineSeparator());
+//            createdNodesOneTra.add(target);
+//            remainingAssignments.remove(relation);
+//          }
+//        }
+//      }
+//    }
+    // build three relations list in one policy class
+    for (NodeElement node : nodesInBFS) {
+      for (Relation relation : initialGraph.outgoingEdgesOf(node)) {
+        if (relation instanceof Assignment) {
+          remainingAssignments.add(relation);
+          NodeElement target = ((Assignment) relation).getTarget();
+          if (!createdNodes.contains(target) && !createdNodesOneTra.contains(target)) {
+            pmlString.append(target.toStringPML() +
+                " in [\"" + node.toString() + "\"]" + System.lineSeparator());
+            createdNodesOneTra.add(target);
+            remainingAssignments.remove(relation);
+          }
+        }
+        else if (relation instanceof Association) {
+          associations.add(relation);
+        }
+        else {
+          prohibitions.add(relation);
+        }
+      }
+    }
 //    pmlString.append(buildOneTypePML(remainingAssignments));
     return pmlString.toString();
   }
@@ -555,11 +559,31 @@ public class PolicyGraph extends DirectedMultigraph<NodeElement, Relation> {
 //  }
 
   private static List<NodeElement> buildBFSLists(PolicyGraph assignGraph, NodeElement start) {
-    BreadthFirstIterator iterator = new BreadthFirstIterator(assignGraph, start);
+//    BreadthFirstIterator iterator = new BreadthFirstIterator(assignGraph, start);
+//    List<NodeElement> nodesBFSOrder = new ArrayList<>();
+//    while (iterator.hasNext()) {
+//      NodeElement node = (NodeElement) iterator.next();
+//      nodesBFSOrder.add(node);
+//    }
     List<NodeElement> nodesBFSOrder = new ArrayList<>();
-    while (iterator.hasNext()) {
-      NodeElement node = (NodeElement) iterator.next();
-      nodesBFSOrder.add(node);
+    Queue<NodeElement> queue = new LinkedList<>();
+    Set<NodeElement> visited = new HashSet<>();
+
+    queue.add(start);
+    visited.add(start);
+
+    while (!queue.isEmpty()) {
+      NodeElement current = queue.remove();
+      nodesBFSOrder.add(current);
+      for (Relation relation : assignGraph.outgoingEdgesOf(current)) {
+        if (relation instanceof Assignment) {
+          NodeElement neighbor = assignGraph.getEdgeTarget(relation);
+          if (!visited.contains(neighbor)) {
+            queue.add(neighbor);
+            visited.add(neighbor);
+          }
+        }
+      }
     }
     return nodesBFSOrder;
   }

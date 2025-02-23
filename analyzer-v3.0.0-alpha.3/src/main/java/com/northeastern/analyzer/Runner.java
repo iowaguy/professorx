@@ -165,6 +165,7 @@ public class Runner {
       NodeElementType.setNumber(2);
       consistent = true;
       discrepancyDetails.clear();
+      System.out.println(String.format("No.%d run finished!", runNo));
     }
 
     // Write to files
