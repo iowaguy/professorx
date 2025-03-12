@@ -36,7 +36,7 @@ public class Runner {
   private static final String pmlMutated = "policy-graph/src/main/resources/mutantPolicy.pal";
   private static final String prologRule = "prolog-policy-engine/src/main/resources/rules.pl";
   private static final String[] HEADERS = {"mutation", "prolog_decision", "nist_decision", "cur_access_time", "cur_round_time"};
-  private static final String[] DIS_HEADER = {"cur_access_time", "subject", "subject_degree", "object", "object_degree", "permissions"};
+  private static final String[] DIS_HEADER = {"cur_access_time", "subject", "subject_degree", "subject_degree_count", "subject_type_count", "object", "object_degree", "object_degree_count", "object_type_count", "permissions"};
   private static Random random;
   private static Mutation mutation;
   private static PolicyGraph mutatedGraph;
@@ -68,7 +68,7 @@ public class Runner {
       writeToCSV("initialResults.csv", DIS_HEADER, discrepancyDetails);
       System.exit(2);
     };
-    PolicyGraph initialGraph = new PolicyGraph(1);
+    PolicyGraph initialGraph = new PolicyGraph();
     mutate(initialGraph, rounds, runs);
   }
 
@@ -85,48 +85,6 @@ public class Runner {
     System.out.println("Used fixed seed " + fixedSeed + "!");
   }
 
-//  private static void mutate(PolicyGraph initialGraph, Integer rounds) {
-//    List<String[]> allDecisions = new ArrayList<>();
-//    List<String[]> roundDecisions = new ArrayList<>();
-//    List<String[]> timerRecords = new ArrayList<>();
-//    String[] HEADERS_TIMER =
-//        {"cur_round_time", "round_no", "duration"};
-//    Integer roundNo = 0;
-//    while (roundNo < rounds) {
-//      roundNo++;
-//      roundDecisions.clear();
-//      long startTime = System.nanoTime();
-//      currentRoundTime = System.currentTimeMillis();
-//      int choice = random.nextInt(3);
-////      System.out.println("----------------------");
-////      System.out.println(String.format("No.%d mutation begins!", roundNo));
-//      if (choice == 0) {
-//        roundDecisions = mutateAddNodeImp(initialGraph, 1);
-//      } else if (choice == 1) {
-//        roundDecisions = mutateAddAssiImp(initialGraph, 1);
-//      } else if (choice == 2) {
-//        roundDecisions = mutateAddProhImp(initialGraph, 1);
-//      }
-//      allDecisions.addAll(roundDecisions);
-//      timerRecords.add(new String[]{String.valueOf(currentRoundTime), String.valueOf(roundNo),
-//          String.valueOf(System.nanoTime()-startTime)});
-//      if (!consistent) {
-//        break;
-//      }
-//      initialGraph = mutatedGraph;
-//    }
-//
-//    // Write to files
-//    writeToCSV("decisions.csv", HEADERS, allDecisions);
-//    writeToCSV("timer.csv", HEADERS_TIMER, timerRecords);
-//    if (!consistent) {
-////      List<String[]> discrepancies = new ArrayList<>();
-////      discrepancies.addAll(roundDecisions);
-////      writeToCSV("discrepancies.csv", HEADERS, discrepancies);
-//      writeToCSV("discrepancies.csv", DIS_HEADER, discrepancyDetails);
-//      discrepancyDetails.clear();
-//    }
-//  }
   private static void mutate(PolicyGraph initialGraph, Integer rounds, Integer runs) {
     List<String[]> allDecisions = new ArrayList<>();
     List<String[]> roundDecisions = new ArrayList<>();
@@ -159,10 +117,9 @@ public class Runner {
           allDiscrepancies.addAll(discrepancyDetails);
           break;
         }
-//        initialGraph = mutatedGraph;
       }
-      initialGraph = new PolicyGraph(1);
-      NodeElementType.setNumber(2);
+      initialGraph = new PolicyGraph();
+      NodeElementType.resetNumber();
       consistent = true;
       discrepancyDetails.clear();
       System.out.println(String.format("No.%d run finished!", runNo));
@@ -173,6 +130,7 @@ public class Runner {
     writeToCSV("timer.csv", HEADERS_TIMER, timerRecords);
     writeToCSV("discrepancies.csv", DIS_HEADER, allDiscrepancies);
   }
+
   private static List<String[]> testNewPolicyEngine(
       PolicyImpl pmlPolicy, Path prologRulesPath, PolicyImpl prologPolicy) {
     List<String[]> results = new ArrayList<>();
@@ -223,18 +181,19 @@ public class Runner {
 
       String prologDecisionS = convertToString(prologDecision);
       String nistDecisionS = convertToString(nistDecision);
-//      results.add(new String[]{Mutation.getCurMutation(), a.getSubject(),
-//          a.getObject(), a.getPermissions(), prologDecisionS, nistDecisionS, String.valueOf(
-//          currentAccessTime), String.valueOf(currentRoundTime)});
       results.add(new String[]{Mutation.getCurMutation(), prologDecisionS, nistDecisionS, String.valueOf(currentAccessTime), String.valueOf(currentRoundTime)});
       if (prologDecision != nistDecision) {
         System.out.println("NIST decision for " + a.toString() + ". Allowed? " + nistDecision);
         System.out.println("Prolog decision for " + a.toString() + ". Allowed? " + prologDecision);
         System.out.println("------------------");
         consistent = false;
-        String subjectDegree = mutatedGraph.checkDegree(a.getSubject());
-        String objectDegree = mutatedGraph.checkDegree(a.getObject());
-        discrepancyDetails.add(new String[]{String.valueOf(currentAccessTime), a.getSubject(), subjectDegree, a.getObject(), objectDegree, a.getPermissions()});
+        int subjectDegree = mutatedGraph.checkDegree(a.getSubject());
+        int objectDegree = mutatedGraph.checkDegree(a.getObject());
+        String subDegNodes = mutatedGraph.countDegreeNodes(subjectDegree);
+        String objDegNodes = mutatedGraph.countDegreeNodes(objectDegree);
+        String subTypeNodes = mutatedGraph.countTypeNodes(a.getSubject());
+        String objTypeNodes = mutatedGraph.countTypeNodes(a.getObject());
+        discrepancyDetails.add(new String[]{String.valueOf(currentAccessTime), a.getSubject(), String.valueOf(subjectDegree), subDegNodes, subTypeNodes, a.getObject(), String.valueOf(objectDegree), objDegNodes, objTypeNodes, a.getPermissions()});
         }
       }
     return results;
@@ -272,7 +231,6 @@ public class Runner {
       if (!consistent) {
         return roundDecisions;
       }
-//      initialGraph = mutatedGraph;
     }
     return roundDecisions;
   }

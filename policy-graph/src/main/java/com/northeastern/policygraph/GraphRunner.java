@@ -15,13 +15,10 @@ public class GraphRunner {
   }
 
   public static void main(String[] args) {
-    initialGraph = new PolicyGraph(1);
-//    allPermissions = AccessRight.getAllPermissions();
-//    String proString = buildPrologPolicy(initialGraph.getNodeLists(), initialGraph.getRelationLists()).getPolicyString();
+    initialGraph = new PolicyGraph();
     String proString = initialGraph.buildPrologPolicy().getPolicyString();
     String pmlString = initialGraph.buildPMLPolicy().getPolicyString();
-//    String pmlString = buildPMLPolicy(initialGraph, initialGraph.getNodeLists()).getPolicyString();
-//    String pmlString = buildPMLPolicy22(initialGraph, initialGraph.getNodeLists()).getPolicyString();
+//    String pmlString = initialGraph.buildPMLPolicy22().getPolicyString();
     System.out.println("Initial Node List: " + initialGraph.getNodeLists());
     String prologPath = "policy-graph/src/main/resources/translatePolicy.pl";
     createFile(proString, prologPath);

@@ -38,7 +38,7 @@ public class PolicyImpl implements Policy {
     this.policyPath = policyPath;
     // Read the policy from String
     this.policyString = policyString;
-    logger.info("Full policy:\n {}", this.policyString);
+//    logger.info("Full policy:\n {}", this.policyString);
   }
 
   public PolicyImpl(Path policyPath) {
@@ -91,6 +91,6 @@ public class PolicyImpl implements Policy {
   }
 
   public Path getPolicyPath() {
-    return this.policyPath;
+    return policyPath;
   }
 }

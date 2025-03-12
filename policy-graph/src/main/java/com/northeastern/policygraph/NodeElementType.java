@@ -10,12 +10,12 @@ public enum NodeElementType {
   OBJECT,
   OBJECT_ATTRIBUTE;
 
-  public static void setNumber(int number) {
-    NodeElementType.number = number;
-  }
-
   // the maximum number of node elements, e.g. ua7
-  private static int number = 2;
+  private static int number = PolicyGraph.maxNodeNumber;
+
+  public static void resetNumber() {
+    NodeElementType.number = PolicyGraph.maxNodeNumber;
+  }
 
   public static NodeElement createNewNode(NodeElementType newNodeType) {
     number++;

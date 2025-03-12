@@ -1,12 +1,10 @@
 package com.northeastern.analyzer;
 
 import static com.northeastern.policygraph.GraphRunner.createFile;
-import static com.northeastern.policygraph.Mutation.mutateAddNode;
-import static com.northeastern.policygraph.PolicyGraph.buildPMLPolicy22;
-import static com.northeastern.policygraph.PolicyGraph.buildPrologPolicy;
 
 import com.northeastern.policygraph.Mutation;
 import com.northeastern.policygraph.MutationStatus;
+import com.northeastern.policygraph.NodeElementType;
 import java.io.IOException;
 import java.io.Writer;
 import java.nio.file.Files;
@@ -37,24 +35,25 @@ public class Runner {
   private static final String prologMutated = "policy-graph/src/main/resources/mutantPolicy.pl";
   private static final String pmlMutated = "policy-graph/src/main/resources/mutantPolicy.pal";
   private static final String prologRule = "prolog-policy-engine/src/main/resources/rules.pl";
-  private static final String[] HEADERS =
-      {"round_no", "mutation", "subject", "object", "permission", "prolog_decision", "nist_decision"};
+  private static final String[] HEADERS = {"mutation", "prolog_decision", "nist_decision", "cur_access_time", "cur_round_time"};
+  private static final String[] DIS_HEADER = {"cur_access_time", "subject", "subject_degree", "subject_degree_count", "subject_type_count", "object", "object_degree", "object_degree_count", "object_type_count", "permissions"};
   private static Random random;
   private static Mutation mutation;
   private static PolicyGraph mutatedGraph;
-  private static Integer roundNo = 0;
   private static Boolean consistent = true;
   private static MutationStatus mutationStatus;
+  private static long currentRoundTime;
+  private static List<String[]> discrepancyDetails = new ArrayList<>();
 
   public static void main(String[] args) {
-    if (args.length == 4) {
+    if (args.length == 5) {
       initializeRandom();
-    } else if (args.length == 5) {
-      Long fixedSeed = Long.parseLong(args[4]);
+    } else if (args.length == 6) {
+      Long fixedSeed = Long.parseLong(args[5]);
       initializeRandom(fixedSeed);
     } else {
       System.err.printf("%d arguments provided. \n "
-          + "Need 4 for random mutation. Need 5 for fixed mutation.", args.length);
+          + "Need 5 for random mutation. Need 6 for fixed mutation.", args.length);
       System.exit(1);
     }
 
@@ -62,14 +61,15 @@ public class Runner {
     PolicyImpl pmlPolicy = new PolicyImpl(Path.of(args[1]));
     PolicyImpl prologPolicy = new PolicyImpl(Path.of(args[2]));
     Integer rounds = Integer.parseInt(args[3]);
+    Integer runs = Integer.parseInt(args[4]);
     List<String[]> initialResults = testNewPolicyEngine(pmlPolicy, prologRulesPath, prologPolicy);
     if (!consistent) {
       System.err.print("Discrepancies found in initial policy!");
-      writeToCSV("initialResults.csv", HEADERS, initialResults);
+      writeToCSV("initialResults.csv", DIS_HEADER, discrepancyDetails);
       System.exit(2);
     };
     PolicyGraph initialGraph = new PolicyGraph();
-    mutate(initialGraph, rounds);
+    mutate(initialGraph, rounds, runs);
   }
 
   public static void initializeRandom() {
@@ -85,45 +85,50 @@ public class Runner {
     System.out.println("Used fixed seed " + fixedSeed + "!");
   }
 
-  private static void mutate(PolicyGraph initialGraph, Integer rounds) {
+  private static void mutate(PolicyGraph initialGraph, Integer rounds, Integer runs) {
     List<String[]> allDecisions = new ArrayList<>();
     List<String[]> roundDecisions = new ArrayList<>();
     List<String[]> timerRecords = new ArrayList<>();
+    List<String[]> allDiscrepancies = new ArrayList<>();
     String[] HEADERS_TIMER =
-        {"round_no", "duration"};
-
-    while (roundNo < rounds) {
-      roundNo++;
-      roundDecisions.clear();
-      long startTime = System.nanoTime();
-      int choice = random.nextInt(3);
+        {"run_no", "round_no", "cur_round_time", "duration"};
+    Integer runNo = 0;
+    while (runNo < runs) {
+      runNo++;
+      Integer roundNo = 0;
+      while (roundNo < rounds) {
+        roundNo++;
+        roundDecisions.clear();
+        long startTime = System.nanoTime();
+        currentRoundTime = System.currentTimeMillis();
+        int choice = random.nextInt(3);
       System.out.println("----------------------");
       System.out.println(String.format("No.%d mutation begins!", roundNo));
-      if (choice == 0) {
-        roundDecisions = mutateAddNodeImp(initialGraph, 1);
-      } else if (choice == 1) {
-        roundDecisions = mutateAddAssiImp(initialGraph, 1);
-      } else if (choice == 2) {
-        roundDecisions = mutateAddProhImp(initialGraph, 1);
+        if (choice == 0) {
+          roundDecisions = mutateAddNodeImp(initialGraph, 1);
+        } else if (choice == 1) {
+          roundDecisions = mutateAddAssiImp(initialGraph, 1);
+        } else if (choice == 2) {
+          roundDecisions = mutateAddProhImp(initialGraph, 1);
+        }
+        allDecisions.addAll(roundDecisions);
+        timerRecords.add(new String[]{String.valueOf(runNo), String.valueOf(roundNo), String.valueOf(currentRoundTime), String.valueOf(System.nanoTime()-startTime)});
+        if (!consistent) {
+          allDiscrepancies.addAll(discrepancyDetails);
+          break;
+        }
       }
-      allDecisions.addAll(roundDecisions);
-      timerRecords.add(new String[]{String.valueOf(roundNo),
-          String.valueOf(System.nanoTime()-startTime)});
-      if (!consistent) {
-        break;
-      }
-      initialGraph = mutatedGraph;
+      initialGraph = new PolicyGraph();
+      NodeElementType.resetNumber();
+      consistent = true;
+      discrepancyDetails.clear();
+      System.out.println(String.format("No.%d run finished!", runNo));
     }
 
     // Write to files
     writeToCSV("decisions.csv", HEADERS, allDecisions);
     writeToCSV("timer.csv", HEADERS_TIMER, timerRecords);
-    if (!consistent) {
-      List<String[]> discrepancies = new ArrayList<>();
-      discrepancies.addAll(roundDecisions);
-      writeToCSV("discrepancies.csv", HEADERS, discrepancies);
-    }
-    System.out.println("Finished with " + roundNo + " rounds");
+    writeToCSV("discrepancies.csv", DIS_HEADER, allDiscrepancies);
   }
 
   private static List<String[]> testNewPolicyEngine(
@@ -165,6 +170,7 @@ public class Runner {
     for (ResourceAccess a : accesses) {
       boolean nistDecision = false;
       boolean prologDecision = false;
+      long currentAccessTime = System.currentTimeMillis() * 1_000_000L + System.nanoTime();
       try {
         nistDecision = policyEngine.getDecision(a);
         prologDecision = prologPolicyEngine.getDecision(a);
@@ -175,15 +181,21 @@ public class Runner {
 
       String prologDecisionS = convertToString(prologDecision);
       String nistDecisionS = convertToString(nistDecision);
-      results.add(new String[]{String.valueOf(roundNo), Mutation.getCurMutation(), a.getSubject(),
-          a.getObject(), a.getPermissions(), prologDecisionS, nistDecisionS});
+      results.add(new String[]{Mutation.getCurMutation(), prologDecisionS, nistDecisionS, String.valueOf(currentAccessTime), String.valueOf(currentRoundTime)});
       if (prologDecision != nistDecision) {
         System.out.println("NIST decision for " + a.toString() + ". Allowed? " + nistDecision);
         System.out.println("Prolog decision for " + a.toString() + ". Allowed? " + prologDecision);
         System.out.println("------------------");
         consistent = false;
+        int subjectDegree = mutatedGraph.checkDegree(a.getSubject());
+        int objectDegree = mutatedGraph.checkDegree(a.getObject());
+        String subDegNodes = mutatedGraph.countDegreeNodes(subjectDegree);
+        String objDegNodes = mutatedGraph.countDegreeNodes(objectDegree);
+        String subTypeNodes = mutatedGraph.countTypeNodes(a.getSubject());
+        String objTypeNodes = mutatedGraph.countTypeNodes(a.getObject());
+        discrepancyDetails.add(new String[]{String.valueOf(currentAccessTime), a.getSubject(), String.valueOf(subjectDegree), subDegNodes, subTypeNodes, a.getObject(), String.valueOf(objectDegree), objDegNodes, objTypeNodes, a.getPermissions()});
+        }
       }
-    }
     return results;
   }
 
@@ -192,6 +204,7 @@ public class Runner {
       CSVFormat csvFormat = CSVFormat.DEFAULT.builder()
           .setHeader(headers)
           .setAutoFlush(true)
+          .setDelimiter(';')
           .build();
 
       try (CSVPrinter printer = new CSVPrinter(writer, csvFormat)) {
@@ -218,14 +231,13 @@ public class Runner {
       if (!consistent) {
         return roundDecisions;
       }
-      initialGraph = mutatedGraph;
     }
     return roundDecisions;
   }
 
   private static List<String[]> evalMutation(PolicyGraph mutatedGraph) {
-    PolicyImpl newPMLPolicy = buildPMLPolicy22(mutatedGraph, mutatedGraph.getNodeLists());
-    PolicyImpl newPrologPolicy = buildPrologPolicy(mutatedGraph.getNodeLists(), mutatedGraph.getRelationLists());
+    PolicyImpl newPMLPolicy = mutatedGraph.buildPMLPolicy22();
+    PolicyImpl newPrologPolicy = mutatedGraph.buildPrologPolicy();
     createFile(newPMLPolicy.getPolicyString(), pmlMutated);
     createFile(newPrologPolicy.getPolicyString(), prologMutated);
     return testNewPolicyEngine(newPMLPolicy, Path.of(prologRule), newPrologPolicy);

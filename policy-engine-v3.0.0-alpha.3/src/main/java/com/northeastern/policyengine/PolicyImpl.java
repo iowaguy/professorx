@@ -41,7 +41,6 @@ public class PolicyImpl implements Policy {
 //    logger.info("Full policy:\n {}", this.policyString);
   }
 
-
   public PolicyImpl(Path policyPath) {
     // Read the policy from String
     this.policyPath = policyPath;

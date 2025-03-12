@@ -44,26 +44,20 @@ public class Mutation {
   
   public static MutationStatus mutateAddNode(PolicyGraph initialGraph,
       NodeElementType newNodeType, NodeElementType targetNodeType) {
-//    PolicyGraph mutatedGraph = (PolicyGraph) initialGraph.clone();
     List<List<NodeElement>> initialNodes = deepCopyNodes(initialGraph.getNodeLists());
     NodeElement newNode = createNewNode(newNodeType);
-//    mutatedGraph.addVertex(newNode);
     initialGraph.addVertex(newNode, initialGraph);
     // Get the nodes list of assignedNodeType (before adding the new node)
     // and randomly select one node to be assigned
    List<NodeElement> assignedNodeList = NodeElementType.getNodeList(
         targetNodeType, initialNodes);
-    NodeElement assignedNode = null;
-    if (!assignedNodeList.isEmpty()) {
-      assignedNode = assignedNodeList.get(random.nextInt(assignedNodeList.size()));
-    }
-//    mutatedGraph.addEdge(assignedNode, newNode, new Assignment());
+    NodeElement assignedNode = assignedNodeList.get(random.nextInt(assignedNodeList.size()));
+
     initialGraph.addEdge(assignedNode, newNode, new Assignment(), initialGraph);
     System.out.println(String.format("Mutate - Add Node!\n"
         + "Added Node: %s\nAdded assignment: (%s, %s)", newNode, newNode, assignedNode));
     curMutation = String.format("Add-Node_"
         + "%s_(%s, %s)", newNode, newNode, assignedNode);
-//    return new MutationStatus(mutatedGraph, true);
     return new MutationStatus(initialGraph, true);
   }
 
@@ -77,7 +71,6 @@ public class Mutation {
     newNodeIndex = random.nextInt(NODE_TYPE_NUMBER);
     // when create a new policy class
     if (newNodeIndex == 0) {
-//      PolicyGraph mutatedGraph = (PolicyGraph) initialGraph.clone();
       NodeElement newNode = createNewNode(NodeElementType.getNodeType(newNodeIndex));
       initialGraph.addVertex(newNode, initialGraph);
       System.out.println(String.format("Mutate - Add Node!\nAdded policy class: %s", newNode));
@@ -94,7 +87,6 @@ public class Mutation {
         .mapToInt(List::size)
         .sum();
     Integer maxSkipNumber = nodeNumber * (nodeNumber - 1);
-//    System.out.println("MaxSkipNumber: " + maxSkipNumber + "!!!!!!!!" + "\n" + "SkipNumber: " + skipNumber);
     if (skipNumber <= maxSkipNumber) {
       if (sourceNodeIndex == 0) { // when add assignment from policy class to others, skip！
         skipNumber++;
@@ -112,18 +104,12 @@ public class Mutation {
           targetNode = targetList.get(random.nextInt(targetList.size()));
         }
         if (sourceNode == targetNode) {
-//          System.out.println(String.format("Mutate - Add Assignment!\n"
-//              + "Source node and target node are the same. Skip"));
           skipNumber++;
           return mutateAddAssignment(initialGraph);
         } else if (isAncestor(initialGraph, sourceNode, targetNode)) {
-//          System.out.println(String.format("Mutate - Add Assignment!\n"
-//              + "Assignment (%s, %s) exists. Skip", sourceNode, targetNode));
           skipNumber++;
           return mutateAddAssignment(initialGraph);
         } else if (isAncestor(initialGraph, targetNode, sourceNode)) {
-//          System.out.println(String.format("Mutate - Add Assignment!\n"
-//              + "Assignment (%s, %s) will cause a loop. Skip", targetNode, sourceNode));
           skipNumber++;
           return mutateAddAssignment(initialGraph);
         } else {
@@ -160,8 +146,6 @@ public class Mutation {
     sourceNode = sourceList.get(random.nextInt(sourceList.size()));
     targetNode = targetList.get(random.nextInt(targetList.size()));
     if (sourceNode == targetNode) {
-//      System.out.println(String.format("Mutate - Add Prohibition!\n"
-//          + "Source node and target node are the same. Skip"));
       mutateAddProhibition(initialGraph);
     } else {
       String arString = allPermissions.get(random.nextInt(allPermissions.size()));

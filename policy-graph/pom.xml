@@ -30,11 +30,6 @@
             <version>0.1</version>
         </dependency>
         <dependency>
-            <groupId>com.northeastern.policyengine</groupId>
-            <artifactId>policy-engine-v3.0.0-alpha.3</artifactId>
-            <version>0.1</version>
-        </dependency>
-        <dependency>
             <groupId>com.northeastern.prologpolicyengine</groupId>
             <artifactId>prolog-policy-engine</artifactId>
             <version>0.1</version>
