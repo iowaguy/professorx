@@ -38,6 +38,8 @@ public class PolicyGraph extends DirectedMultigraph<NodeElement, Relation> {
     super(edgeClass);
     createDefaultGraphSimple();
 //    createDefaultGraphComplex();
+//    createChineseWallPolicy();
+//    createMutateSimple(); // Add association discrepancy
   }
 
   public void addVertices(List<NodeElement> nodes) {
@@ -50,8 +52,61 @@ public class PolicyGraph extends DirectedMultigraph<NodeElement, Relation> {
     maxNodeNumber = 2;
     List<NodeElement> tempNodeList = new ArrayList<>();
     // create nodes
-    PolicyClass department = new PolicyClass("department");
-    tempNodeList.add(department);
+    PolicyClass aClass = new PolicyClass("class");
+//    PolicyClass pc2 = new PolicyClass("pc2"); // Introduce discrepancy
+//    tempNodeList.add(pc2); // Introduce discrepancy
+    tempNodeList.add(aClass);
+    User u1 = new User("u1");
+    User u2 = new User("u2");
+    tempNodeList.add(u1);
+    tempNodeList.add(u2);
+    UserAttribute ua1 = new UserAttribute("ua1");
+    UserAttribute ua2 = new UserAttribute("ua2");
+    tempNodeList.add(ua1);
+    tempNodeList.add(ua2);
+    Ob o1 = new Ob("o1");
+//    Ob o2 = new Ob("o2"); // Introduce discrepancy
+//    tempNodeList.add(o2); // Introduce discrepancy
+    tempNodeList.add(o1);
+    ObjectAttribute oa1 = new ObjectAttribute("oa1");
+    tempNodeList.add(oa1);
+    addVertices(tempNodeList);
+    // add permissions
+    // TODO Is there a better way to create list of access right?
+    AccessRight permission1 = new AccessRight("p1");
+    AccessRight permission2 = new AccessRight("p2");
+    allPermissions = AccessRight.getAllPermissions().stream().toList();
+    AccessRight[] ar1 = new AccessRight[]{permission1};
+    AccessRight[] ar2 = new AccessRight[]{permission2};
+
+    // add edges
+    // User and user attribute assignments
+    this.addEdge(aClass, ua1, new Assignment());
+    this.addEdge(aClass, ua2, new Assignment());
+    this.addEdge(ua1, u1, new Assignment());
+    this.addEdge(ua2, u2, new Assignment());
+
+    // Object and object attribute assignments
+    this.addEdge(aClass, oa1, new Assignment());
+    this.addEdge(oa1, o1, new Assignment());
+//    this.addEdge(oa1, o2, new Assignment()); // Introduce discrepancy
+//    this.addEdge(pc2, o2, new Assignment()); // Introduce discrepancy
+
+    // Associations and prohibitions
+    this.addEdge(oa1, ua1, new Association(ar1));
+    this.addEdge(oa1, ua2, new Association(ar2));
+
+    // TODO the target of prohibition should be a list of attributes
+    this.addEdge(o1, u2, new Prohibition(ar1));
+    syncLists();
+  }
+
+  private void createMutateSimple() {
+    maxNodeNumber = 2;
+    List<NodeElement> tempNodeList = new ArrayList<>();
+    // create nodes
+    PolicyClass aClass = new PolicyClass("class");
+    tempNodeList.add(aClass);
     User u1 = new User("u1");
     User u2 = new User("u2");
     tempNodeList.add(u1);
@@ -75,18 +130,19 @@ public class PolicyGraph extends DirectedMultigraph<NodeElement, Relation> {
 
     // add edges
     // User and user attribute assignments
-    this.addEdge(department, ua1, new Assignment());
-    this.addEdge(department, ua2, new Assignment());
+    this.addEdge(aClass, ua1, new Assignment());
+    this.addEdge(aClass, ua2, new Assignment());
     this.addEdge(ua1, u1, new Assignment());
     this.addEdge(ua2, u2, new Assignment());
 
     // Object and object attribute assignments
-    this.addEdge(department, oa1, new Assignment());
+    this.addEdge(aClass, oa1, new Assignment());
     this.addEdge(oa1, o1, new Assignment());
 
     // Associations and prohibitions
     this.addEdge(oa1, ua1, new Association(ar1));
     this.addEdge(oa1, ua2, new Association(ar2));
+    this.addEdge(oa1, ua2, new Association(ar1)); // introduce discrepancy
 
     // TODO the target of prohibition should be a list of attributes
     this.addEdge(o1, u2, new Prohibition(ar1));
@@ -188,6 +244,87 @@ public class PolicyGraph extends DirectedMultigraph<NodeElement, Relation> {
 
     this.addEdge(oa7, u2, new Prohibition(ar1));
     this.addEdge(o1, u2, new Prohibition(ar2));
+
+    syncLists();
+  }
+
+  private void createChineseWallPolicy() {
+    maxNodeNumber = 9;
+    List<NodeElement> tempNodeList = new ArrayList<>();
+    // create nodes
+    User u1 = new User("u1");
+    UserAttribute ua1 = new UserAttribute("ua1");
+    Ob o1 = new Ob("o1");
+    Ob o2 = new Ob("o2");
+    Ob o3 = new Ob("o3");
+    Ob o4 = new Ob("o4");
+    Ob o5 = new Ob("o5");
+    Ob o6 = new Ob("o6");
+    ObjectAttribute oa1 = new ObjectAttribute("oa1");
+    ObjectAttribute oa2 = new ObjectAttribute("oa2");
+    ObjectAttribute oa3 = new ObjectAttribute("oa3");
+    ObjectAttribute oa4 = new ObjectAttribute("oa4");
+    ObjectAttribute oa5 = new ObjectAttribute("oa5");
+    ObjectAttribute oa6 = new ObjectAttribute("oa6");
+    ObjectAttribute oa7 = new ObjectAttribute("oa7");
+    ObjectAttribute oa8 = new ObjectAttribute("oa8");
+    ObjectAttribute oa9 = new ObjectAttribute("oa9"); // "Data Store"
+    PolicyClass chineseWall = new PolicyClass("chineseWall");
+
+    tempNodeList.add(chineseWall);
+    tempNodeList.add(u1);
+    tempNodeList.add(ua1);
+    tempNodeList.add(o1);
+    tempNodeList.add(o2);
+    tempNodeList.add(o3);
+    tempNodeList.add(o4);
+    tempNodeList.add(o5);
+    tempNodeList.add(o6);
+    tempNodeList.add(oa1);
+    tempNodeList.add(oa2);
+    tempNodeList.add(oa3);
+    tempNodeList.add(oa4);
+    tempNodeList.add(oa5);
+    tempNodeList.add(oa6);
+    tempNodeList.add(oa7);
+    tempNodeList.add(oa8);
+    tempNodeList.add(oa9);
+
+    addVertices(tempNodeList);
+
+    // add permissions
+    AccessRight read = new AccessRight("read");
+    AccessRight write = new AccessRight("write");
+    allPermissions = AccessRight.getAllPermissions().stream().toList();
+
+    AccessRight[] ar = new AccessRight[]{read};
+    AccessRight[] aw = new AccessRight[]{write};
+    AccessRight[] arw = new AccessRight[]{read, write};
+
+    // add edges
+    // User and user attribute assignments
+    this.addEdge(chineseWall, ua1, new Assignment());
+    this.addEdge(ua1, u1, new Assignment());
+
+    // Object and object attribute assignments
+    this.addEdge(chineseWall, oa9, new Assignment());
+    this.addEdge(oa9, oa6, new Assignment());
+    this.addEdge(oa9, oa7, new Assignment());
+    this.addEdge(oa9, oa8, new Assignment());
+    this.addEdge(oa6, oa1, new Assignment());
+    this.addEdge(oa6, oa2, new Assignment());
+    this.addEdge(oa7, oa3, new Assignment());
+    this.addEdge(oa7, oa4, new Assignment());
+    this.addEdge(oa8, oa5, new Assignment());
+    this.addEdge(oa1, o1, new Assignment());
+    this.addEdge(oa2, o2, new Assignment());
+    this.addEdge(oa3, o3, new Assignment());
+    this.addEdge(oa3, o4, new Assignment());
+    this.addEdge(oa4, o5, new Assignment());
+    this.addEdge(oa5, o6, new Assignment());
+
+    this.addEdge(oa9, ua1, new Association(arw));
+    this.addEdge(o1, u1, new Prohibition(aw));
 
     syncLists();
   }

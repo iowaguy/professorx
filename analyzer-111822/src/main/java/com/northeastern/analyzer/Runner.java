@@ -62,7 +62,7 @@ public class Runner {
     PolicyImpl prologPolicy = new PolicyImpl(Path.of(args[2]));
     Integer rounds = Integer.parseInt(args[3]);
     Integer runs = Integer.parseInt(args[4]);
-    List<String[]> initialResults = testNewPolicyEngine(pmlPolicy, prologRulesPath, prologPolicy);
+    List<String[]> initialResults = testNewPolicyEngine(pmlPolicy, prologRulesPath, prologPolicy, true);
     if (!consistent) {
       System.err.print("Discrepancies found in initial policy!");
       writeToCSV("initialResults.csv", DIS_HEADER, discrepancyDetails);
@@ -101,7 +101,7 @@ public class Runner {
         roundDecisions.clear();
         long startTime = System.nanoTime();
         currentRoundTime = System.currentTimeMillis();
-        int choice = random.nextInt(3);
+        int choice = random.nextInt(4);
       System.out.println("----------------------");
       System.out.println(String.format("No.%d mutation begins!", roundNo));
         if (choice == 0) {
@@ -110,6 +110,8 @@ public class Runner {
           roundDecisions = mutateAddAssiImp(initialGraph, 1);
         } else if (choice == 2) {
           roundDecisions = mutateAddProhImp(initialGraph, 1);
+        } else if (choice == 3) {
+          roundDecisions = mutateAddAssoImp(initialGraph, 1);
         }
         allDecisions.addAll(roundDecisions);
         timerRecords.add(new String[]{String.valueOf(runNo), String.valueOf(roundNo), String.valueOf(currentRoundTime), String.valueOf(System.nanoTime()-startTime)});
@@ -132,7 +134,7 @@ public class Runner {
   }
 
   private static List<String[]> testNewPolicyEngine(
-      PolicyImpl pmlPolicy, Path prologRulesPath, PolicyImpl prologPolicy) {
+      PolicyImpl pmlPolicy, Path prologRulesPath, PolicyImpl prologPolicy, boolean initialPolicy) {
     List<String[]> results = new ArrayList<>();
     PolicyEngine policyEngine = null;
     try {
@@ -187,15 +189,19 @@ public class Runner {
         System.out.println("Prolog decision for " + a.toString() + ". Allowed? " + prologDecision);
         System.out.println("------------------");
         consistent = false;
-        int subjectDegree = mutatedGraph.checkDegree(a.getSubject());
-        int objectDegree = mutatedGraph.checkDegree(a.getObject());
-        String subDegNodes = mutatedGraph.countDegreeNodes(subjectDegree);
-        String objDegNodes = mutatedGraph.countDegreeNodes(objectDegree);
-        String subTypeNodes = mutatedGraph.countTypeNodes(a.getSubject());
-        String objTypeNodes = mutatedGraph.countTypeNodes(a.getObject());
-        discrepancyDetails.add(new String[]{String.valueOf(currentAccessTime), a.getSubject(), String.valueOf(subjectDegree), subDegNodes, subTypeNodes, a.getObject(), String.valueOf(objectDegree), objDegNodes, objTypeNodes, a.getPermissions()});
+        if (!initialPolicy) {
+          int subjectDegree = mutatedGraph.checkDegree(a.getSubject());
+          int objectDegree = mutatedGraph.checkDegree(a.getObject());
+          String subDegNodes = mutatedGraph.countDegreeNodes(subjectDegree);
+          String objDegNodes = mutatedGraph.countDegreeNodes(objectDegree);
+          String subTypeNodes = mutatedGraph.countTypeNodes(a.getSubject());
+          String objTypeNodes = mutatedGraph.countTypeNodes(a.getObject());
+          discrepancyDetails.add(new String[]{String.valueOf(currentAccessTime), a.getSubject(),
+              String.valueOf(subjectDegree), subDegNodes, subTypeNodes, a.getObject(),
+              String.valueOf(objectDegree), objDegNodes, objTypeNodes, a.getPermissions()});
         }
       }
+    }
     return results;
   }
 
@@ -240,7 +246,7 @@ public class Runner {
     PolicyImpl newPrologPolicy = mutatedGraph.buildPrologPolicy();
     createFile(newPMLPolicy.getPolicyString(), pmlMutated);
     createFile(newPrologPolicy.getPolicyString(), prologMutated);
-    return testNewPolicyEngine(newPMLPolicy, Path.of(prologRule), newPrologPolicy);
+    return testNewPolicyEngine(newPMLPolicy, Path.of(prologRule), newPrologPolicy, false);
   }
 
   private static List<String[]> mutateAddAssiImp(PolicyGraph initialGraph, int rounds) {
@@ -265,6 +271,18 @@ public class Runner {
     List<String[]> roundDecisions = new ArrayList<>();
     for (int i = 0; i < rounds; i++) {
       mutatedGraph = mutation.mutateAddProhibition(initialGraph).getPolicyGraph();
+      roundDecisions.addAll(evalMutation(mutatedGraph));
+      if (!consistent) {
+        return roundDecisions;
+      }
+    }
+    return roundDecisions;
+  }
+
+  private static List<String[]> mutateAddAssoImp(PolicyGraph initialGraph, int rounds) {
+    List<String[]> roundDecisions = new ArrayList<>();
+    for (int i = 0; i < rounds; i++) {
+      mutatedGraph = mutation.mutateAddAssociation(initialGraph).getPolicyGraph();
       roundDecisions.addAll(evalMutation(mutatedGraph));
       if (!consistent) {
         return roundDecisions;

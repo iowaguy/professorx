@@ -71,11 +71,12 @@ public class Mutation {
     newNodeIndex = random.nextInt(NODE_TYPE_NUMBER);
     // when create a new policy class
     if (newNodeIndex == 0) {
-      NodeElement newNode = createNewNode(NodeElementType.getNodeType(newNodeIndex));
-      initialGraph.addVertex(newNode, initialGraph);
-      System.out.println(String.format("Mutate - Add Node!\nAdded policy class: %s", newNode));
-      curMutation = String.format("Add-Node_%s", newNode);
-      return new MutationStatus(initialGraph, true);
+//      NodeElement newNode = createNewNode(NodeElementType.getNodeType(newNodeIndex));
+//      initialGraph.addVertex(newNode, initialGraph);
+//      System.out.println(String.format("Mutate - Add Node!\nAdded policy class: %s", newNode));
+//      curMutation = String.format("Add-Node_%s", newNode);
+//      return new MutationStatus(initialGraph, true);
+      return mutateAddNode(initialGraph);
     } else {
       return mutateAddNode(initialGraph, NodeElementType.getNodeType(newNodeIndex));
     }
@@ -154,6 +155,33 @@ public class Mutation {
       System.out.println(String.format("Mutate - Add Prohibition!\n"
           + "Added prohibition: (%s, %s, %s)", sourceNode, targetNode, Arrays.toString(ar)));
       curMutation = String.format("Add-Prohibition_"
+          + "(%s, %s, %s)", sourceNode, targetNode, Arrays.toString(ar));
+    }
+    return new MutationStatus(initialGraph, true);
+  }
+
+  public static MutationStatus mutateAddAssociation(PolicyGraph initialGraph) {
+    List<NodeElement> sourceList = NodeElementType.getNodeList(NodeElementType.getNodeType(2), initialGraph);
+    ArrayList<Integer> targetOptions = new ArrayList<>();
+    targetOptions.add(2);
+    targetOptions.add(3);
+    targetOptions.add(4);
+    Integer targetNodeIndex = targetOptions.get(random.nextInt(targetOptions.size()));
+    List<NodeElement> targetList = NodeElementType.getNodeList(NodeElementType.getNodeType(targetNodeIndex), initialGraph);
+    NodeElement sourceNode = null;
+    NodeElement targetNode = null;
+    sourceNode = sourceList.get(random.nextInt(sourceList.size()));
+    targetNode = targetList.get(random.nextInt(targetList.size()));
+    if (sourceNode == targetNode) {
+      mutateAddAssociation(initialGraph);
+    }
+    else {
+      String arString = allPermissions.get(random.nextInt(allPermissions.size()));
+      AccessRight[] ar = new AccessRight[]{new AccessRight(arString)};
+      initialGraph.addEdge(targetNode, sourceNode, new Association(ar), initialGraph);
+      System.out.println(String.format("Mutate - Add Association!\n"
+          + "Added Association: (%s, %s, %s)", sourceNode, targetNode, Arrays.toString(ar)));
+      curMutation = String.format("Add-Association_"
           + "(%s, %s, %s)", sourceNode, targetNode, Arrays.toString(ar));
     }
     return new MutationStatus(initialGraph, true);
