@@ -193,9 +193,9 @@ public class Runner {
       String nistDecisionS = convertToString(nistDecision);
       results.add(new String[]{Mutation.getCurMutation(), prologDecisionS, nistDecisionS, String.valueOf(currentAccessTime), String.valueOf(currentRoundTime)});
       if (prologDecision != nistDecision) {
-//        System.out.println("NIST decision for " + a.toString() + ". Allowed? " + nistDecision);
-//        System.out.println("Prolog decision for " + a.toString() + ". Allowed? " + prologDecision);
-//        System.out.println("------------------");
+        System.out.println("NIST decision for " + a.toString() + ". Allowed? " + nistDecision);
+        System.out.println("Prolog decision for " + a.toString() + ". Allowed? " + prologDecision);
+        System.out.println("------------------");
         consistent = false;
         if (!initialPolicy) {
           writeDiscrepancyDetails(mutatedGraph, a, currentAccessTime);

@@ -7,4 +7,4 @@ ADD ./ /app/
 WORKDIR /app/
 EXPOSE 12345
 
-#ENTRYPOINT make test
+ENTRYPOINT make newest

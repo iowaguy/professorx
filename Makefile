@@ -50,11 +50,15 @@ old: buildold
 	java -jar analyzer-$(oldversion)/target/analyzer-$(oldversion)-0.1.jar analyzer-$(oldversion)/src/main/resources/policy3N2H.json
 
 new: buildnew
-	java -jar -Djava.library.path=lib analyzer-$(newversion)/target/analyzer-$(newversion)-0.1.jar analyzer-$(newversion)/src/main/resources/policy3N2H.pal prolog-policy-engine/src/main/resources/rules.pl analyzer-$(newversion)/src/main/resources/policy1.pl
-
-test: buildnew
-	java -jar -Djava.library.path=lib analyzer-$(newversion)/target/analyzer-$(newversion)-0.1.jar policy-graph/src/main/resources/translatePolicy.pal prolog-policy-engine/src/main/resources/rules.pl policy-graph/src/main/resources/translatePolicy.pl
+	java -jar -Djava.library.path=lib analyzer-$(newversion)/target/analyzer-$(newversion)-0.1.jar \
+	  prolog-policy-engine/src/main/resources/rules.pl \
+  	policy-graph/src/main/resources/translatePolicy_111822.pal \
+  	policy-graph/src/main/resources/translatePolicy.pl \
+  	100 1
 
 newest: buildnewest
-	java -jar -Djava.library.path=lib analyzer-$(newestversion)/target/analyzer-$(newestversion)-0.1.jar prolog-policy-engine/src/main/resources/rules.pl analyzer-$(newestversion)/src/main/resources/seedPolicy.pal analyzer-$(newestversion)/src/main/resources/seedPolicy.pl 10
-
+	java -jar -Djava.library.path=lib analyzer-$(newestversion)/target/analyzer-$(newestversion)-0.1.jar \
+    prolog-policy-engine/src/main/resources/rules.pl \
+    policy-graph/src/main/resources/translatePolicy.pal \
+    policy-graph/src/main/resources/translatePolicy.pl \
+    100 1
