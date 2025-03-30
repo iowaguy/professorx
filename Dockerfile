@@ -6,5 +6,5 @@ RUN echo "ulimit -c unlimited" >> /etc/profile
 ADD ./ /app/
 WORKDIR /app/
 EXPOSE 12345
-
-ENTRYPOINT make newest
+ARG RUN_CMD="make run24" #default
+ENTRYPOINT ${RUN_CMD}

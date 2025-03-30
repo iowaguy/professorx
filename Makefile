@@ -55,20 +55,20 @@ build24:
 run20: build20
 	java -jar -Djava.library.path=lib analyzer-$(v20)/target/analyzer-$(v20)-0.1.jar \
 	  prolog-policy-engine/src/main/resources/rules.pl \
-  	policy-graph/src/main/resources/translatePolicy_$(v20).pal \
-  	policy-graph/src/main/resources/translatePolicy.pl \
+  	policy-graph/src/main/resources/seedPolicy_$(v20).pal \
+  	policy-graph/src/main/resources/seedPolicy.pl \
   	$(default_rounds) $(default_runs)
 
 run22: build22
 	java -jar -Djava.library.path=lib analyzer-$(v22)/target/analyzer-$(v22)-0.1.jar \
 	  prolog-policy-engine/src/main/resources/rules.pl \
-  	policy-graph/src/main/resources/translatePolicy_$(v22).pal \
-  	policy-graph/src/main/resources/translatePolicy.pl \
+  	policy-graph/src/main/resources/seedPolicy_$(v22).pal \
+  	policy-graph/src/main/resources/seedPolicy.pl \
   	$(default_rounds) $(default_runs)
 
 run24: build24
 	java -jar -Djava.library.path=lib analyzer-$(v24)/target/analyzer-$(v24)-0.1.jar \
     prolog-policy-engine/src/main/resources/rules.pl \
-    policy-graph/src/main/resources/translatePolicy.pal \
-    policy-graph/src/main/resources/translatePolicy.pl \
+    policy-graph/src/main/resources/seedPolicy.pal \
+    policy-graph/src/main/resources/seedPolicy.pl \
     $(default_rounds) $(default_runs)

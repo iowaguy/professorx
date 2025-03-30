@@ -17,13 +17,13 @@ public class GraphRunner {
   public static void main(String[] args) {
     initialGraph = new PolicyGraph();
     String proString = initialGraph.buildPrologPolicy().getPolicyString();
-    String prologPath = "policy-graph/src/main/resources/translatePolicy.pl";
-    // Build the latest version
-//    String pmlString = initialGraph.buildPMLPolicy().getPolicyString();
-//    String pmlPath = "policy-graph/src/main/resources/translatePolicy.pal";
-//     Build 111822 version
-    String pmlString = initialGraph.buildPMLPolicy22().getPolicyString();
-    String pmlPath = "policy-graph/src/main/resources/translatePolicy_111822.pal";
+    String prologPath = "policy-graph/src/main/resources/seedPolicy.pl";
+    // Build 24 version
+    String pmlString = initialGraph.buildPMLPolicy().getPolicyString();
+    String pmlPath = "policy-graph/src/main/resources/seedPolicy.pal";
+//     Build 22 version
+//    String pmlString = initialGraph.buildPMLPolicy22().getPolicyString();
+//    String pmlPath = "policy-graph/src/main/resources/seedPolicy_111822.pal";
     System.out.println("Initial Node List: " + initialGraph.getNodeLists());
     createFile(proString, prologPath);
     createFile(pmlString, pmlPath);
