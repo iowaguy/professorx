@@ -6,5 +6,11 @@ RUN echo "ulimit -c unlimited" >> /etc/profile
 ADD ./ /app/
 WORKDIR /app/
 EXPOSE 12345
-ARG RUN_CMD="make run24" #default
-ENTRYPOINT ${RUN_CMD}
+
+ARG VERSION=run24 #default, 2024 release
+#ARG RUN_VERSION="run22" # 2022 release
+#ARG RUN_VERSION="run20" # 2020 release
+
+ENV VERSION=$VERSION
+
+ENTRYPOINT make ${VERSION}
