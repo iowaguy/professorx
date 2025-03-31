@@ -23,7 +23,7 @@ docker build --platform linux/amd64 -t make24 ./
 ```
 Start a container:
 ```bash
-docker run --platform linux/amd64 make24
+docker run --platform linux/amd64 -it make24
 ```
 In the above default mode, ProfessorX performs one run, in which a simple seed policy will be mutated for 100 rounds until a discrepancy was found or 100 rounds is reached.  
 Discrepancies will be printed on the terminal. All access decisions, inconsistent access decisions, and runtimes records are stored in decision.csv, discrepancies.csv, and timer.csv, respectively.
@@ -53,7 +53,7 @@ performanceEvaluation: If provided (any value), forces ProfessorX to execute all
 To run Professor X on the NIST policy engine released on 2022, instead of modifying target `run24` in Makefile, modify `run22` with the same syntax.  
 Build a new Docker image:
 ```bash
-docker build -t make22 --build-arg RUN_CMD="make run22" ./
+docker build -t make22 --build-arg VERSION="run22" ./
 ```
 Start a container:
 ```bash
