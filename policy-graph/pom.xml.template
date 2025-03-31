@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>com.northeastern.mutationanalysis</groupId>
+    <artifactId>mutationanalysis</artifactId>
+    <version>0.1</version>
+    <relativePath>../pom-VERSION.xml</relativePath>
+  </parent>
+
+  <groupId>com.northeastern.policygraph</groupId>
+  <artifactId>policy-graph</artifactId>
+  <packaging>jar</packaging>
+  <version>0.1</version>
+
+  <name>policy-graph</name>
+
+  <properties>
+    <maven.compiler.source>17</maven.compiler.source>
+    <maven.compiler.target>17</maven.compiler.target>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+  </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.northeastern.policy</groupId>
+            <artifactId>policy</artifactId>
+            <version>0.1</version>
+        </dependency>
+        <dependency>
+            <groupId>com.northeastern.prologpolicyengine</groupId>
+            <artifactId>prolog-policy-engine</artifactId>
+            <version>0.1</version>
+        </dependency>
+        <dependency>
+            <groupId>com.northeastern.policyengine</groupId>
+            <artifactId>policy-engine-VERSION</artifactId>
+            <version>0.1</version>
+            <scope>compile</scope>
+        </dependency>
+    </dependencies>
+</project>

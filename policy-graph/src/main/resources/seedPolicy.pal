@@ -1,0 +1,14 @@
+set resource operations ["p1", "p2"]
+create pc "department"
+create ua "ua1" in ["department"]
+create ua "ua2" in ["department"]
+create oa "oa1" in ["department"]
+create o "o1" in ["oa1"]
+create u "u2" in ["ua2"]
+create u "u1" in ["ua1"]
+associate "ua1" and "oa1" with ["p1"]
+associate "ua2" and "oa1" with ["p2"]
+create prohibition "u2-prohibition-o1-p1"
+deny user "u2"
+access rights ["p1"]
+on union of ["o1"]
