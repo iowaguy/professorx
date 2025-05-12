@@ -1,3 +1,5 @@
+[![DOI](https://zenodo.org/badge/957212812.svg)](https://doi.org/10.5281/zenodo.15388891)
+
 <h1 align="center">ProfessorX</h1>
 
 A system to verify that the software implementing Next Generation Access Control (NGAC) policy engine properly conforms to the [_NGAC_](https://standards.incits.org/higherlogic/ws/public/projects/2328/details) standard.
